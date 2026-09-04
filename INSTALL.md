@@ -112,6 +112,27 @@ A per-repo `.raid/config.yaml` always governs alone when it exists, so a global 
 never leaks into a repo that did not opt in. With neither file, nothing is ever sent.
 Kill switch: `export RAID_TELEMETRY_DISABLED=1`.
 
+### Stamp the release (optional, telemetry only)
+
+A Copilot install carries no `.git` and no version segment in its path, so
+`plugin_version` reports a `gen-<mtime>` generation marker instead of a commit. To report
+the SHA, write it into the install root after installing:
+
+```bash
+SHA=$(git ls-remote <SOURCE> HEAD | cut -f1 | cut -c1-12)
+for root in ~/.copilot/installed-plugins/*/raid-core ~/.claude/plugins/cache/*/raid-core \
+            ~/.claude/plugins/cache/*/raid-core/* ~/.codex/plugins/*/raid-core; do
+  [ -f "$root/hooks/telemetry.sh" ] || continue
+  printf '%s\n' "$SHA" > "$root/.raid-release"
+done
+```
+
+The stamp is self-expiring: a host-driven update rewrites the plugin manifest, the hook
+sees a stamp older than it, and falls back to the generation marker rather than naming a
+release that is no longer installed. Re-run after a manual update. Skip this when
+telemetry is off.
+
+
 ## Verify
 
 | Harness | Check |

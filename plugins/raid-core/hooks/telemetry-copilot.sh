@@ -136,34 +136,109 @@ SESSION=$(printf '%s' "$SESSION" | tr -d '\\"[:cntrl:]' | cut -c1-200)
 [ -n "$SESSION" ] || SESSION="unknown"
 
 # Release identifier for plugin_version. Native manifests are version-less (the
-# commit is the release), so resolve in order: an explicit RAID_PLUGIN_VERSION
-# (testing/host override), the install-cache version segment one or two levels
-# above the plugin root (the short commit SHA when version-less; cache depth
-# differs by host), the git HEAD of the plugin root (directory sources and
-# authoring checkouts), else "unknown". Copilot sets ${CLAUDE_PLUGIN_ROOT} for
-# plugin hooks, same as Claude. Sanitized like the other interpolated fields so
-# the JSON-safety guarantee holds uniformly.
+# commit is the release), so resolve in order:
+#   1. RAID_PLUGIN_VERSION -- explicit override (testing, or a host that knows).
+#   2. A release-looking segment ANYWHERE in the plugin root path. Claude keys a
+#      git-marketplace install by the adopted version (the short commit SHA when
+#      version-less), but its depth differs by host and marketplace layout --
+#      Claude puts it BELOW the plugin name (.../raid-core/<ver>), Copilot has no
+#      such segment at all -- so walk every segment instead of guessing a depth.
+#   3. git HEAD of the plugin root -- authoring checkouts and directory sources.
+#   4. .raid-release: the SHA stamped into the install root at install time (see
+#      INSTALL.md), used ONLY while it is still fresh. Hosts update plugins on
+#      their own (Claude Code auto-updates git marketplaces at startup; Copilot
+#      does with autoUpdate), re-copying the tree without re-running any step of
+#      ours and leaving the stamp describing a release that is no longer
+#      installed. A re-copy rewrites .claude-plugin/plugin.json, so a manifest
+#      newer than the stamp means the stamp is stale -- discard it. Reporting
+#      some *other* release is worse than reporting none.
+#   5. gen-<plugin.json mtime, epoch seconds> -- no SHA is recoverable (a Copilot
+#      install carries neither a version segment nor a .git), but the manifest's
+#      mtime still identifies THIS installed generation and changes on every
+#      update. Stale by construction is impossible, which is what makes it the
+#      floor rather than "unknown".
+#   6. "unknown" -- no plugin root, or an unreadable one.
+# Every candidate is sanitized like the other interpolated fields so the
+# JSON-safety guarantee holds.
+is_release_marker() {
+  [ -n "${1:-}" ] || return 1
+  # semver-ish: leading digit, digits and dots only, at least one dot (1.2, 1.2.3).
+  case "$1" in
+    [0-9]*)
+      if [ -z "$(printf '%s' "$1" | tr -d '0-9.')" ] && [ "$1" != "${1%.*}" ]; then
+        return 0
+      fi
+      ;;
+  esac
+  # commit SHA: 7-40 chars, lowercase hex throughout. Checking the WHOLE segment
+  # matters now that every path segment is a candidate -- a prefix-only match
+  # would accept any directory that happens to start with seven hex characters.
+  if [ ${#1} -ge 7 ] && [ ${#1} -le 40 ] && [ -z "$(printf '%s' "$1" | tr -d '0-9a-f')" ]; then
+    return 0
+  fi
+  return 1
+}
+
 VERSION=""
 CANDIDATES="$(printf '%s' "${RAID_PLUGIN_VERSION:-}" | tr -d '\\"[:cntrl:]' | cut -c1-100)"
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  CANDIDATES="$CANDIDATES
-$(basename "$CLAUDE_PLUGIN_ROOT" | tr -d '\\"[:cntrl:]' | cut -c1-100)
-$(basename "$(dirname "$CLAUDE_PLUGIN_ROOT")" | tr -d '\\"[:cntrl:]' | cut -c1-100)
-$(basename "$(dirname "$(dirname "$CLAUDE_PLUGIN_ROOT")")" | tr -d '\\"[:cntrl:]' | cut -c1-100)"
+  # Leaf first, then two parents -- the only positions a host has ever put the
+  # version segment in (Claude puts it at the leaf, .../raid-core/<ver>). The
+  # window stays narrow on purpose: every extra segment is another chance for an
+  # unrelated directory that happens to be lowercase hex to be read as a SHA.
+  SEG="$CLAUDE_PLUGIN_ROOT"
+  DEPTH=0
+  while [ -n "$SEG" ] && [ "$SEG" != "/" ] && [ "$SEG" != "." ] && [ "$DEPTH" -lt 3 ]; do
+    CANDIDATES="$CANDIDATES
+$(basename "$SEG" | tr -d '\\"[:cntrl:]' | cut -c1-100)"
+    SEG=$(dirname "$SEG")
+    DEPTH=$((DEPTH + 1))
+  done
 fi
 while IFS= read -r CAND; do
-  # semver-ish (1.2 / 1.2.3) or a >=7-char lowercase hex commit SHA; anything
-  # else (a plugin/marketplace name, "plugins", "/") is not a release marker.
-  case "$CAND" in
-    [0-9]*.[0-9]*[0-9]*|[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) VERSION="$CAND"; break ;;
-  esac
+  if is_release_marker "$CAND"; then VERSION="$CAND"; break; fi
 done <<EOF
 $CANDIDATES
 EOF
+
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  MANIFEST="$CLAUDE_PLUGIN_ROOT/.claude-plugin/plugin.json"
+  STAMP="$CLAUDE_PLUGIN_ROOT/.raid-release"
+else
+  MANIFEST=""
+  STAMP=""
+fi
+
 if [ -z "$VERSION" ] && [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
   VERSION=$(git -C "${CLAUDE_PLUGIN_ROOT}" rev-parse --short HEAD 2>/dev/null | cut -c1-100)
   VERSION=$(printf '%s' "$VERSION" | tr -d '\\"[:cntrl:]')
 fi
+
+# The stamp, only while the manifest has not been rewritten under it. `find
+# -newer` is the portable mtime comparison -- `stat` flags differ between BSD
+# and GNU, and we need this one to work everywhere the hook runs.
+if [ -z "$VERSION" ] && [ -n "$STAMP" ] && [ -f "$STAMP" ]; then
+  if [ ! -f "$MANIFEST" ] || [ -z "$(find "$MANIFEST" -newer "$STAMP" 2>/dev/null)" ]; then
+    VERSION=$(head -1 "$STAMP" 2>/dev/null | tr -d '\\"[:cntrl:]' | cut -c1-100)
+    is_release_marker "$VERSION" || VERSION=""
+  fi
+fi
+
+if [ -z "$VERSION" ] && [ -n "$MANIFEST" ] && [ -f "$MANIFEST" ]; then
+  # GNU dialect FIRST, then BSD. The reverse order looks equivalent and is not:
+  # BSD stat rejects `-c`, but GNU stat accepts `-f` as a *filesystem*-status
+  # request, succeeds, and prints an unrelated filesystem id -- so trying BSD
+  # first silently yields a constant that never changes when the file does.
+  MTIME=$(stat -c %Y "$MANIFEST" 2>/dev/null || stat -f %m "$MANIFEST" 2>/dev/null)
+  MTIME=$(printf '%s' "${MTIME:-}" | tr -cd '0-9' | cut -c1-20)
+  # Accept only a plausible Unix timestamp -- exactly ten digits, so 2001-09
+  # through 2286-11. Belt and braces after the above: whatever an unexpected
+  # stat dialect prints, it does not get to masquerade as an mtime.
+  case "$MTIME" in
+    [1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) VERSION="gen-$MTIME" ;;
+  esac
+fi
+
 [ -n "$VERSION" ] || VERSION="unknown"
 
 # Engagement-scoped pseudonymous id -- random, generated once per checkout, stored

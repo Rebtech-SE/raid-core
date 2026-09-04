@@ -60,7 +60,7 @@ telemetry off on client-owned devices unless the engagement agreement covers it.
 {
   "ts": "<UTC timestamp>",
   "skill_name": "<name of the RAID skill invoked>",
-  "plugin_version": "<release identifier of raid-core (commit SHA) or 'unknown'>",
+  "plugin_version": "<release identifier of raid-core: a commit SHA or version when the install records one, otherwise 'gen-<seconds>' -- the modification time of the plugin's own manifest file, which identifies the installed build without naming its commit>",
   "engagement_id": "<the id you configured in .raid/config.yaml>",
   "session_id": "<Claude Code's random session id>",
   "installation_id": "<random pseudonym, see below>"

@@ -151,25 +151,79 @@ $session = Protect-Field $session 200
 if (-not $session) { $session = 'unknown' }
 
 # Release identifier for plugin_version. Native manifests are version-less (the
-# commit is the release), so resolve: RAID_PLUGIN_VERSION override, the
-# install-cache version segment one or two levels above the plugin root (short
-# commit SHA), the git HEAD of the plugin root, else 'unknown'.
+# commit is the release), so resolve in order: RAID_PLUGIN_VERSION override, a
+# release-looking segment anywhere in the plugin root path (its depth differs by
+# host), the git HEAD of the plugin root, the install-time .raid-release stamp
+# while the manifest has not been rewritten under it, then a gen-<manifest mtime>
+# generation marker, else 'unknown'. See telemetry.sh for the full rationale --
+# the two ports must resolve identically.
+function Test-ReleaseMarker([string]$v) {
+  if (-not $v) { return $false }
+  if ($v -match '^\d+\.\d+[\.\d]*$') { return $true }
+  if ($v -match '^[0-9a-f]{7,40}$') { return $true }
+  return $false
+}
+
 $version = ''
 $cands = @($env:RAID_PLUGIN_VERSION)
 if ($env:CLAUDE_PLUGIN_ROOT) {
-  $cands += (Split-Path -Leaf (Split-Path -Parent $env:CLAUDE_PLUGIN_ROOT))
-  $cands += (Split-Path -Leaf (Split-Path -Parent (Split-Path -Parent $env:CLAUDE_PLUGIN_ROOT)))
-}
-foreach ($cand in $cands) {
-  if ($cand -and ($cand -match '^\d+\.\d+[\.\d]*$' -or $cand -match '^[0-9a-f]{7,40}$')) {
-    $version = $cand
-    break
+  # Leaf plus two parents -- see telemetry.sh for why the window stays narrow.
+  # (The leaf itself was missing here before, which is why a Claude install whose
+  # version segment IS the leaf never resolved on the PowerShell path.)
+  $seg = $env:CLAUDE_PLUGIN_ROOT
+  $depth = 0
+  while ($seg -and $depth -lt 3) {
+    $cands += (Split-Path -Leaf $seg)
+    $parent = Split-Path -Parent $seg
+    if (-not $parent -or $parent -eq $seg) { break }
+    $seg = $parent
+    $depth++
   }
 }
+foreach ($cand in $cands) {
+  if (Test-ReleaseMarker $cand) { $version = $cand; break }
+}
+
+$manifest = ''
+$stamp = ''
+if ($env:CLAUDE_PLUGIN_ROOT) {
+  $manifest = Join-Path $env:CLAUDE_PLUGIN_ROOT '.claude-plugin/plugin.json'
+  $stamp = Join-Path $env:CLAUDE_PLUGIN_ROOT '.raid-release'
+}
+
 if (-not $version -and $env:CLAUDE_PLUGIN_ROOT) {
   $gitSha = (& git -C $env:CLAUDE_PLUGIN_ROOT rev-parse --short HEAD 2>$null)
   if ($LASTEXITCODE -eq 0 -and $gitSha) { $version = ("$gitSha").Trim() }
 }
+
+# The stamp is trusted only while it is newer than the manifest: a host-driven
+# update re-copies the tree and would otherwise leave it naming a release that
+# is no longer installed.
+if (-not $version -and $stamp) {
+  try {
+    # -Force throughout: on Unix, PowerShell treats a dot-prefixed file as hidden
+    # and Get-Item/Get-Content skip it without it (Test-Path does not), which
+    # would silently drop every stamp on macOS and Linux.
+    $stampItem = Get-Item -LiteralPath $stamp -Force -ErrorAction SilentlyContinue
+    $manifestItem = Get-Item -LiteralPath $manifest -Force -ErrorAction SilentlyContinue
+    if ($stampItem -and (-not $manifestItem -or $manifestItem.LastWriteTimeUtc -le $stampItem.LastWriteTimeUtc)) {
+      $stamped = @(Get-Content -LiteralPath $stamp -Force -ErrorAction SilentlyContinue)[0]
+      if ($stamped) { $stamped = $stamped.Trim() }
+      if (Test-ReleaseMarker $stamped) { $version = $stamped }
+    }
+  } catch {}
+}
+
+if (-not $version -and $manifest -and (Test-Path -LiteralPath $manifest)) {
+  try {
+    $mtime = (Get-Item -LiteralPath $manifest -Force -ErrorAction Stop).LastWriteTimeUtc
+    # Floor, not a cast: [int64] rounds to even, which would make the PowerShell
+    # port disagree with the bash hook's truncating `stat` on the same install.
+    $epoch = [int64][Math]::Floor((($mtime - [datetime]::new(1970,1,1,0,0,0,[DateTimeKind]::Utc)).TotalSeconds))
+    if ($epoch -gt 0) { $version = "gen-$epoch" }
+  } catch {}
+}
+
 $version = Protect-Field $version 100
 if (-not $version) { $version = 'unknown' }
 
