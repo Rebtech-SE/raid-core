@@ -45,10 +45,17 @@ than labels.
 - **Labels**: `PUT /issue/<KEY>` with `{"update":{"labels":[{"add":"ready-for-agent"}]}}`.
   Prefer `add`/`remove` over `set` so concurrent edits by humans survive. **Many
   projects enforce a controlled label vocabulary and reject unknown strings** --
-  check before inventing a label, and model state as a status transition instead
-  where that is the project's convention.
+  check before inventing a label.
 - **Transition**: `POST /issue/<KEY>/transitions` with the transition id from the
-  transitions call above.
+  transitions call above. Look the id up by the target status *name* each time; ids
+  differ per workflow and are never worth recording.
+- **Roles on an existing board**: when `tracker.mapping.roles` maps a role to a
+  `status`, "set the role" means transition to that status (plus add the mapped
+  `label` if one is given, and set `resolution` in the transition payload's `fields`
+  when mapped, e.g. Done / "Won't Do" for `wontfix`). Querying a role then becomes
+  JQL on `status = "<name>"` (`AND labels = <label>` when both are mapped). A
+  `categories` mapping means create with that `issuetype` instead of adding a
+  `bug`/`enhancement` label.
 
 ## Pull requests as a request surface
 
@@ -69,12 +76,15 @@ unavailable.
 
 The **map** is one issue (`Epic`); each implementation unit is a child issue.
 
-- **Map**: an `Epic` labelled `wayfinder-map`, its description carrying the plan's
-  scope, decisions and open questions.
+- **Map**: an `Epic` (or `tracker.mapping.wayfinder.map_issuetype`) labelled
+  `wayfinder:map`, its description carrying the plan's scope, decisions and open
+  questions. With `markers: body`, the label is replaced by `Type: wayfinder-map` at
+  the top of the description.
 - **Unit ticket**: a child issue via the epic link -- set `parent` to the epic key
   on create (`{"fields":{"parent":{"key":"<EPIC>"}}}`) on team-managed projects, or
   the project's epic-link custom field on company-managed ones. Where neither is
-  available, put `Part of: <EPIC>` at the top of the description. Label `wayfinder-task`.
+  available, put `Part of: <EPIC>` at the top of the description. Label
+  `wayfinder:<type>` (or `Type: <type>` in the body with `markers: body`).
 - **Blocking**: the native issue link --
   `POST /issueLink` with
   `{"type":{"name":"Blocks"},"inwardIssue":{"key":"<blocker>"},"outwardIssue":{"key":"<child>"}}`.

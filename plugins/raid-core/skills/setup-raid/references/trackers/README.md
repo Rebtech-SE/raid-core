@@ -51,8 +51,16 @@ portable body convention, so a skill written against the contract works anywhere
 ## Triage roles
 
 The canonical roles are `needs-triage`, `needs-info`, `ready-for-agent`,
-`ready-for-human` and `wontfix`. Skills reference the canonical role, never a raw
-label. Where a tracker's strings differ -- or where it models state as workflow
-status and rejects unknown labels, as most Jira projects and customised Azure
-DevOps processes do -- the engagement records the mapping under `tracker.labels`
-in `.raid/config.yaml`.
+`ready-for-human` and `wontfix`; the categories are `bug` and `enhancement`; the
+wayfinder markers are `wayfinder:map` and `wayfinder:<type>`. Skills reference the
+canonical name, never a raw string, and by default each one is a plain label.
+
+Where that does not fit an existing tracker -- board columns model state, the label
+vocabulary is controlled, bug-vs-story is an issue type, as on most Jira projects and
+customised Azure DevOps processes -- the engagement records what each canonical name
+*means* there under `tracker.mapping` in `.raid/config.yaml` (schema in `setup-raid`).
+A role maps to a label, a workflow status, or both; a category maps to an issue type;
+the wayfinder markers can move from labels into body fields. Every recipe's "label"
+and "change state" operations are read through that mapping: setting a role that maps
+to a status means transitioning the issue, and a role with both a status and a label
+means both must hold. Unmapped entries keep the label default.

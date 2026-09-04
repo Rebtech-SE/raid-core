@@ -44,6 +44,9 @@ existing item rather than assuming.
 - **Labels** are `System.Tags`, a semicolon-joined string **replaced wholesale on
   write**. Read, modify, write back -- never blind-set, or you drop other people's
   tags: `az boards work-item update --id <id> --fields "System.Tags=ready-for-agent;wayfinder:task"`.
+  On a customised process whose columns already model state, `tracker.mapping.roles`
+  may map a role to a `status` instead: then set `System.State` (and the mapped tag,
+  if any) rather than adding a tag, and query on `[System.State]` accordingly.
 - **Change state**: `az boards work-item update --id <id> --state "Active"`.
 - **Close**: `az boards work-item update --id <id> --state "Closed"` (or the
   process's done state).

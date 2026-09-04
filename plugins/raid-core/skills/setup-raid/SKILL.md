@@ -100,9 +100,18 @@ tracker:                    # ASK, never infer -- see step 6
   #   jira:         { site: <site>, project_key: <KEY> }
   #   linear:       { team_key: <TEAM>, team_id: <uuid> }
   #   github:       { owner: <owner>, repo: <repo> }     # usually the git remote
-  # labels:                 # ONLY when this tracker's strings differ from the canonical
-  #   ready_for_agent: Ready  # roles (needs-triage, needs-info, ready-for-agent,
-  #                           # ready-for-human, wontfix) -- omit the block otherwise
+  # mapping:                # ONLY when fitting RAID into a tracker with existing conventions
+  #   roles:                #   canonical role -> what it means here: a label, a workflow
+  #     needs-triage:    { status: "To Do" }          # status, or both (both must hold)
+  #     ready-for-agent: { status: Ready, label: agent }
+  #     wontfix:         { status: Done, resolution: "Won't Do" }
+  #   categories:           #   canonical category -> issue type instead of a label
+  #     bug:         { issuetype: Bug }
+  #     enhancement: { issuetype: Story }
+  #   wayfinder:            #   map issue type; markers as labels (default) or body fields
+  #     map_issuetype: Epic
+  #     markers: body
+  # Omit the whole block when the defaults (plain labels) work; unmapped entries keep them.
 architecture: medallion     # medallion (default) | inmon | kimball -- see "Architecture style" below
 naming:                     # layer naming per platform (defaults; confirm)
   # keys follow the architecture style:
@@ -243,11 +252,16 @@ ticket the user names -- do not guess an org, project key or team id.
 
 Two cases worth handling explicitly:
 
-- **The tracker's labels differ from the canonical triage roles** (`needs-triage`,
-  `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), or the project models
-  state as workflow status and rejects unknown labels -- common on Jira and on customised
-  Azure DevOps processes. Record the mapping under `tracker.labels`. Omit the block when
-  the defaults work.
+- **The tracker already has its own conventions** -- a board whose columns model state,
+  a controlled label vocabulary, bug-vs-story as issue types. Common on Jira and on
+  customised Azure DevOps processes. RAID's defaults are plain labels (the canonical
+  roles `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`;
+  `bug` / `enhancement`; `wayfinder:map` / `wayfinder:<type>`). Where a default does
+  not fit, record what that role *means* in this tracker under `tracker.mapping`: a
+  status, a label, or both (a shared "Ready" column plus an `agent` label is how
+  ready-for-agent stays distinct from ready-for-human). Read the live statuses and issue
+  types off the tracker first (each recipe says how) rather than guessing names. Map only
+  the entries that differ; omit the block when the defaults work.
 - **The tracker is unreachable from this machine** (no credentials, no network path).
   Say so and record `provider: local` -- tickets go to `docs/tickets/` until access
   exists. Do not silently fall back; which tracker an engagement uses is the customer's

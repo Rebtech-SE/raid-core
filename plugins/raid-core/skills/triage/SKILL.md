@@ -30,12 +30,16 @@ this disclaimer:
 
 ## Tracker wiring (RAID)
 
-Read `tracker.provider` and the `tracker.labels` mapping (when present) from
+Read `tracker.provider` and the `tracker.mapping` block (when present) from
 `.raid/config.yaml`. The command recipes for the configured provider live in
 `setup-raid`'s `references/trackers/` -- read the file at the time you need it;
 nothing is copied into the repo. Skills reference the **canonical** role
 (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`,
-`wontfix`), never a raw label string; convert through the mapping.
+`wontfix`) and category (`bug`, `enhancement`), never a raw string. By default
+each is a plain label. When the engagement was fitted into an existing tracker,
+the mapping says what a role means there -- a workflow status, a label, or both
+-- and what issue type a category is; apply and query roles through it, and
+keep the label default for anything unmapped.
 
 No tracker configured, or the tracker is unreachable? Report it and point the
 user at `setup-raid` -- do not guess the tracker, and do not fall back to a

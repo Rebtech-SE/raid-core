@@ -30,8 +30,10 @@ The map is an **index**, not a store. It lists the decisions made and points at 
 **Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** Use the tracker recorded as `tracker.provider` in `.raid/config.yaml`, and the command recipes for it in `setup-raid`'s `references/trackers/` (`azure-devops.md`, `jira.md`, `linear.md`, `github.md`). If no tracker has been configured, tell the user to invoke `setup-raid`, then stop; choosing a tracker or silently falling back to local files is the engagement's decision, not yours.
 
 Prefer native tracker relationships because they keep the frontier visible in the
-tracker UI. When a configured tracker lacks one of them, use these portable body
-fields instead:
+tracker UI. When a configured tracker lacks one of them, or the engagement's
+`tracker.mapping.wayfinder` block chooses them (`map_issuetype` for the map's issue
+type, `markers: body` where the label vocabulary is controlled), use these portable
+body fields instead:
 
 | Concept | Native representation | Portable fallback |
 | --- | --- | --- |
