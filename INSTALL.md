@@ -70,7 +70,7 @@ copilot plugin list
 
 Installs are user-global (`~/.copilot`). To declare it for a repo, commit
 `.github/copilot/settings.json` with `extraKnownMarketplaces` pointing at this repo and
-`enabledPlugins: ["raid-core@raid-core"]`. Update with
+`"enabledPlugins": { "raid-core@raid-core": true }`. Update with
 `copilot plugin update raid-core@raid-core`.
 
 If flat RAID skill folders from an older install sit in `~/.copilot/skills/`, they shadow
