@@ -1,0 +1,18 @@
+{
+  "name": "raid-core",
+  "owner": {
+    "name": "Rebtech",
+    "url": "https://github.com/rebtech-se"
+  },
+  "metadata": {
+    "description": "RAID core - AI-assisted data platform engineering for Cursor. The build loop, tech-agnostic data skills, and the data-platform reviewer subagents. Public mirror of the raid-core plugin.",
+    "pluginRoot": "plugins"
+  },
+  "plugins": [
+    {
+      "name": "raid-core",
+      "source": "raid-core",
+      "description": "The RAID build loop (plan, work, simplify, compliance, compound) plus tech-agnostic data skills and the data-platform reviewer subagents. Install this first, then add your platform plugin."
+    }
+  ]
+}

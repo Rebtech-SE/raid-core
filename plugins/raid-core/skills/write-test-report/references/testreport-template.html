@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  RAID test report - bundled template for write-test-report.
+  HTML is the single source of truth for this artifact (no markdown source).
+  This is the RECORD of what the tests did in a development cycle - not a decision
+  document and not a sign-off gate, so it carries no approval badge. It is DERIVED FROM
+  the append-only ledger docs/testing/test-results.jsonl (written by the raid-mode work loop) plus the
+  planned tests (testplan.html on a greenfield build, the plan's inline DQ checks on
+  incremental work). Never reconstruct outcomes by re-running tests - report only what the ledger
+  records.
+  Branding: rebtech palette (ink/cream/gold/brown/sand) and inline logo - do not alter them.
+
+  RULES FOR THE SKILL FILLING THIS TEMPLATE:
+    - Fill every element marked data-fill="..." ; do not remove the id or data-fill attributes.
+    - Keep the section ids stable.
+    - Replace each FILL comment with real content; delete no <section>.
+    - If a section genuinely has no content, write "None" / "N/A" rather than deleting it.
+    - Repo-relative paths in file references.
+
+  DIGESTIBILITY DOCTRINE (read at a human approval gate - optimize for a 2-minute skim):
+    - Fill the stat strip; its numbers must match the document body.
+    - Prefer tables, badges, and diagrams over prose. No paragraph longer than ~4 sentences.
+    - Long enumerations go inside <details class="more"> blocks - headline first, detail folded.
+    - Consume design.html by deep link (e.g. <a href="design.html#load-modes">load modes</a>),
+      never by restating it.
+    - Use the badge classes (.b-bronze/.b-silver/.b-gold, .b-scd2/.b-incr/.b-full,
+      .b-pii, .b-risk, .b-confirm) inside tables and text - they are the skim layer.
+    - Pipeline breadcrumb: keep all stage pills; remove the href from any stage whose
+      artifact does not exist yet (keep the pill itself).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-fill="title">Test Report - {{customer}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#000000; --ink-2:#14110d; --brown:#5E503F; --gold:#C6AC83;
+    --sand:#E0D4C1; --cream:#E9E1D5; --white:#FFFFFF;
+    --card:#FFFFFF; --line:#d9cfbd; --line-soft:#e7dfd0; --muted:#7a6f5d;
+    --warn-soft:#f5edde;
+    --sans:"Avenir Next","Avenir","Geist",system-ui,"Segoe UI",sans-serif;
+    --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; font:15.5px/1.55 var(--sans); color:var(--ink-2); background:var(--cream); -webkit-font-smoothing:antialiased; }
+
+  /* ---- pipeline breadcrumb ---- */
+  nav.pipeline { background:var(--ink); padding:10px 40px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  nav.pipeline .lbl { color:#8d8472; font:600 10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; margin-right:6px; }
+  nav.pipeline .stage { font:500 12px/1.8 var(--mono); padding:2px 12px; border-radius:99px; text-decoration:none; border:1px solid #3a352c; color:#b3a890; }
+  nav.pipeline a.stage:hover { color:var(--white); border-color:var(--gold); }
+  nav.pipeline .stage.current { background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+  nav.pipeline .stage.todo { opacity:.45; border-style:dashed; }
+  nav.pipeline .sep { color:#564f41; font-size:11px; }
+
+  /* ---- header ---- */
+  header.doc { background:linear-gradient(135deg,var(--ink-2) 0%,var(--ink) 70%); color:var(--white); padding:34px 40px 32px; border-bottom:3px solid var(--gold); }
+  header.doc .logo svg { height:22px; width:auto; display:block; margin-bottom:22px; }
+  header.doc .kicker { font:600 11px/1 var(--mono); letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+  header.doc h1 { margin:0 0 8px; font-size:clamp(28px,4vw,40px); font-weight:500; line-height:1.08; letter-spacing:-.025em; }
+  header.doc .meta { color:#9d9281; font-size:13.5px; }
+  header.doc .meta a { color:var(--sand); }
+
+  /* ---- stat strip ---- */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; max-width:1140px; margin:-20px auto 0; padding:0 40px; position:relative; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:13px 16px 11px; box-shadow:0 2px 12px rgba(20,17,13,.08); }
+  .stat b { display:block; font:600 28px/1.15 var(--mono); letter-spacing:-.03em; font-variant-numeric:tabular-nums; color:var(--brown); }
+  .stat span { font:600 10.5px/1.6 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+
+  /* ---- layout: sticky toc + content ---- */
+  .layout { max-width:1140px; margin:0 auto; padding:28px 40px 90px; display:grid; grid-template-columns:206px minmax(0,1fr); gap:34px; }
+  aside.toc { position:sticky; top:18px; align-self:start; font-size:13px; }
+  aside.toc .toc-title { font:600 10.5px/1 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:6px 0 10px; }
+  aside.toc ol { list-style:none; margin:0; padding:0; border-left:2px solid var(--sand); }
+  aside.toc a { display:block; padding:5px 12px; color:var(--muted); text-decoration:none; border-left:2px solid transparent; margin-left:-2px; }
+  aside.toc a:hover { color:var(--ink); }
+  aside.toc a.on { color:var(--brown); border-left-color:var(--gold); font-weight:600; }
+  @media (max-width:880px){ .layout{grid-template-columns:1fr} aside.toc{position:static; border-bottom:1px solid var(--line); padding-bottom:12px} }
+
+  /* ---- sections ---- */
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px 28px; margin:0 0 20px; scroll-margin-top:16px; }
+  section > h2 { margin:0 0 14px; font-size:20px; font-weight:500; letter-spacing:-.02em; display:flex; align-items:baseline; gap:10px; border-bottom:1px solid var(--line-soft); padding-bottom:10px; }
+  section > h2 .no { font:600 11px/1 var(--mono); color:var(--gold); letter-spacing:.08em; }
+  h3 { font:600 12px/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--brown); margin:18px 0 6px; }
+  p { margin:8px 0; max-width:72ch; }
+  a { color:var(--brown); }
+  .muted { color:var(--muted); }
+
+  table { border-collapse:collapse; display:block; width:max-content; max-width:100%; overflow-x:auto; margin:10px 0; font-size:13.5px; }
+  th,td { border:1px solid var(--line-soft); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:#f1ebdf; font:600 10.5px/1.6 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--brown); }
+  tbody tr:nth-child(even) td { background:#faf7f1; }
+
+  code,pre { font-family:var(--mono); }
+  pre { background:var(--ink-2); color:#e9e1d5; padding:14px 16px; border-radius:10px; overflow:auto; font-size:12.5px; }
+  code { background:#f0e9db; padding:1px 5px; border-radius:4px; font-size:.9em; }
+
+  .mermaid { background:var(--white); border:1px dashed var(--line); border-radius:10px; padding:14px; margin:12px 0; text-align:center; }
+  @media print { .mermaid svg #svg-pan-zoom-controls { display:none; } }
+
+  /* ---- badges: the skim layer ---- */
+  .badge { display:inline-block; font:600 10px/1.8 var(--mono); letter-spacing:.06em; text-transform:uppercase; padding:0 8px; border-radius:99px; border:1px solid; white-space:nowrap; }
+  .b-bronze { color:#7c5316; background:#f6e8d2; border-color:#dec094; }
+  .b-silver { color:#565e6a; background:#edeff2; border-color:#c5ccd6; }
+  .b-gold   { color:#7d6400; background:#f9f0c8; border-color:#dcca74; }
+  .b-scd2   { color:#6d3580; background:#f3e6f7; border-color:#d4aede; }
+  .b-incr   { color:#0e6b5c; background:#ddf1ec; border-color:#9ed2c6; }
+  .b-full   { color:#44506b; background:#e7ebf3; border-color:#bcc7da; }
+  .b-defer  { color:#6f6a5c; background:#efece1; border-color:#d4cdb8; }
+  .b-pass   { color:#1e5c3a; background:#dff0e5; border-color:#a8cfb8; }
+  .b-fail   { color:#9b1c1c; background:#fbe7e7; border-color:#e7a8a8; }
+  .b-notrun { color:#6f6a5c; background:#efece1; border-color:#d4cdb8; border-style:dashed; }
+  .b-healed { color:#7a4a00; background:#fdf0d8; border-color:#e0be7a; }
+  .b-pii    { color:#9b1c1c; background:#fbe7e7; border-color:#e7a8a8; }
+  .b-risk   { color:#9b1c1c; background:#fbe7e7; border-color:#e7a8a8; }
+  .b-confirm{ color:#8a5a00; background:#fdf2dd; border-color:#d9b577; border-style:dashed; }
+
+  /* ---- open questions ---- */
+  .open-q .oq { border:1px solid var(--line); border-left:4px solid var(--gold); border-radius:10px; background:var(--warn-soft); padding:10px 14px; margin:10px 0; }
+
+  /* ---- progressive disclosure ---- */
+  details.more { border:1px solid var(--line); border-radius:10px; background:#faf7f1; padding:0 14px; margin:10px 0; }
+  details.more summary { cursor:pointer; padding:9px 0; font:600 12px/1.7 var(--mono); letter-spacing:.04em; color:var(--brown); list-style:none; }
+  details.more summary::before { content:"+"; display:inline-block; width:16px; color:var(--gold); font-weight:600; }
+  details.more[open] summary::before { content:"\2013"; }
+  details.more summary:hover { color:var(--ink); }
+  details.more > :last-child { margin-bottom:12px; }
+
+  @media print {
+    nav.pipeline, aside.toc { display:none; }
+    body { background:#fff; }
+    .layout { display:block; padding:0 8px; }
+    section { break-inside:avoid; border-color:#ccc; }
+    table { display:table; width:100%; }
+    th,td { overflow-wrap:anywhere; }
+    .stats { margin-top:12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- FILL: pipeline state - keep all pills; remove the href on any stage whose artifact doesn't exist; "plan" stays a plain pill (markdown artifact) -->
+<nav class="pipeline" aria-label="RAID pipeline">
+  <span class="lbl">RAID pipeline</span>
+  <a class="stage" href="testplan.html">test plan</a><span class="sep">&rarr;</span>
+  <span class="stage">plan</span><span class="sep">&rarr;</span>
+  <span class="stage">work</span><span class="sep">&rarr;</span>
+  <span class="stage current">test report</span>
+</nav>
+
+<header class="doc">
+  <div class="logo" aria-label="rebtech"><svg viewBox="0 0 481 99" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M378.671 69.7661C378.671 73.1796 375.849 75.9404 372.365 75.9404C364.003 75.6141 364.003 63.9182 372.365 63.5918C375.849 63.5918 378.671 66.3526 378.671 69.7661Z" fill="#C6AC83"/><path d="M388.956 59.6669C388.956 63.0804 386.134 65.8412 382.65 65.8412C374.288 65.5148 374.288 53.8189 382.65 53.4926C386.134 53.4926 388.956 56.2534 388.956 59.6669Z" fill="#C6AC83"/><path d="M398.985 49.1174C398.985 52.531 396.163 55.2918 392.679 55.2918C384.317 54.9654 384.317 43.2695 392.679 42.9431C396.163 42.9431 398.985 45.7039 398.985 49.1174Z" fill="#C6AC83"/><path d="M409.49 59.4462C409.49 62.8597 406.667 65.6205 403.183 65.6205C394.821 65.2941 394.821 53.5982 403.183 53.2719C406.667 53.2719 409.49 56.0327 409.49 59.4462Z" fill="#C6AC83"/><path d="M419.783 49.3468C419.783 52.7603 416.961 55.5211 413.477 55.5211C405.115 55.1948 405.115 43.4988 413.477 43.1725C416.961 43.1725 419.783 45.9333 419.783 49.3468Z" fill="#C6AC83"/><path d="M429.804 38.7974C429.804 42.2109 426.982 44.9717 423.497 44.9717C415.136 44.6453 415.136 32.9494 423.497 32.623C426.982 32.623 429.804 35.3839 429.804 38.7974Z" fill="#C6AC83"/><path d="M419.651 69.9956C419.651 73.4091 416.828 76.1699 413.344 76.1699C404.983 75.8436 404.983 64.1476 413.344 63.8213C416.828 63.8213 419.651 66.5821 419.651 69.9956Z" fill="#C6AC83"/><path d="M429.936 59.896C429.936 63.3095 427.113 66.0703 423.629 66.0703C415.267 65.744 415.267 54.048 423.629 53.7217C427.113 53.7217 429.936 56.4825 429.936 59.896Z" fill="#C6AC83"/><path d="M439.965 49.3468C439.965 52.7603 437.142 55.5211 433.658 55.5211C425.297 55.1948 425.297 43.4988 433.658 43.1725C437.142 43.1725 439.965 45.9333 439.965 49.3468Z" fill="#C6AC83"/><path d="M439.964 28.2482C439.964 31.6617 437.141 34.4225 433.657 34.4225C425.296 34.0961 425.296 22.4002 433.657 22.0739C437.141 22.0739 439.964 24.8347 439.964 28.2482Z" fill="#C6AC83"/><path d="M450.126 38.7974C450.126 42.2109 447.303 44.9717 443.819 44.9717C435.457 44.6453 435.457 32.9494 443.819 32.623C447.303 32.623 450.126 35.3839 450.126 38.7974Z" fill="#C6AC83"/><path d="M460.506 49.1174C460.506 52.531 457.684 55.2918 454.2 55.2918C445.838 54.9654 445.838 43.2695 454.2 42.9431C457.684 42.9431 460.506 45.7039 460.506 49.1174Z" fill="#C6AC83"/><path d="M470.8 39.0269C470.8 42.4404 467.977 45.2012 464.493 45.2012C456.131 44.8748 456.131 33.1789 464.493 32.8525C467.977 32.8525 470.8 35.6133 470.8 39.0269Z" fill="#C6AC83"/><path d="M480.821 28.4777C480.821 31.8912 477.998 34.652 474.514 34.652C466.152 34.3256 466.152 22.6297 474.514 22.3033C477.998 22.3033 480.821 25.0642 480.821 28.4777Z" fill="#C6AC83"/><path d="M7.29216 78.1218V23.5127H31.8663C35.3509 23.5127 38.4974 24.2668 41.3059 25.775C44.1664 27.2833 46.4027 29.3636 48.015 32.0161C49.6273 34.6165 50.4334 37.581 50.4334 40.9096C50.4334 44.3422 49.6273 47.4367 48.015 50.1931C46.4027 52.8976 44.1924 55.0299 41.3839 56.5902C38.5754 58.1505 35.4029 58.9306 31.8663 58.9306H19.9303V78.1218H7.29216ZM37.5612 78.1218L23.6749 53.4697L37.2492 51.5194L52.6958 78.1218H37.5612ZM19.9303 48.7889H30.6961C32.0483 48.7889 33.2185 48.5029 34.2067 47.9308C35.2468 47.3067 36.027 46.4485 36.5471 45.3563C37.1192 44.2641 37.4052 43.0159 37.4052 41.6117C37.4052 40.2075 37.0932 38.9853 36.4691 37.9451C35.845 36.8529 34.9348 36.0208 33.7386 35.4487C32.5944 34.8766 31.1902 34.5905 29.5259 34.5905H19.9303V48.7889ZM56.608 78.1218V23.5127H94.6784V34.8246H69.4802V66.8099H95.4585V78.1218H56.608ZM62.8491 55.7321V44.9663H91.1678V55.7321H62.8491ZM101.429 78.1218V23.5127H125.535C129.28 23.5127 132.452 24.0587 135.053 25.1509C137.653 26.1911 139.603 27.7254 140.904 29.7537C142.256 31.73 142.932 34.1224 142.932 36.9309C142.932 40.0514 142.152 42.6779 140.592 44.8102C139.083 46.9426 136.873 48.3728 133.96 49.101L133.804 47.6187C136.249 48.1388 138.355 49.0489 140.123 50.3492C141.944 51.6494 143.348 53.2617 144.336 55.186C145.324 57.0583 145.818 59.1906 145.818 61.583C145.818 64.3395 145.35 66.7579 144.414 68.8383C143.478 70.8666 142.126 72.5829 140.358 73.9871C138.589 75.3914 136.509 76.4315 134.116 77.1077C131.776 77.7838 129.176 78.1218 126.315 78.1218H101.429ZM113.911 67.044H125.847C127.303 67.044 128.526 66.8099 129.514 66.3418C130.554 65.8738 131.36 65.1977 131.932 64.3135C132.504 63.3773 132.79 62.2592 132.79 60.9589C132.79 59.7627 132.478 58.7486 131.854 57.9164C131.282 57.0843 130.45 56.4602 129.358 56.0441C128.265 55.576 126.965 55.342 125.457 55.342H113.911V67.044ZM113.911 45.4343H123.663C125.015 45.4343 126.159 45.2263 127.095 44.8102C128.083 44.3422 128.812 43.718 129.28 42.9379C129.8 42.1058 130.06 41.1176 130.06 39.9734C130.06 38.3091 129.488 37.0089 128.343 36.0728C127.199 35.0846 125.483 34.5905 123.195 34.5905H113.911V45.4343ZM161.384 78.1218V35.2146H145.157V23.5127H191.263V35.2146H174.646V78.1218H161.384ZM195.185 78.1218V23.5127H233.255V34.8246H208.057V66.8099H234.035V78.1218H195.185ZM201.426 55.7321V44.9663H229.745V55.7321H201.426ZM264.814 78.902C260.705 78.902 256.909 78.2258 253.424 76.8736C249.992 75.4694 247.001 73.5191 244.453 71.0226C241.904 68.4742 239.928 65.4837 238.524 62.0511C237.171 58.5665 236.495 54.7439 236.495 50.5832C236.495 46.5265 237.223 42.7819 238.68 39.3493C240.136 35.9167 242.138 32.9522 244.687 30.4558C247.287 27.9074 250.33 25.9311 253.814 24.5268C257.351 23.1226 261.199 22.4205 265.36 22.4205C267.961 22.4205 270.509 22.7585 273.005 23.4346C275.502 24.1108 277.816 25.1249 279.949 26.4771C282.133 27.7774 284.005 29.3376 285.565 31.1579L277.452 40.4415C276.36 39.2973 275.19 38.3091 273.942 37.477C272.745 36.5928 271.419 35.9167 269.963 35.4487C268.507 34.9806 266.946 34.7465 265.282 34.7465C263.202 34.7465 261.225 35.1366 259.353 35.9167C257.533 36.6449 255.921 37.711 254.516 39.1153C253.164 40.4675 252.098 42.1318 251.318 44.1081C250.538 46.0844 250.148 48.2948 250.148 50.7392C250.148 53.1316 250.538 55.316 251.318 57.2923C252.098 59.2167 253.19 60.8809 254.594 62.2852C255.999 63.6894 257.689 64.7556 259.665 65.4837C261.693 66.2118 263.93 66.5759 266.374 66.5759C268.039 66.5759 269.625 66.3418 271.133 65.8738C272.641 65.4057 274.02 64.7816 275.268 64.0015C276.568 63.1693 277.712 62.2332 278.7 61.193L285.097 71.3347C283.797 72.7909 282.055 74.0911 279.871 75.2353C277.738 76.3795 275.346 77.2897 272.693 77.9658C270.093 78.5899 267.466 78.902 264.814 78.902ZM322.57 78.1218V23.5127H335.832V78.1218H322.57ZM288.712 78.1218V23.5127H301.974V78.1218H288.712ZM293.861 56.8242L293.939 44.9663H329.591V56.8242H293.861Z" fill="white"/></svg></div>
+  <div class="kicker">Test report &middot; generated by write-test-report</div>
+  <h1 data-fill="doc-title">Test Report - {{customer}}</h1>
+  <!-- FILL: the source of the PLANNED tests differs - a greenfield build has testplan.html, incremental
+       work does not. Keep the link only on greenfield; on incremental work replace it with a plain-text pointer to
+       the plan, e.g. "planned tests from the cycle's implementation plan". A dead testplan.html link
+       in a lean engagement's report is a broken deliverable. -->
+  <div class="meta"><span data-fill="cycle">cycle {{n}}</span> &middot; <span data-fill="date">{{date}}</span> &middot; <span data-fill="cycle-range">{{first-run}} to {{last-run}}</span> &middot; <span data-fill="planned-source">planned tests from <a href="testplan.html">testplan.html</a></span></div>
+</header>
+
+<!-- FILL: the stat strip - numbers must match the document body -->
+<div class="stats" data-fill="stat-strip">
+  <div class="stat"><b data-fill="stat-planned">0</b><span>planned tests</span></div>
+  <div class="stat"><b data-fill="stat-passing">0</b><span>passing now</span></div>
+  <div class="stat"><b data-fill="stat-failing">0</b><span>failing now</span></div>
+  <div class="stat"><b data-fill="stat-notrun">0</b><span>never run</span></div>
+  <div class="stat"><b data-fill="stat-healed">0</b><span>failed earlier, green now</span></div>
+</div>
+
+<div class="layout">
+<aside class="toc">
+  <div class="toc-title">On this page</div>
+  <ol>
+    <li><a href="#verdict">Verdict</a></li>
+    <li><a href="#coverage">Planned vs executed</a></li>
+    <li><a href="#results">Results this cycle</a></li>
+    <li><a href="#history">Failure history</a></li>
+    <li><a href="#open">Open failures</a></li>
+    <li><a href="#cycles">Cycle trend</a></li>
+  </ol>
+</aside>
+<main>
+
+  <section id="verdict">
+    <h2><span class="no">01</span>Verdict</h2>
+    <!-- FILL: two or three sentences. Did this cycle's tests pass, what is still failing, and is the
+         build fit to hand over. Lead with the answer. If anything in section 04 failed earlier and is
+         green now, say so here - a clean current run is not the whole story. -->
+    <div data-fill="verdict"></div>
+  </section>
+
+  <section id="coverage">
+    <h2><span class="no">02</span>Planned vs Executed</h2>
+    <!-- FILL: reconcile the ledger against the PLANNED tests - testplan.html#per-source and #baseline on
+         a greenfield build, or the plan's inline per-unit DQ checks on incremental work. Every planned test
+         gets a row even if it never ran; a planned test with no ledger entry is the finding this section
+         exists to surface. Badge status .b-pass/.b-fail/.b-notrun. -->
+    <table id="coverage-table" data-fill="coverage-table">
+      <thead><tr><th>Planned test</th><th>Source</th><th>Entity / model</th><th>Executed</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="results">
+    <h2><span class="no">03</span>Results This Cycle</h2>
+    <!-- FILL: one row per test EXECUTION in this cycle, from the ledger. Every failure carries its
+         reason - a failed row with an empty reason is an incomplete report, not a terse one.
+         Fold long error output into <details class="more"> rather than stretching the table. -->
+    <table id="results-table" data-fill="results-table">
+      <thead><tr><th>Test</th><th>Unit</th><th>Outcome</th><th>Reason (on failure)</th><th>Run at</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="history">
+    <h2><span class="no">04</span>Failure History</h2>
+    <!-- FILL: THE POINT OF THIS DOCUMENT. Every test that has EVER failed in the ledger, including tests
+         that pass now - badge those .b-healed. For each: how many times it failed, when it last failed,
+         the reason, and what changed. A test that went red then green without explanation is the signal
+         someone needs to see; do not quietly drop it because the latest run is clean.
+         Write "No test has failed in any recorded cycle" only when the ledger genuinely holds no failure. -->
+    <table id="history-table" data-fill="history-table">
+      <thead><tr><th>Test</th><th>Failures</th><th>Last failed</th><th>Last reason</th><th>Status now</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="open">
+    <h2><span class="no">05</span>Open Failures &amp; Actions</h2>
+    <!-- FILL: one block per test still failing, with the owner and the next action. Write "None" if the
+         cycle closed clean. Deep-link the plan unit rather than restating what it was meant to build. -->
+    <div class="open-q" data-fill="open-failures"></div>
+  </section>
+
+  <section id="cycles">
+    <h2><span class="no">06</span>Cycle Trend</h2>
+    <!-- FILL: one row per recorded cycle, oldest first, so the direction of travel is visible.
+         Keep it to the numbers; the narrative belongs in the verdict. -->
+    <table id="cycles-table" data-fill="cycles-table">
+      <thead><tr><th>Cycle</th><th>Date</th><th>Planned</th><th>Run</th><th>Passed</th><th>Failed</th><th>Pass rate</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad:false, theme:"neutral", themeVariables:{ fontFamily:"Geist, Avenir Next, sans-serif", primaryColor:"#E9E1D5", primaryBorderColor:"#C6AC83", lineColor:"#5E503F" } });
+  mermaid.run().then(function(){
+    if(!window.svgPanZoom) return;
+    [].slice.call(document.querySelectorAll(".mermaid svg")).forEach(function(svg){
+      var h=Math.min(Math.max(svg.getBoundingClientRect().height,240),520);
+      svg.style.maxWidth="none"; svg.style.width="100%"; svg.style.height=h+"px"; svg.style.cursor="grab";
+      var pz=svgPanZoom(svg,{ controlIconsEnabled:true, fit:true, center:true, mouseWheelZoomEnabled:false, dblClickZoomEnabled:false, minZoom:.4, maxZoom:12 });
+      svg.addEventListener("wheel",function(e){ if(e.ctrlKey||e.metaKey){ e.preventDefault(); if(e.deltaY<0){pz.zoomIn();}else{pz.zoomOut();} } },{passive:false});
+      svg.addEventListener("dblclick",function(){ pz.resize(); pz.fit(); pz.center(); });
+    });
+  });
+  (function(){
+    var links=[].slice.call(document.querySelectorAll("aside.toc a")), map={};
+    links.forEach(function(a){ map[a.getAttribute("href").slice(1)]=a; });
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting && map[e.target.id]){
+          links.forEach(function(l){ l.classList.remove("on"); });
+          map[e.target.id].classList.add("on");
+        }
+      });
+    },{ rootMargin:"-8% 0px -72% 0px" });
+    [].slice.call(document.querySelectorAll("main section[id]")).forEach(function(s){ io.observe(s); });
+  })();
+</script>
+</body>
+</html>

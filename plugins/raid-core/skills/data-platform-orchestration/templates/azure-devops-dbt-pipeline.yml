@@ -1,0 +1,163 @@
+# Azure DevOps Pipeline for dbt on Microsoft Fabric
+#
+# This pipeline:
+# 1. Installs ODBC Driver 18 for SQL Server
+# 2. Installs dbt-core and dbt-fabric
+# 3. Runs dbt build (models + tests)
+# 4. Publishes dbt artifacts (docs, logs)
+#
+# Prerequisites:
+# - Service connection to Azure (for CLI auth) OR
+# - Service principal credentials in variable group
+#
+# Variable Groups Required:
+# - fabric-dbt-credentials:
+#     - AZURE_TENANT_ID
+#     - AZURE_CLIENT_ID
+#     - AZURE_CLIENT_SECRET
+#     - FABRIC_SERVER
+#     - FABRIC_DATABASE
+#     - FABRIC_SCHEMA
+
+trigger:
+  branches:
+    include:
+      - main
+      - master
+  paths:
+    include:
+      - customer-implementation/dbt/**
+
+pr:
+  branches:
+    include:
+      - main
+      - master
+  paths:
+    include:
+      - customer-implementation/dbt/**
+
+schedules:
+  # Run daily at 6 AM UTC
+  - cron: "0 6 * * *"
+    displayName: Daily dbt build
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - group: fabric-dbt-credentials
+  - name: DBT_PROJECT_DIR
+    value: customer-implementation/dbt/retail_analytics
+  - name: PYTHON_VERSION
+    value: "3.11"
+
+stages:
+  - stage: Build
+    displayName: "dbt Build"
+    jobs:
+      - job: dbt_build
+        displayName: "Run dbt build"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        steps:
+          # Install ODBC Driver 18 for SQL Server
+          - script: |
+              curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+              curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+              sudo apt-get update
+              sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+            displayName: "Install ODBC Driver 18"
+
+          # Set up Python
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "$(PYTHON_VERSION)"
+            displayName: "Set up Python $(PYTHON_VERSION)"
+
+          # Install dbt
+          - script: |
+              python -m pip install --upgrade pip
+              pip install dbt-core dbt-fabric
+              dbt --version
+            displayName: "Install dbt-core and dbt-fabric"
+
+          # Create profiles.yml from template
+          - script: |
+              mkdir -p ~/.dbt
+              cat > ~/.dbt/profiles.yml << 'EOF'
+              retail_analytics:
+                target: prod
+                outputs:
+                  prod:
+                    type: fabric
+                    driver: "ODBC Driver 18 for SQL Server"
+                    server: "$(FABRIC_SERVER)"
+                    database: "$(FABRIC_DATABASE)"
+                    schema: "$(FABRIC_SCHEMA)"
+                    port: 1433
+                    authentication: ServicePrincipal
+                    tenant_id: "$(AZURE_TENANT_ID)"
+                    client_id: "$(AZURE_CLIENT_ID)"
+                    client_secret: "$(AZURE_CLIENT_SECRET)"
+              EOF
+            displayName: "Create profiles.yml"
+
+          # Run dbt debug to verify connection
+          - script: |
+              cd $(DBT_PROJECT_DIR)
+              dbt debug
+            displayName: "dbt debug"
+
+          # Install dbt packages
+          - script: |
+              cd $(DBT_PROJECT_DIR)
+              dbt deps
+            displayName: "dbt deps"
+
+          # Run dbt build (models + tests)
+          - script: |
+              cd $(DBT_PROJECT_DIR)
+              dbt build --fail-fast
+            displayName: "dbt build"
+
+          # Generate docs
+          - script: |
+              cd $(DBT_PROJECT_DIR)
+              dbt docs generate
+            displayName: "dbt docs generate"
+
+          # Publish artifacts
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: "$(DBT_PROJECT_DIR)/target"
+              artifactName: "dbt-artifacts"
+            displayName: "Publish dbt artifacts"
+
+          # Publish docs as separate artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: "$(DBT_PROJECT_DIR)/target/catalog.json"
+              artifactName: "dbt-docs"
+            condition: succeededOrFailed()
+            displayName: "Publish dbt docs"
+
+  # Optional: Separate stage for production deployment
+  - stage: Deploy
+    displayName: "Deploy to Production"
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: deploy_prod
+        displayName: "Deploy dbt models to production"
+        environment: "production"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: |
+                    echo "Production deployment would run here"
+                    echo "Consider: dbt run --target prod --select state:modified+"
+                  displayName: "Production deployment placeholder"

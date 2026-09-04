@@ -1,0 +1,87 @@
+# Minimal first-run template for a qualitative data metric.
+# Start here when true quality needs semantic judgment, not a proxy number -
+# e.g. tuning a data-quality rule generator where "more rules" or "fewer rows
+# flagged" can both be misleading. A hard gate still rejects broken runs first;
+# the judge scores the usefulness of the rules that survive.
+
+name: improve-dq-rule-generation
+description: Generate more useful data-quality rules without flooding valid data with false positives
+
+metric:
+  primary:
+    type: judge
+    name: mean_score
+    direction: maximize
+  degenerate_gates:
+    - name: rules_emitted
+      check: ">= 5"
+      description: Emit enough rules to judge quality
+    - name: false_positive_rate
+      check: "<= 0.10"
+      description: Rules must not flag more than 10% of known-good baseline rows
+    - name: generator_failed
+      check: "== 0"
+      description: The generation run must complete without error
+  diagnostics:
+    - name: rows_flagged_pct
+    - name: tables_covered
+  judge:
+    rubric: |
+      Rate each generated data-quality rule 1-5:
+      - 5: Catches a real, business-meaningful defect; would not fire on valid data
+      - 4: Meaningful check, minor false-positive risk on edge cases
+      - 3: Plausible but generic; may flag legitimate variation
+      - 2: Weak - keys off a superficial pattern, likely noisy
+      - 1: Wrong or tautological - fires on valid data or never fires
+      Also report: false_positive_risk (low|medium|high), business_rule_match (boolean)
+    scoring:
+      primary: mean_score
+      secondary:
+        - high_fp_risk_rate
+    model: haiku
+    sample_size: 10
+    batch_size: 5
+    sample_seed: 42
+    minimum_improvement: 0.2
+    max_total_cost_usd: 5
+
+measurement:
+  # eval_dq.py: runs the rule generator, executes the rules against a labelled
+  # baseline dataset, and prints JSON with the gate + diagnostic keys plus the
+  # generated rules for the judge to sample.
+  command: "python eval_dq.py"
+  timeout_seconds: 600
+  working_directory: "analytics"
+
+scope:
+  mutable:
+    - "analytics/dq/rule_generator.py"
+    - "analytics/dq/config.yaml"
+  immutable:
+    - "analytics/eval_dq.py" # the harness
+    - "analytics/dq/baseline_labels/" # labelled good/bad rows for scoring
+    - "analytics/models/"
+
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+
+parallel:
+  port_strategy: none
+  shared_files: []
+
+dependencies:
+  approved: []
+
+constraints:
+  - "Preserve the rule output schema consumed by the test runner"
+  - "Do not add new dependencies on the first run"
+
+stopping:
+  max_iterations: 4
+  max_hours: 1
+  plateau_iterations: 3
+  target_reached: true
+
+max_runner_up_merges_per_batch: 0

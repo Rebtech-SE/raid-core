@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.sh\"",
+            "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.ps1\"",
+            "cwd": "."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-copilot.sh\"",
+            "bash": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-copilot.sh\"",
+            "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/telemetry-copilot.ps1\"",
+            "cwd": ".",
+            "timeoutSec": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+# GitHub Actions workflow for dbt on Microsoft Fabric
+#
+# Mirrors templates/azure-devops-dbt-pipeline.yml stage-for-stage. This workflow:
+# 1. Installs ODBC Driver 18 for SQL Server
+# 2. Installs dbt-core and dbt-fabric
+# 3. Runs dbt build (models + tests)
+# 4. Uploads dbt artifacts (docs, logs)
+#
+# Prerequisites:
+# - A service principal (CLI auth) with access to the Fabric warehouse.
+#
+# Repository secrets required (Settings -> Secrets and variables -> Actions):
+# - AZURE_TENANT_ID
+# - AZURE_CLIENT_ID
+# - AZURE_CLIENT_SECRET
+# - FABRIC_SERVER
+# - FABRIC_DATABASE
+# - FABRIC_SCHEMA
+
+name: dbt build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "customer-implementation/dbt/**"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "customer-implementation/dbt/**"
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: "0 6 * * *"
+
+env:
+  DBT_PROJECT_DIR: customer-implementation/dbt/retail_analytics
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  dbt_build:
+    name: Run dbt build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install ODBC Driver 18 for SQL Server
+      - name: Install ODBC Driver 18
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+
+      # Set up Python
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # Install dbt
+      - name: Install dbt-core and dbt-fabric
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-core dbt-fabric
+          dbt --version
+
+      # Create profiles.yml from secrets
+      - name: Create profiles.yml
+        env:
+          FABRIC_SERVER: ${{ secrets.FABRIC_SERVER }}
+          FABRIC_DATABASE: ${{ secrets.FABRIC_DATABASE }}
+          FABRIC_SCHEMA: ${{ secrets.FABRIC_SCHEMA }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          retail_analytics:
+            target: prod
+            outputs:
+              prod:
+                type: fabric
+                driver: "ODBC Driver 18 for SQL Server"
+                server: "${{ secrets.FABRIC_SERVER }}"
+                database: "${{ secrets.FABRIC_DATABASE }}"
+                schema: "${{ secrets.FABRIC_SCHEMA }}"
+                port: 1433
+                authentication: ServicePrincipal
+                tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
+                client_id: "${{ secrets.AZURE_CLIENT_ID }}"
+                client_secret: "${{ secrets.AZURE_CLIENT_SECRET }}"
+          EOF
+
+      # Verify connection
+      - name: dbt debug
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
+        run: dbt debug
+
+      # Install dbt packages
+      - name: dbt deps
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
+        run: dbt deps
+
+      # Run dbt build (models + tests)
+      - name: dbt build
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
+        run: dbt build --fail-fast
+
+      # Generate docs
+      - name: dbt docs generate
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
+        run: dbt docs generate
+
+      # Upload artifacts (docs, logs, manifest)
+      - name: Upload dbt artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-artifacts
+          path: ${{ env.DBT_PROJECT_DIR }}/target
+
+  # Optional: separate job for production deployment
+  deploy_prod:
+    name: Deploy dbt models to production
+    needs: dbt_build
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Production deployment placeholder
+        run: |
+          echo "Production deployment would run here"
+          echo "Consider: dbt run --target prod --select state:modified+"

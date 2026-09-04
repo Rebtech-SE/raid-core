@@ -1,0 +1,23 @@
+{
+  "name": "raid-core",
+  "displayName": "RAID Core",
+  "description": "RAID core - AI-assisted data platform engineering. The orchestration pipeline (requirements intake, assess, architecture, design, plan, work, compliance, compound) plus tech-agnostic data skills (medallion, ingestion, SCD, data quality, dbt, orchestration) and the data-platform reviewer subagents. Install this plus the plugin for your platform (raid-fabric, raid-gcp, raid-aws, raid-databricks).",
+  "author": {
+    "name": "Rebtech",
+    "url": "https://dev.azure.com/rebtech"
+  },
+  "homepage": "https://dev.azure.com/rebtech/RAID",
+  "repository": "https://dev.azure.com/rebtech/RAID/_git/raid-plugin",
+  "license": "Apache-2.0",
+  "keywords": [
+    "cursor",
+    "data-engineering",
+    "data-platform",
+    "medallion-architecture",
+    "scd",
+    "dbt",
+    "data-quality",
+    "compound-engineering",
+    "workflow-automation"
+  ]
+}
