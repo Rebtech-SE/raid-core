@@ -1,12 +1,14 @@
-# RAID opt-in usage telemetry for GitHub Copilot on Windows. PowerShell port of
+# RAID opt-in usage telemetry: the SESSION hook on Windows. PowerShell port of
 # telemetry-copilot.sh. See PRIVACY.md at the marketplace root.
 #
 # Why this file exists: Copilot CLI command hooks select the `bash` field on
 # Linux/macOS and the `powershell` field on Windows. raid-core ships both, so a
 # Windows Copilot session runs THIS script instead of trying (and failing) to
 # spawn bash.exe. Behaviour is identical to telemetry-copilot.sh: ONE
-# sessionStart event per RAID-configured Copilot session, the same opt-in gate,
-# the same payload shape, and the same per-repo -> global config fallback.
+# SessionStart event per RAID-configured session -- on either host, with the host
+# named in the sentinel -- the same opt-in gate, the same payload shape, and the
+# same per-repo -> global config fallback. (The filename is historical; see the
+# note at the top of telemetry-copilot.sh for why it is not renamed.)
 #
 # Sends NOTHING unless a per-repo .raid/config.yaml -- or, when there is none, a
 # global config under ${RAID_GLOBAL_CONFIG_DIR:-${HOME:-$USERPROFILE}/.raid} --
@@ -84,13 +86,21 @@ if ($env:RAID_TELEMETRY_DISABLED) { Exit-Dbg 'kill switch RAID_TELEMETRY_DISABLE
 # "hooks.sessionStart: Invalid key in record"). Copilot accepts either spelling and
 # both shapes (verified 1.0.80), so capitalised+nested costs it nothing.
 #
-# The consequence is that Claude now fires this hook too. The event below is a
-# Copilot-only session denominator -- Claude reports its own usage per-skill via the
-# PostToolUse hook in telemetry.ps1 -- so it must not be emitted from a Claude
-# session. Copilot sets COPILOT_CLI / COPILOT_PLUGIN_ROOT for plugin hooks; Claude
-# sets neither. No Copilot marker, nothing to report.
-if (-not ($env:COPILOT_CLI -or $env:COPILOT_PLUGIN_ROOT)) {
-  Exit-Dbg 'not a Copilot session (no COPILOT_CLI/COPILOT_PLUGIN_ROOT)'
+# Both hosts fire this hook, and BOTH now report -- the sentinel names which one.
+# This was Copilot-only until the session denominator was extended to Claude: without
+# a session event, a Claude session is only visible when a skill happened to run, so
+# no rate is computable, only totals. Detection is by env marker -- Copilot sets
+# COPILOT_CLI / COPILOT_PLUGIN_ROOT, Claude Code sets CLAUDECODE /
+# CLAUDE_CODE_ENTRYPOINT -- with Copilot checked FIRST because it also sets
+# CLAUDE_PLUGIN_ROOT. An unrecognised host exits rather than guessing: a mislabelled
+# session biases the very host comparison the sentinel exists to enable.
+# Keep in step with telemetry-copilot.sh.
+if ($env:COPILOT_CLI -or $env:COPILOT_PLUGIN_ROOT) {
+  $sentinel = 'copilot:session-start'
+} elseif ($env:CLAUDECODE -or $env:CLAUDE_CODE_ENTRYPOINT) {
+  $sentinel = 'claude:session-start'
+} else {
+  Exit-Dbg 'unrecognised host (no COPILOT_CLI/COPILOT_PLUGIN_ROOT, no CLAUDECODE/CLAUDE_CODE_ENTRYPOINT)'
 }
 
 # curl.exe -- the real binary, NOT PowerShell's `curl` alias for Invoke-WebRequest.
@@ -261,7 +271,7 @@ $install = Protect-Field $install 64
 if (-not $install) { $install = 'unknown' }
 
 $ts = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
-$event = '{"ts":"' + $ts + '","skill_name":"copilot:session-start","plugin_version":"' + $version + '","engagement_id":"' + $engagement + '","session_id":"' + $session + '","installation_id":"' + $install + '"}'
+$event = '{"ts":"' + $ts + '","skill_name":"' + $sentinel + '","plugin_version":"' + $version + '","engagement_id":"' + $engagement + '","session_id":"' + $session + '","installation_id":"' + $install + '"}'
 
 $endpoint = $env:RAID_TELEMETRY_ENDPOINT
 if (-not $endpoint) { $endpoint = $DefaultEndpoint }

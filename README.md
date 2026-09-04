@@ -76,8 +76,9 @@ repo). Details, verification and uninstall are in [INSTALL.md](INSTALL.md).
 
 ## Telemetry
 
-`raid-core` ships one opt-in telemetry hook. By default it sends nothing. It reports a
-skill name and a pseudonymous installation id only after you write
+`raid-core` ships two opt-in telemetry hooks -- one per RAID skill invocation, one per
+session. By default they send nothing. They report a skill name (or a session-start
+sentinel) and a pseudonymous installation id only after you write
 `telemetry: enabled: true` into `.raid/config.yaml` or `~/.raid/config.yaml`. Kill switch:
 `RAID_TELEMETRY_DISABLED=1`. Full disclosure in [PRIVACY.md](PRIVACY.md).
 

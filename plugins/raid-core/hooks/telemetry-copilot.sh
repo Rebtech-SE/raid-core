@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
-# RAID opt-in usage telemetry for GitHub Copilot. Ported from the Claude Code telemetry
-# hook and shipped as-is. See PRIVACY.md at the marketplace root.
+# RAID opt-in usage telemetry: the SESSION hook. See PRIVACY.md at the marketplace root.
 #
-# Copilot SESSION hook (supplementary -- NOT the per-skill path):
-#   - Fires on `sessionStart` and reports ONE event per RAID-configured Copilot session:
-#     a session/installation denominator, distinct from per-skill usage.
-#   - Per-skill telemetry on Copilot is handled by telemetry.sh, NOT here. Earlier notes
-#     claimed per-skill was "structurally impossible" on Copilot; that was WRONG.
+# NAME IS HISTORICAL. This was Copilot-only when it was written and the filename kept
+# that; it now runs on BOTH hosts. Renaming it would break the one place a path to it
+# is recorded outside the plugin tree -- the user-level Copilot hooks config that
+# INSTALL.md writes as a workaround for copilot-cli#3659 -- which a plugin update does
+# not rewrite, so the rename would silently kill session telemetry on those machines.
+#
+# SESSION hook (supplementary -- NOT the per-skill path):
+#   - Fires on SessionStart and reports ONE event per RAID-configured session on either
+#     host: the session/installation denominator, distinct from per-skill usage. Without
+#     it a session is only visible when a skill happened to run, so no rate ("RAID was
+#     used in N of M sessions") is computable -- only totals, which also rise when a new
+#     engagement is signed.
+#   - Per-skill telemetry is handled by telemetry.sh on BOTH hosts, NOT here. Earlier
+#     notes claimed per-skill was "structurally impossible" on Copilot; that was WRONG.
 #     Re-verified on Copilot CLI 1.0.64 (2026-06-24): Copilot DOES expose a `skill` tool
 #     and fires PostToolUse for it, so hooks.json registers a `matcher:"skill"` entry ->
-#     telemetry.sh that captures real per-skill events. This hook remains only to count
-#     sessions where RAID was configured even when no skill ran.
+#     telemetry.sh that captures real per-skill events. This hook only counts sessions
+#     where RAID was configured, including those where no skill ran.
 #   - The payload is the five fields the ingest backend requires plus the optional
 #     installation_id (the backend accepts that one extra key and rejects any other). The
-#     event grain is encoded in `skill_name` as the sentinel "copilot:session-start" --
-#     clearly not a real skill, so it never pollutes skill-usage analytics.
+#     event grain is encoded in `skill_name` as the sentinel "claude:session-start" or
+#     "copilot:session-start" -- clearly not real skills, so they never pollute
+#     skill-usage analytics. Downstream MUST exclude them from skill facts and use them
+#     as the session denominator instead; raid-telemetry's ingest notebook does.
 #   - plugin_version is resolved at runtime (RAID_PLUGIN_VERSION override, the
 #     install-cache version segment -- the short commit SHA, the git HEAD of the
 #     plugin root, else "unknown"); manifests are version-less by policy.
@@ -72,12 +82,31 @@ dbg_exit() { dbg "exit: $1"; exit 0; }
 # "hooks.sessionStart: Invalid key in record"). Copilot accepts either spelling and
 # both shapes (verified 1.0.80), so capitalised+nested costs it nothing.
 #
-# The consequence is that Claude now fires this hook too. The event below is a
-# Copilot-only session denominator -- Claude reports its own usage per-skill via the
-# PostToolUse hook in telemetry.sh -- so it must not be emitted from a Claude
-# session. Copilot sets COPILOT_CLI / COPILOT_PLUGIN_ROOT for plugin hooks; Claude
-# sets neither. No Copilot marker, nothing to report.
-[ -n "${COPILOT_CLI:-}${COPILOT_PLUGIN_ROOT:-}" ] || dbg_exit "not a Copilot session (no COPILOT_CLI/COPILOT_PLUGIN_ROOT)"
+# Both hosts fire this hook, and BOTH now report -- the sentinel names which one.
+#
+# This used to be Copilot-only, on the reasoning that Claude "reports its own usage
+# per-skill". That was the wrong call for measurement: without a session event a
+# Claude session only exists in the data if a RAID skill happened to run, so there
+# is no denominator and no rate is computable -- "RAID was used in 6 of 10 sessions,
+# up from 3" cannot be expressed at all, only ever-rising totals that also rise when
+# a new engagement is signed. One event per session fixes that, and per-skill
+# telemetry is unchanged.
+#
+# The host is named in the sentinel rather than inferred downstream, because the
+# analytics side cannot tell them apart from any other field. Detection is by env
+# marker: Copilot sets COPILOT_CLI / COPILOT_PLUGIN_ROOT for plugin hooks; Claude
+# Code sets CLAUDECODE / CLAUDE_CODE_ENTRYPOINT. Copilot is checked FIRST because it
+# also sets CLAUDE_PLUGIN_ROOT for plugin hooks (which is why that variable is not a
+# usable Claude marker). An unrecognised host exits rather than guessing: a
+# mislabelled session biases exactly the Claude-vs-Copilot comparison this event is
+# for, and a missing row is recoverable where a wrong one is not.
+if [ -n "${COPILOT_CLI:-}${COPILOT_PLUGIN_ROOT:-}" ]; then
+  SENTINEL="copilot:session-start"
+elif [ -n "${CLAUDECODE:-}${CLAUDE_CODE_ENTRYPOINT:-}" ]; then
+  SENTINEL="claude:session-start"
+else
+  dbg_exit "unrecognised host (no COPILOT_CLI/COPILOT_PLUGIN_ROOT, no CLAUDECODE/CLAUDE_CODE_ENTRYPOINT)"
+fi
 command -v curl >/dev/null 2>&1 || dbg_exit "curl not on PATH"
 
 DEFAULT_ENDPOINT="https://raid-plugin-telemetry.azurewebsites.net/api/ingest"
@@ -272,7 +301,7 @@ INSTALL=$(printf '%s' "$INSTALL" | tr -d '\\"[:cntrl:]' | cut -c1-64)
 
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EVENT=$(printf '{"ts":"%s","skill_name":"%s","plugin_version":"%s","engagement_id":"%s","session_id":"%s","installation_id":"%s"}' \
-  "$TS" "copilot:session-start" "$VERSION" "$ENGAGEMENT" "$SESSION" "$INSTALL")
+  "$TS" "$SENTINEL" "$VERSION" "$ENGAGEMENT" "$SESSION" "$INSTALL")
 
 ENDPOINT="${RAID_TELEMETRY_ENDPOINT:-$DEFAULT_ENDPOINT}"
 # Logged as an ATTEMPT, not a delivery: the POST is fire-and-forget (backgrounded,

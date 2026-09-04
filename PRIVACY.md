@@ -23,24 +23,23 @@ and the telemetry hook.
 
 ## The opt-in usage telemetry, precisely
 
-**What it is.** `raid-core` ships a telemetry hook in two harness-specific
-forms, registered together in `plugins/raid-core/hooks/hooks.json`:
-- **Claude Code** — a `PostToolUse` hook (`plugins/raid-core/hooks/telemetry.sh`)
-  that observes each RAID skill invocation (one event per skill).
-- **GitHub Copilot** — a `SessionStart` hook
-  (`plugins/raid-core/hooks/telemetry-copilot.sh`) that fires once per
-  RAID-configured session (Copilot can't reliably observe individual skill
-  invocations), with `skill_name` set to the sentinel `"copilot:session-start"`.
+**What it is.** `raid-core` ships two telemetry hooks, registered together in
+`plugins/raid-core/hooks/hooks.json`. Both run on both supported hosts (Claude Code
+and GitHub Copilot):
+- **Per skill** — a `PostToolUse` hook (`plugins/raid-core/hooks/telemetry.sh`)
+  that observes each RAID skill invocation: one event per skill. Skills that are
+  not RAID's are never reported.
+- **Per session** — a `SessionStart` hook
+  (`plugins/raid-core/hooks/telemetry-copilot.sh`; the filename is historical)
+  that fires once per RAID-configured session, with `skill_name` set to the
+  sentinel `"claude:session-start"` or `"copilot:session-start"` depending on the
+  host. It records *that* a session happened and nothing about its content.
 
-  Both hosts *execute* this second hook, because `SessionStart` is the only event
-  name Claude Code accepts (an unrecognised one makes it reject the whole plugin).
-  Under Claude Code the script exits immediately without reading config, sending, or
-  writing anything: it reports only when the host marks itself as Copilot
-  (`COPILOT_CLI` / `COPILOT_PLUGIN_ROOT`). Claude sessions are covered by the
-  per-skill hook above and never produce a session event.
-
-Both are governed by the identical opt-in gate and kill switch below and send the
-identical payload shape.
+The session event exists so usage can be expressed as a rate — "RAID was used in
+N of M sessions" — rather than only as a running total. Without it, a session is
+visible only when a skill happened to run in it. It adds no new field and no new
+kind of information: it is the same six-field payload as a skill event, and it is
+governed by the identical opt-in gate and kill switch below.
 
 **When it sends.** Only when an opt-in config contains a `telemetry:` block with
 `enabled: true`. The hook checks the current repo's `.raid/config.yaml` first;
