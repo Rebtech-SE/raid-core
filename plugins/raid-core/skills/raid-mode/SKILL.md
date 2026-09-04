@@ -84,9 +84,9 @@ calls a complete piece. Never half-built models.
   re-derive a medallion one over the top. Where greenfield artifacts exist, honour them:
   `architecture.html` fixes tier/grain/naming/audit columns, `design.html` fixes the
   entity model, load modes and wave order.
-- **Read the domain skill before writing the pattern** -- `medallion-architecture`,
-  `scd-pattern`, `build-ingestion-pipeline`, `data-quality-checks`, `build-dbt-models`,
-  and the tier plugin's own skills.
+- **Read the knowledge skill for the one pattern you are about to write** (an SCD2
+  dimension, a Bronze load, a dbt model) and only that one. They route themselves by
+  description; do not pre-load the set.
 - **Dispatch the platform expert** (`fabric-cli-expert`, `databricks-expert`,
   `bigquery-expert`) for platform-specific execution rather than guessing CLI syntax.
 - **Build the tests with the code**, in the same unit -- unique/not_null on keys,
@@ -118,9 +118,8 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Is production healthy?** -> `check-platform-health`.
 - **Profiling a source before modelling it** -> `data-investigator`, or
   `investigate-fabric-source` on Fabric.
-- **Modelling decisions** -> the knowledge skills: `medallion-architecture`,
-  `kimball-dimensional-modeling`, `inmon-data-warehouse`, `scd-pattern`,
-  `data-quality-checks`.
+- **Modelling decisions** -> the knowledge skill for that decision (tiering, Kimball vs
+  Inmon, SCD type, quality rules). One at a time, as the decision comes up.
 - **Shipping** -> `commit-push-pr` (stages, commits, pushes, unslopped PR copy, applies, and babysits); `resolve-pr-feedback` when
   reviewers respond.
 - **An open PR that needs to go green** ("babysit this", "get it green", "watch CI",
