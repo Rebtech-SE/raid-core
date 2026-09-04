@@ -13,6 +13,12 @@ One plugin, `raid-core`: skills, reviewer/researcher agents, and the opt-in tele
 hooks. Marketplace name `raid-core`, plugin name `raid-core`, so the install id on every
 harness is `raid-core@raid-core`.
 
+Rebtech's platform tiers (`raid-fabric`, `raid-gcp`, `raid-aws`, `raid-databricks`) and
+`raid-greenfield` are not public. They install from a separate, private marketplace on top
+of the `raid-core@raid-core` installed here - keep this marketplace registered; a tier's
+dependency resolves against it. Nothing in this file changes for a user who never adds a
+tier.
+
 ## The flow - ask in order (blocking)
 
 1. **Harness** - Claude Code, Codex, GitHub Copilot CLI, Cursor, or something else.

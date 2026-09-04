@@ -24,7 +24,9 @@ repo. No registry, no build step, no account with Rebtech.
 
 The platform tiers (`raid-fabric`, `raid-gcp`, `raid-aws`, `raid-databricks`) and the
 greenfield discovery-and-design stages are **not** in this mirror. `raid-core` depends on
-nothing and is fully usable on its own.
+nothing and is fully usable on its own. The tiers are installed *on top of* this repo's
+`raid-core@raid-core` - they declare it as a dependency against this marketplace - so this
+is the right place to install core from even when a tier follows.
 
 ## Install
 
