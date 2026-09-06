@@ -1,0 +1,3 @@
+interface:
+  display_name: "Data Platform Orchestration"
+  short_description: "Schedule and sequence pipeline runs"

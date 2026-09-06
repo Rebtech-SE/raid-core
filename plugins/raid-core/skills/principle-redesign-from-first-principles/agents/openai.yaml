@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Redesign From First Principles"
+  short_description: "Redesign rather than bolt the change on"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Map Repo"
+  short_description: "Read a repo and prime agent context"

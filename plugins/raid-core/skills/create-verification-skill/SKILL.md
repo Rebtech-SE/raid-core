@@ -1,16 +1,17 @@
 ---
-name: close-the-loop
+name: create-verification-skill
 description: >-
   Use when a platform has no scripted way to prove its data is right, or the user says
   'close the loop', 'build a verification tool', 'how do I check this is correct', 'make a
-  query tool for this repo'. Builds two things into the engagement repo: a guarded
-  read-only query tool the agent can run safely against the warehouse, and a project-local
-  verify skill plus a data map that says, per mart, the query that proves it correct.
-  Turns 'validate against real data' from a rule into something an agent can actually run.
+  query tool for this repo'. Run once per engagement; `maintain-verification-skill` keeps
+  it honest after. Builds two things into the repo: a guarded read-only query tool the
+  agent can run safely against the warehouse, and a project-local verify skill plus a data
+  map that says, per mart, the query that proves it correct. Turns 'validate against real
+  data' from a rule into something an agent can actually run.
 disable-model-invocation: true
 ---
 
-# Close the Loop
+# Create Verification Skill
 
 `raid-core`'s hard rule says validate against real data. `principle-reconcile-against-source`
 says which probes to run. Neither says *how* on **this** platform -- so every session
@@ -231,15 +232,14 @@ Fix what fails and re-run. **A generated skill that was never executed is a draf
 deliverable** -- and on a customer's platform, a draft that claims to verify things is worse
 than nothing.
 
-## 6. Keep it honest
+## 6. Hand it to the maintenance loop
 
-The map rots the moment a mart changes grain or a new one ships. Re-run this skill against
-an existing map to audit it: read the current models, check each mapped mart still exists
-with the stated grain and consumers, run its proof query, and report drift. Add newly
-consumer-facing marts; delete files for marts that are gone.
-
-Run it after any change to the gold layer, and at the end of an engagement so whoever
+The map rots the moment a mart changes grain or a new one ships, and a stale map that
+claims to verify things is worse than none. This skill does not own that upkeep --
+`maintain-verification-skill` does. Point the user at it once, here, and say when to run
+it: after any change to the gold layer, and at the end of an engagement so whoever
 inherits the platform inherits a working check.
 
-Related: `principle-reconcile-against-source`, `principle-prove-it-works`,
-`principle-declare-the-grain`, `data-quality-checks`, `write-test-report`.
+Related: `maintain-verification-skill`, `principle-reconcile-against-source`,
+`principle-prove-it-works`, `principle-declare-the-grain`, `data-quality-checks`,
+`write-test-report`.

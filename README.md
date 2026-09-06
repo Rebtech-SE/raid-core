@@ -17,7 +17,7 @@ repo. No registry, no build step, no account with Rebtech.
 
 | Part | Contents |
 |---|---|
-| `plugins/raid-core/skills/` | Workflow skills (`raid-mode`, `build-dbt-models`, `build-ingestion-pipeline`, `simplify-code`, `review-changes`, `commit-push-pr`, `close-the-loop`, ...) and knowledge skills (`medallion-architecture`, `scd-pattern`, `kimball-dimensional-modeling`, `data-quality-checks`, ...) |
+| `plugins/raid-core/skills/` | Workflow skills (`raid-mode`, `build-dbt-models`, `build-ingestion-pipeline`, `simplify-code`, `review-changes`, `commit-push-pr`, `create-verification-skill`, ...) and knowledge skills (`medallion-architecture`, `scd-pattern`, `kimball-dimensional-modeling`, `data-quality-checks`, ...) |
 | `plugins/raid-core/agents/` | Reviewer personas (correctness, data integrity, medallion boundaries, SCD, reliability, cost, security, ...) and researcher subagents |
 | `plugins/raid-core/hooks/` | The **opt-in** usage telemetry hook. Off by default. See [PRIVACY.md](PRIVACY.md). |
 | `plugins/raid-core/AGENTS.md` | The engagement rules the skills assume (git workflow, conventional commits, paths) |

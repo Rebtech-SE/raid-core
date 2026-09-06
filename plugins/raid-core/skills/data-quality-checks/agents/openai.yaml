@@ -1,0 +1,3 @@
+interface:
+  display_name: "Data Quality Checks"
+  short_description: "Assertions that catch bad data early"

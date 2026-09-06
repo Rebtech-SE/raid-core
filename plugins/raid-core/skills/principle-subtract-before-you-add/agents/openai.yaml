@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Subtract Before You Add"
+  short_description: "Remove dead weight before building on it"
+policy:
+  allow_implicit_invocation: false

@@ -36,19 +36,74 @@ raid-mode -> work -> (write-test-report) -> simplify-code -> review-changes
 - **simplify-code** - quality-only tidy of the changed models/notebooks
 - **review-changes** - multi-agent review: correctness, integrity, medallion, SCD, reliability
 
-Side-channel skills: **map-repo** (explore a repo read-only and prime durable agent
+**Understanding, not changing** -- a question is not authorization to edit anything:
+**how** (mechanism, and the lineage trace back from a number to its source, naming
+the transform and the grain at each hop), **why** (the recorded rationale behind a
+grain, an SCD choice or a discrepancy, cited to an ADR, artifact, commit or ticket, with
+inference labelled as inference), and **teach** (walks a person through it plainly, on top
+of both -- also the handover explainer).
+
+**Breaking work down** -- **to-tickets** cuts a plan, artifact or conversation into
+vertical slices that each land bronze-to-gold with their tests, declares the blocking
+edges, and publishes them on the tracker. Wide schema changes go expand-migrate-contract
+instead of a tracer bullet. It publishes in the **standard ticket-brief shape** (below).
+
+**Proving it works** -- **create-verification-skill** builds the guarded query tool, the
+project-local `verify-<platform>` skill and the data map once per engagement;
+**maintain-verification-skill** audits and repairs that map against the models and against
+real data afterwards, so it does not go green while proving nothing.
+
+**Reshaping and enforcing** -- **refactoring** (structural moves with the output pinned
+and diffed before and after; `simplify-code` is the in-place counterpart),
+**codify-conventions** (turn how the repo behaves into sqlfluff/dbt/hook checks that
+actually fire -- the mechanism behind `principle-encode-lessons-in-structure`, where
+`map-repo` only records them), **resolving-merge-conflicts** (dbt YAML, notebook and
+pipeline JSON, lock files and generated manifests).
+
+Other side-channel skills: **map-repo** (explore a repo read-only and prime durable agent
 context -- architecture + conventions into a managed block in `AGENTS.md`, plus a
 `docs/audit/` tech-debt report), **setup-raid** (platform detection + `.raid/config.yaml`),
 **domain-modeling** (settle the business vocabulary in `GLOSSARY.md` and record hard
 decisions as ADRs), **grilling** + its routers **grill-me** / **grill-with-docs**
 (stress-test a plan or decision in rounds down a design tree; the with-docs router
 writes each settled decision into the glossary and `docs/adr/` as the round ends, via
-`domain-modeling`), **triage** (move tracker issues and external PRs through the triage
-roles into agent-ready briefs -- the intake front door whose `ready-for-agent` tickets
-this build loop claims; verifies claims against real data before anything is brief-worthy),
+`domain-modeling`; **grill-me** is the same interview without the artifacts), **triage**
+(move tracker issues and external PRs through the triage roles into agent-ready briefs --
+the intake front door whose `ready-for-agent` tickets this build loop claims; verifies
+claims against real data before anything is brief-worthy),
 **debug-data-issue**,
 **tune-workload** (metric-driven tuning loop for query cost/runtime/DQ),
-**review-sessions**, **check-platform-health**, **unslop** (audit and rewrite copy to eliminate AI slop), and the git skills (**commit-push-pr** -- single unified skill to stage, commit, push, draft unslopped PR copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready; **manage-worktrees**, **clean-gone-branches**, **resolve-pr-feedback**, **babysit** -- drive an open PR to merge-ready on any host, never merging it).
+**review-sessions** (read-only sweep over recent session history for decisions, fixes and
+unfinished threads the in-the-moment loop missed), **check-platform-health**,
+**handoff** (compact the session into a pickup document in the OS temp directory --
+never into the customer's repo), **autoreview** (an extra single-engine review of a change
+bundle, asked for by name -- distinct from `review-changes`, which is the data-reviewer
+panel in the build loop), **report-raid-bug** (RAID itself misbehaved),
+**unslop** (audit and rewrite copy to eliminate AI slop), and the git skills
+(**commit-push-pr** -- single unified skill to stage, commit, push, draft unslopped PR
+copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready;
+**manage-worktrees**, **resolve-pr-feedback**, **babysit** --
+drive an open PR to merge-ready on any host, never merging it).
+
+## One brief shape
+
+Every ticket body and every subagent brief uses the same seven sections, in this order:
+
+```
+Goal   Scope   Context   Acceptance   Verify   Forbidden   Blocked by
+```
+
+`to-tickets` publishes in it, `triage` rewrites an incoming issue into it, `wayfinder`
+gives a `task` ticket that shape, and `raid-mode` briefs a subagent with it. One shape
+means a ticket written by any of them is picked up by any of the others with no
+translation. **A section you cannot fill is a ticket that is not ready** -- do not mark it
+`ready-for-agent`. The section definitions live in `to-tickets`'
+`references/ticket-brief.md`; `triage`'s `references/agent-brief.md` is the data-shaped
+guidance for filling them in.
+
+On a customer estate, `Verify` and `Forbidden` are the sections that matter most: `Verify`
+is where the real-data check gets written down instead of improvised, and `Forbidden` is
+the written form of the autonomy boundary in the hard rules below.
 
 ## The full pipeline (raid-greenfield)
 

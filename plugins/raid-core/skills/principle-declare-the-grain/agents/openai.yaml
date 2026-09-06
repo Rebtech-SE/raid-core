@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Declare the Grain"
+  short_description: "State what one row means, before modelling"
+policy:
+  allow_implicit_invocation: false

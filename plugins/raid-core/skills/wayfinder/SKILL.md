@@ -85,6 +85,11 @@ Each ticket is a **child issue** of the map; the tracker's issue id is its ident
 <the decision or investigation this ticket resolves>
 ```
 
+A ticket of type `task` -- one that produces a build rather than a decision -- uses RAID's
+standard ticket-brief shape instead (Goal, Scope, Context, Acceptance, Verify, Forbidden,
+Blocked by), so the build loop can claim it without translation. `to-tickets` owns that
+shape and its definitions.
+
 Each ticket records one type — `research`, `prototype`, `grilling`, or `task` — as
 a `wayfinder:<type>` label where labels are available, otherwise with the fallback
 field above (see [Ticket Types](#ticket-types)).
@@ -100,7 +105,10 @@ the fallback body field. A ticket is **unblocked** when every ticket blocking it
 is closed; the **frontier** is the open, unblocked, unclaimed children, the edge
 of the known.
 
-The answer isn't part of the body; it's recorded on resolution (see [Work through the map](#work-through-the-map)). Assets created while resolving a ticket are linked from the issue, not pasted in.
+On resolution, the durable answer is recorded in the body or the linked artifact, and the
+comment summarises and links it (see [Work through the map](#work-through-the-map)) -- an
+answer that lives only in a comment thread is one the next reader has to reconstruct.
+Assets created while resolving a ticket are linked from the issue, not pasted in.
 
 ## Ticket Types
 
@@ -158,3 +166,8 @@ User invokes with a map (URL or number). A ticket is **optional**: without one, 
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.
+
+**When the map is clear**, hand off rather than starting to build inside it: run
+`to-tickets` to cut the now-visible work into vertical slices with their blocking edges,
+then work them through `raid-mode`. The map's Decisions-so-far is the Context those tickets
+point at.

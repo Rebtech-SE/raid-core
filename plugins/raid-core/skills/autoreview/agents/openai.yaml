@@ -1,0 +1,3 @@
+interface:
+  display_name: "Autoreview"
+  short_description: "Second-model review of a change bundle"

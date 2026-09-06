@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill With Docs"
+  short_description: "Grill a plan, writing glossary and ADRs"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Inmon Data Warehouse"
+  short_description: "Normalised enterprise warehouse modelling"

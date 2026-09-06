@@ -207,7 +207,7 @@ repo's own content is never touched:
 This repo is run as a RAID engagement (rebtech RAID plugins).
 
 - Entry point: `raid-mode` -- it picks the route and runs the build loop
-  (`work -> simplify-code -> review-changes -> open-pull-request`).
+  (`work -> simplify-code -> review-changes -> commit-push-pr`).
 - Engagement config: `.raid/config.yaml` -- active platform, git provider,
   issue tracker (+ triage label mapping), architecture style, layer naming.
 - Domain vocabulary lives in `GLOSSARY.md` and decisions in `docs/adr/`,

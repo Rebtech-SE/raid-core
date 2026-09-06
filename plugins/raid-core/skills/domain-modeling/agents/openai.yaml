@@ -1,0 +1,3 @@
+interface:
+  display_name: "Domain Modeling"
+  short_description: "Settle vocabulary in GLOSSARY.md and ADRs"

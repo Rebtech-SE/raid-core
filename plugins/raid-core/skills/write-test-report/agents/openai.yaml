@@ -1,0 +1,3 @@
+interface:
+  display_name: "Write Test Report"
+  short_description: "Test report for a cycle, from real runs"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Why"
+  short_description: "Find the cited rationale behind a decision"

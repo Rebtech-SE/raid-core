@@ -1,0 +1,3 @@
+interface:
+  display_name: "Report RAID Bug"
+  short_description: "File a bug against RAID itself"

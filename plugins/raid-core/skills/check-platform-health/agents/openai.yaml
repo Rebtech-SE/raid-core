@@ -1,0 +1,3 @@
+interface:
+  display_name: "Check Platform Health"
+  short_description: "Check whether the platform is healthy"

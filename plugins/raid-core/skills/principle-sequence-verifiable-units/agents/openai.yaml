@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Sequence Verifiable Units"
+  short_description: "Small units, each checked before the next"
+policy:
+  allow_implicit_invocation: false

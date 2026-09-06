@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Exhaust the Design Space"
+  short_description: "Compare alternatives before committing"
+policy:
+  allow_implicit_invocation: false

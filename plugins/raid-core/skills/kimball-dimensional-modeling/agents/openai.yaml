@@ -1,0 +1,3 @@
+interface:
+  display_name: "Kimball Dimensional Modeling"
+  short_description: "Star schemas, facts and conformed dimensions"

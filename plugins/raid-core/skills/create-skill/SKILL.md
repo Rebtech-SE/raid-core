@@ -137,7 +137,7 @@ out of several, a schema, a worked example, a lookup table. The classic shape is
 that carries the workflow and the selection logic, with one reference file per variant:
 
 ```
-close-the-loop/
+create-verification-skill/
 ├── SKILL.md                        # workflow + which platform, which guarantees
 └── references/
     └── data-map-example.md         # the shape, read only when writing one
@@ -215,7 +215,7 @@ this repo or this platform, reading the skill once and acting on it.
   description.
 
 This section applies double to a **project-local skill generated into a customer's repo**
--- see `close-the-loop`, which writes a `verify-<platform>` skill into the engagement.
+-- see `create-verification-skill`, which writes a `verify-<platform>` skill into the engagement.
 Nobody reviews that file the way a PR to this repo gets reviewed, so the discipline has to
 be in the generator: resolve the real skills directory rather than assuming one, write real
 commands taken from the repo you just interviewed, and **run the generated skill's own
@@ -292,5 +292,5 @@ gets forgotten, not to be recited.
 ---
 
 Related: `raid-mode` (routes work, and is itself an example of a
-`disable-model-invocation` entry point), `close-the-loop` (generates a project-local skill
+`disable-model-invocation` entry point), `create-verification-skill` (generates a project-local skill
 into a customer repo), `simplify-code` (the same subtract-first instinct, applied to code).

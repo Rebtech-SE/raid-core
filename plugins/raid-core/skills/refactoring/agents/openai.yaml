@@ -1,0 +1,3 @@
+interface:
+  display_name: "Refactoring"
+  short_description: "Restructure code, pin and diff the output"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Review Changes"
+  short_description: "Multi-persona review of a data change"

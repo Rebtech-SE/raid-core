@@ -62,8 +62,8 @@ git worktree remove <path>
   confirms `--force` -- removing it discards that work. Surface the dirty state and stop.
 - Never remove the main working tree (the original repo directory).
 - After removal, offer `git worktree prune` to clear stale administrative refs, and note
-  that the branch itself still exists (delete it with `clean-gone-branches` once
-  its PR merges).
+  that the branch itself still exists (`git branch -d <branch>` once its PR merges, or
+  `git fetch --prune` then delete the ones whose upstream is gone).
 
 ## Rules
 

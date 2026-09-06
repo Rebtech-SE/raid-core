@@ -1,0 +1,3 @@
+interface:
+  display_name: "Azure DevOps CLI"
+  short_description: "Drive Azure DevOps from the command line"

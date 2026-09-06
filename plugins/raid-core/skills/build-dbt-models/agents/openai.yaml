@@ -1,0 +1,3 @@
+interface:
+  display_name: "Build dbt Models"
+  short_description: "Write dbt models to the repo's conventions"

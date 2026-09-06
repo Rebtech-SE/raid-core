@@ -1,0 +1,3 @@
+interface:
+  display_name: "RAID Mode"
+  short_description: "Route and run data-platform work"

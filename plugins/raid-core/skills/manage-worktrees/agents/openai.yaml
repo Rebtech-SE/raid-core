@@ -1,0 +1,3 @@
+interface:
+  display_name: "Manage Worktrees"
+  short_description: "Run parallel work in separate worktrees"

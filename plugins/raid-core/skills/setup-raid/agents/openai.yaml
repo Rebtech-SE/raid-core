@@ -1,0 +1,3 @@
+interface:
+  display_name: "Setup RAID"
+  short_description: "Detect the platform, configure the engagement"

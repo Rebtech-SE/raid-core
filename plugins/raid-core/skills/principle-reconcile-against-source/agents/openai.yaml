@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Reconcile Against Source"
+  short_description: "Tie the numbers back to the source"
+policy:
+  allow_implicit_invocation: false

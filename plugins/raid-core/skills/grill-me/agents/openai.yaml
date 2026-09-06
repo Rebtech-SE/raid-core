@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill Me"
+  short_description: "Grill a plan without writing artifacts"
+policy:
+  allow_implicit_invocation: false

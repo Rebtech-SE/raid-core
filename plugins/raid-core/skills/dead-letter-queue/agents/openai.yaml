@@ -1,0 +1,3 @@
+interface:
+  display_name: "Dead Letter Queue"
+  short_description: "Handle records a pipeline cannot process"

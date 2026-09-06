@@ -1,0 +1,3 @@
+interface:
+  display_name: "SCD Pattern"
+  short_description: "Slowly changing dimensions, types 1 to 6"

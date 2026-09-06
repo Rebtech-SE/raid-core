@@ -1,0 +1,3 @@
+interface:
+  display_name: "Write dbt Unit Tests"
+  short_description: "Unit-test dbt model logic with fixtures"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Babysit"
+  short_description: "Drive an open PR to merge-ready"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Data Investigator"
+  short_description: "Profile a source before modelling it"

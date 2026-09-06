@@ -1,10 +1,24 @@
 # Writing Agent Briefs
 
 Adapted from ossian-stack `skills/triage/AGENT-BRIEF.md`, translated for data
-work. An agent brief is a structured comment posted on an issue or PR when it
-moves to `ready-for-agent`. It is the authoritative specification that an agent
-working through `raid-mode` will build from. The original body and discussion
-are context -- the brief is the contract.
+work. An agent brief is what an issue or PR body becomes when it moves to
+`ready-for-agent`. It is the authoritative specification that an agent working
+through `raid-mode` will build from. The original report and discussion are
+context -- the brief is the contract.
+
+**It uses RAID's standard ticket-brief shape: Goal, Scope, Context, Acceptance,
+Verify, Forbidden, Blocked by.** That is the same shape `to-tickets`
+publishes, `wayfinder` gives a decision ticket, and `raid-mode` uses to brief a
+subagent -- one shape, so a ticket from any of them is picked up by any of the
+others with no translation. The section definitions live in `to-tickets`'
+`references/ticket-brief.md`; this file is the data-shaped guidance for filling
+them in during triage.
+
+**Rewrite the ticket body, do not only comment.** The pickup loop reads the
+body. A Verify or Blocked by that exists only in a comment is one an agent will
+not see. On a tracker whose issues are page-bodied, the body rewrite *is* the
+brief; post a short readiness summary as the comment and let it point at the
+body.
 
 The brief states **what the agent should do**: for an issue, building the
 change from nothing (a Bronze ingestion, a Silver conform, a Gold measure); for
@@ -72,109 +86,167 @@ silently.
 ## Template
 
 ```markdown
-## Agent Brief
-
 **Category:** bug / enhancement
-**Summary:** one-line description of what needs to happen
 
-**Current behavior:**
-What happens now. For bugs, the broken behavior -- with the numbers triage
-observed (and whether it was validated against real data). For enhancements,
-the status quo the feature builds on.
+## Goal
 
-**Desired behavior:**
-What should hold after the work is complete. State the grain, the keys, the
-load pattern, and edge cases (late-arriving data, nulls, source restatements).
+One or two sentences: the outcome, from the consumer's point of view. For a
+bug, what should hold instead of the broken behaviour -- with the numbers
+triage observed and whether they were validated against real data. For an
+enhancement, what the platform should do that it does not do now. State the
+grain, the keys and the load pattern, plus the edge cases (late-arriving data,
+nulls, source restatements).
 
-**Domain terms:** (glossary definitions this work depends on or sharpens)
-- `net_sales` -- per GLOSSARY.md; this work implements, not redefines, it
+For a PR, the Goal is what is left to do *to the existing diff* -- finish it,
+close the gaps, address the review points -- not a rebuild from scratch.
 
-**Key contracts:**
+## Scope
+
+The models, layers and domains this may change, and what it must not touch.
+Named in `GLOSSARY.md` vocabulary, not file paths. Include the contracts that
+must hold:
+
 - `silver.orders` grain and uniqueness -- what changes and why
-- Downstream consumers -- which marts/dashboards read this model
-- Config shape -- any new parameters, variables, or triggers needed
+- downstream consumers -- which marts, reports or extracts read this model
+- config shape -- new parameters, variables or triggers needed
+- the branch or worktree convention, and the environment the work happens in
 
-**Verification expectations:**
-- What must be checked against real data before review (row-count
-  reconciliation, grain uniqueness, null rates, before/after parity)
-- Read access available: yes/no
+## Context
 
-**Acceptance criteria:**
-- [ ] Specific, data-checkable criterion 1
-- [ ] Specific, data-checkable criterion 2
+Pointers a cold agent needs: the original issue and its evidence, the ADR that
+settled the grain, the `design.html` section that fixes the entity model, the
+profiling report, the prior ticket this builds on. Plus the domain terms this
+work depends on:
 
-**Out of scope:**
-- What should NOT be changed or addressed here
-- Adjacent model that might seem related but is separate
+- `net_sales` -- per `GLOSSARY.md`; this work implements it, it does not
+  redefine it
+
+## Acceptance
+
+- [ ] specific, data-checkable criterion 1
+- [ ] specific, data-checkable criterion 2
+
+At least one criterion is a statement about the data, not the code.
+
+## Verify
+
+The exact commands that prove Acceptance -- the project's `verify-<platform>`
+skill and its proof queries where they exist -- plus the reconciliation to run
+(row-count parity, grain uniqueness, null rates, before/after parity) and any
+gotcha about when the source lands. State whether read access is available; if
+it is not, say so here so the agent labels its result "not validated against
+data" rather than discovering the gap at the end.
+
+## Forbidden
+
+What must not happen beyond the standing rules: no production writes, no
+backfill or overwrite without a go-ahead, no grain change, nothing outside the
+scope above. Plus the adjacent work that looks related and is not.
+
+## Blocked by
+
+The tickets that gate this one, or `None -- can start immediately`. Use the
+tracker's native blocking relation as well where it has one.
 ```
 
 ## Example: bug brief
 
 ```markdown
-## Agent Brief
-
 **Category:** bug
-**Summary:** Duplicate rows in gold.orders after late-arriving source events
 
-**Current behavior:**
-For the last 3 business days, `gold.orders` returns 2 rows for some
-order_line_ids (validated against the source: 14,203 source lines vs 14,218
-rows in the model for the period). The duplication coincides with source
-restatements arriving after the daily load.
+## Goal
 
-**Desired behavior:**
-`gold.orders` carries exactly one row per order_line_id per business_date;
-late-arriving restatements update the affected rows in place on the next run
-instead of appending.
+`gold.orders` carries exactly one row per `order_line_id` per `business_date`,
+and late-arriving restatements update the affected rows in place on the next
+run instead of appending. Today it returns 2 rows for some `order_line_id`s
+over the last 3 business days -- validated against the source: 14,203 source
+lines vs 14,218 model rows for the period. The duplication coincides with
+source restatements arriving after the daily load.
 
-**Domain terms:**
-- `order` -- per GLOSSARY.md; cancelled orders are excluded from this model
+## Scope
 
-**Key contracts:**
-- `gold.orders` grain: order_line_id x business_date -- unchanged
-- Downstream: `fct_sales` and the revenue dashboard read this model and must
-  not see the grain change
+May change: the `gold.orders` model and its incremental strategy. Must not
+change its grain (`order_line_id` x `business_date`) or anything upstream in
+silver. Downstream `fct_sales` and the revenue dashboard read this model and
+must not see a grain change. Branch `feature/*` off `origin/main`; build in dev.
 
-**Verification expectations:**
-- Read access available: yes
-- Before/after row-count parity against the source for the affected period,
-  plus the grain-uniqueness test green
+## Context
 
-**Acceptance criteria:**
-- [ ] Grain-uniqueness test on order_line_id + business_date passes
-- [ ] Row counts reconcile with the source for the affected period
-- [ ] The backfill of the affected days is included and reconciled
-- [ ] Load runs after a restatement are idempotent (re-run changes nothing)
+- Reported in #418, with the reconciliation query and its output.
+- `order` per `GLOSSARY.md` -- cancelled orders are excluded from this model.
+- The restatement behaviour of the source is profiled in the investigation
+  report linked from #418.
 
-**Out of scope:**
-- Changing the model's grain
-- Backfilling periods before the current quarter
+## Acceptance
+
+- [ ] grain-uniqueness test on `order_line_id` + `business_date` passes
+- [ ] row counts reconcile with the source for the affected period
+- [ ] the backfill of the affected days is included and reconciled
+- [ ] load runs after a restatement are idempotent (a re-run changes nothing)
+
+## Verify
+
+`dbt build --select +gold.orders`, then the reconciliation in
+`.agents/skills/verify-<platform>/data-map/gold-orders.md`. Read access:
+available. Gotcha: the source extract lands at 03:00 UTC; running before that
+makes the reconciliation short by a day.
+
+## Forbidden
+
+No production writes. The backfill of the affected days is part of this work
+but stays a gated step -- queue it with the proposed range, do not run it.
+Do not change the model's grain. Do not backfill periods before the current
+quarter.
+
+## Blocked by
+
+None -- can start immediately.
 ```
 
 ## Example: PR brief
 
-For a PR, "Current behavior" describes the state of the diff, and the brief
-asks the agent to finish or fix it rather than build from scratch.
+For a PR, the Goal describes what is left to do to the diff, and Context points
+at the diff itself.
 
 ```markdown
 **Category:** enhancement
-**Summary:** Finish the contributor's incremental-load change to silver_customers
 
-**Current behavior:**
-The PR converts the full-refresh load to incremental using an ingestion
-timestamp watermark. The happy path works; two gaps remain: the watermark is
-not persisted between runs, and there is no before/after parity check.
+## Goal
 
-**Verification expectations:**
-- Read access available: yes
-- Before/after row-count and checksum parity on a full re-run vs the
-  incremental path
+Finish the contributor's incremental-load change to `silver_customers`. The PR
+converts the full-refresh load to incremental using an ingestion-timestamp
+watermark and the happy path works. Two gaps remain: the watermark is not
+persisted between runs, and there is no before/after parity check.
 
-**Acceptance criteria:**
-- [ ] Re-running the incremental load changes nothing (idempotent)
-- [ ] Parity between the old full-refresh output and the incremental output
-      for the same period
-- [ ] Late-arriving updates are picked up on the next run
+## Scope
+
+May change: `silver_customers` and its incremental config, plus the parity
+check. Must not touch the bronze load or any downstream mart.
+
+## Context
+
+PR #221 and its review comments. The watermark pattern this should follow is
+in `silver_products`.
+
+## Acceptance
+
+- [ ] re-running the incremental load changes nothing (idempotent)
+- [ ] parity between the old full-refresh output and the incremental output for
+      the same period
+- [ ] late-arriving updates are picked up on the next run
+
+## Verify
+
+Full-refresh into a scratch schema, then the incremental path, then diff row
+count, key set and column checksum. Read access: available.
+
+## Forbidden
+
+No production writes. Do not force-push over the contributor's commits.
+
+## Blocked by
+
+None -- can start immediately.
 ```
 
 ## Bad brief
@@ -191,6 +263,8 @@ The join around line 150 has the issue.
 - models/staging/stg_orders.sql (line 42)
 ```
 
-Bad because: no category, no grain or numbers, no validated evidence, file
-paths and line numbers that will go stale, no acceptance criteria, no scope
-boundaries.
+Bad because: it is not in the brief shape at all -- no Goal a stranger could
+execute, no Scope, no Acceptance, no Verify, no Forbidden. Plus no grain, no
+numbers, no validated evidence, and file paths and line numbers that will go
+stale. **A section you cannot fill means the ticket is not ready: do not apply
+`ready-for-agent` to it.**

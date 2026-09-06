@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Encode Lessons in Structure"
+  short_description: "Make the rule a check, not more prose"
+policy:
+  allow_implicit_invocation: false

@@ -48,7 +48,10 @@ local one silently (setup-raid owns the `local` decision).
 ## Reference docs
 
 - [`references/agent-brief.md`](./references/agent-brief.md) -- how to write
-  durable, data-shaped agent briefs.
+  durable, data-shaped agent briefs, in RAID's standard ticket-brief shape
+  (Goal, Scope, Context, Acceptance, Verify, Forbidden, Blocked by). The same
+  shape `to-tickets` publishes and `raid-mode` briefs a subagent with, so a
+  triaged ticket needs no translation to be picked up.
 
 ## Roles
 
@@ -142,11 +145,14 @@ Show counts and a one-line summary per item. Let the user pick.
    user.
 
 5. **Apply the outcome:**
-   - `ready-for-agent` -- post an agent brief
-     ([`references/agent-brief.md`](./references/agent-brief.md)). The build
-     loop picks it up from there: `raid-mode` works from tracker tickets and
-     claims one before building.
-   - `ready-for-human` -- same structure as an agent brief, but note why it
+   - `ready-for-agent` -- **rewrite the ticket body** into the brief shape
+     ([`references/agent-brief.md`](./references/agent-brief.md)), then post a
+     short readiness summary as the comment pointing at it. The pickup loop
+     reads the body, so a Verify or Blocked by left only in a comment is one
+     the agent never sees. **A section you cannot fill means the ticket is not
+     ready -- do not apply the role.** The build loop takes it from there:
+     `raid-mode` works from tracker tickets and claims one before building.
+   - `ready-for-human` -- same body rewrite, but the comment says why it
      cannot be delegated (judgment calls, external access, credentials,
      design decisions, manual testing against prod).
    - `needs-info` -- post triage notes (template below).
@@ -168,7 +174,7 @@ Show counts and a one-line summary per item. Let the user pick.
 If the user says "move #42 to ready-for-agent", trust them and apply the role
 directly. Confirm what you are about to do (role changes, comment, close),
 then act. Skip grilling. If moving to `ready-for-agent` without a grilling
-session, ask whether they want an agent brief written.
+session, ask whether they want the body rewritten into the brief shape.
 
 ## Needs-info template
 

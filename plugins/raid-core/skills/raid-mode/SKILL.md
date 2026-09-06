@@ -40,8 +40,9 @@ stages need `raid-greenfield`, and the platform CLI expert comes from the tier p
   decisions as ADRs. Do not carry a fuzzy definition into a build.
 - **Plan or decision still fuzzy?** Stress-test it with `grill-with-docs` before
   building: rounds of frontier questions down a design tree, each settled decision
-  written into `GLOSSARY.md`/`docs/adr/` as the round ends. Do not start a unit on an
-  un-grilled decision the user is not clearly behind.
+  written into `GLOSSARY.md`/`docs/adr/` as the round ends. Use `grill-me` instead when
+  the decision does not need documenting -- same interview, no artifacts. Do not start a
+  unit on an un-grilled decision the user is not clearly behind.
 
 ## Pick the route
 
@@ -49,6 +50,7 @@ Announce the route you picked and why, so the user can override before work star
 
 | Route | When | Flow |
 |---|---|---|
+| **Question** | They want to understand something, not change it -- "where does this number come from", "why is it modelled this way", "teach me this" | `how` for mechanism and lineage, `why` for rationale, `teach` to walk someone through it. **A question is not authorization to change anything** |
 | **Direct** | 1-2 files, no behavioural or modelling decision -- rename, config, typo | Do it here. No ticket, no ceremony |
 | **Incremental** *(default)* | Work on an existing codebase: ~<=5 models/files, no new source system, no new platform decision, conventions observable in the repo | Do the work (below) -> `simplify-code` -> `review-changes` |
 | **Too big to see the end of** | A platform migration, a new source system, a domain re-model -- more than one session can hold, and the route itself is still unclear | `wayfinder` charts it as decision tickets, one at a time, then come back here |
@@ -61,10 +63,10 @@ yourself; pass `interactive` to keep the gates.
 
 **Where the breakdown lives.** RAID does not write plan files into a customer's repo. Work
 out the units in the conversation and build them. If the work will outlive this session --
-someone else picks it up, it spans days, it needs to be visible to the customer -- publish
-the units as tickets on the engagement's issue tracker (`tracker.provider` in
-`.raid/config.yaml`; recipes in `setup-raid`'s `references/trackers/`), marked
-`ready-for-agent`, and work them from there. A ticket you claim before building is also how
+someone else picks it up, it spans days, it needs to be visible to the customer -- run
+`to-tickets`: it cuts the work into vertical slices, declares the blocking edges, and
+publishes each on the engagement's issue tracker in the standard brief shape, marked
+`ready-for-agent`. Work them from there. A ticket you claim before building is also how
 two agents avoid colliding. Work that arrived from outside this session -- a reported data
 bug, a customer request -- reaches you the same way: it has been through `triage` and
 arrives as a `ready-for-agent` ticket with an agent brief; read the brief as the contract
@@ -112,6 +114,9 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 
 ## Route to the specialists
 
+- **A question, not a change** -> `how` (mechanism, lineage, "where does this
+  number come from"), `why` (rationale, "why is it modelled this way", "why do
+  these two reports disagree"), `teach` (walk a person through it, including at handover).
 - **Something is wrong** -> `debug-data-issue` (root cause before fix, proven by a
   failing test). Fabric specifics: `debug-fabric`.
 - **Too slow / too expensive** -> `tune-workload`. For a known one-line fix, just fix it.
@@ -125,10 +130,34 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **An open PR that needs to go green** ("babysit this", "get it green", "watch CI",
   "check on PR X") -> `babysit`. It drives the PR to merge-ready on GitHub, Azure DevOps
   or GitLab and stops there -- the merge stays the user's call.
-- **No scripted way to prove the data is right** -> `close-the-loop`. Builds a guarded
-  read-only query tool plus a `verify-<platform>` skill and a data map that records, per
-  mart, the query that proves it correct. Run it once per engagement; it is what makes
-  "validate against real data" something an agent can actually execute.
+- **No scripted way to prove the data is right** -> `create-verification-skill`. Builds a
+  guarded read-only query tool plus a `verify-<platform>` skill and a data map that
+  records, per mart, the query that proves it correct. Run it once per engagement; it is
+  what makes "validate against real data" something an agent can actually execute.
+  `maintain-verification-skill` keeps that map honest afterwards -- run it after any change
+  to the gold layer and at handover, or the map goes green while proving nothing.
+- **Restructuring code that already works** -> `refactoring` when things move (split a
+  fat model, re-layer, rename a conformed dimension, dedupe copy-pasted SQL); pin the
+  output first and diff it after. `simplify-code` when the code stays where it is.
+- **Merge or rebase conflicts** -> `resolving-merge-conflicts`. dbt YAML, notebook and
+  pipeline JSON conflict badly and resolve worse.
+- **Writing conventions down so something checks them** -> `codify-conventions`. `map-repo`
+  reads a repo's conventions so an agent follows them; this one wires them into sqlfluff,
+  dbt, or a hook so a human cannot skip them.
+- **Running out of context, or handing the work on** -> `handoff`. Writes what is
+  done, what is verified against real data and what is not, and which gated actions are
+  queued, to a temp file -- never into the customer's repo.
+- **"What did we do last week", loose ends from a past session** -> `review-sessions`.
+  Read-only sweep over recent session history for decisions, fixes and unfinished threads
+  the in-the-moment loop did not capture.
+- **A second-model review of the diff** ("codex review", "autoreview", "have another model
+  look at this") -> `autoreview`. One structured single-engine pass over a change bundle,
+  every finding verified against the real code. Different from `review-changes`, which is
+  RAID's own multi-persona data-review panel: `review-changes` is the one in the build
+  loop and the one that knows about grain, SCD and layering; `autoreview` is an extra
+  outside opinion you ask for by name.
+- **RAID itself misbehaved** (a skill gave wrong guidance, an agent failed, a step is
+  missing) -> `report-raid-bug`.
 - **Writing or fixing a skill** -> `create-skill`. Also the reference for any skill RAID
   generates into a customer repo.
 - **Platform work** -> dispatch the tier's expert agent (`fabric-cli-expert`,
@@ -178,12 +207,22 @@ never converts a hard pause into a proceed.
 Every dispatch carries the whole brief. A field you cannot fill is a unit you have not
 scoped yet -- scope it before spawning.
 
+It is the **same seven-section shape as a ticket** -- one brief shape across RAID, so a
+subagent brief, a `triage` handoff, a `wayfinder` decision ticket and a `to-tickets`
+slice are interchangeable. Full definition in `to-tickets`'
+`references/ticket-brief.md`.
+
 ```
 GOAL        one sentence, the outcome, executable by someone with no access to this chat
-SCOPE       the files/models this unit may write; what it must not touch; its branch or worktree
+SCOPE       the models/layers this unit may write; what it must not touch; its branch or worktree
 CONTEXT     pointers to the files, artifacts and tickets it needs; paste upstream findings
             in full, because a subagent cannot see its siblings
-ACCEPTANCE  checkable criteria, one per line, including the data checks that prove it
+ACCEPTANCE  checkable criteria, one per line, at least one of them a check on the data
+VERIFY      the exact commands that prove Acceptance -- the project's verify-<platform>
+            skill and its proof queries where they exist
+FORBIDDEN   what this unit may not do beyond the standing rules: no prod writes, no
+            backfill or overwrite, nothing outside the named scope
+BLOCKED BY  the units that gate this one, or "none"
 ```
 
 Three rules that stop the common failures:
@@ -215,6 +254,9 @@ did not read the leaf.
 
 - **Prove It Works** (`principle-prove-it-works`). After a task, before declaring done.
   Run it and read the actual rows, never "it compiles".
+- **Sequence Verifiable Units** (`principle-sequence-verifiable-units`). Any sweep,
+  migration or backfill, and how you stack commits. First unit, check it, then the rest --
+  a wrong join found after forty models is a restatement, not a bad commit.
 - **Fix Root Causes** (`principle-fix-root-causes`). Debugging. In data work, suspect the
   data and the load before the SQL.
 

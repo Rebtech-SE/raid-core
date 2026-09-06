@@ -1,0 +1,5 @@
+interface:
+  display_name: "Principle: Model the Domain"
+  short_description: "Encode the domain, not scattered branches"
+policy:
+  allow_implicit_invocation: false

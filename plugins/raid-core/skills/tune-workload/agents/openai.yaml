@@ -1,0 +1,3 @@
+interface:
+  display_name: "Tune Workload"
+  short_description: "Cut query cost and runtime, measured"
