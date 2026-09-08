@@ -139,9 +139,19 @@ that carries the workflow and the selection logic, with one reference file per v
 ```
 create-verification-skill/
 ├── SKILL.md                        # workflow + which platform, which guarantees
+├── agents/
+│   └── openai.yaml                 # how Codex and ChatGPT display it
 └── references/
     └── data-map-example.md         # the shape, read only when writing one
 ```
+
+`agents/openai.yaml` is the one file outside that three-level model, because it is not
+loaded as context at all: Codex and ChatGPT render the skill *from* it, and Claude Code and
+Cursor ignore it. Every skill under `plugins/` ships one and `npm run validate` fails
+without it -- two required fields, a Title-Cased `display_name` and a hand-written 25-64
+character `short_description`. A skill that must not auto-route declares that in both files
+or the hosts disagree. Full rules, including why you edit this file rather than regenerate
+it: [openai-yaml.md](references/openai-yaml.md).
 
 Do **not** split just to get under a line count. A body that has been hollowed out into
 pointers costs a read round-trip for every step and reads worse than the long version. If a
@@ -224,6 +234,16 @@ executed is a draft, and a draft that claims to verify things is worse than noth
 
 ## 7. Creating one, start to finish
 
+**First, decide it should be a skill at all.** A lesson from one task is not yet a
+procedure. Ask for evidence that it recurs across tasks before it earns a place in the
+prompt budget every future session pays for. Three things that look like skill material
+usually are not: a *repository convention* belongs to `codify-conventions`; a *mechanical
+invariant* belongs in tooling, where it fails a build instead of hoping a model reads it
+(`scripts/validate.js` is where most of RAID's live); and a *one-off fact* belongs nowhere
+-- discard it rather than growing a skill around it. What is left states a goal, a
+completion condition, its constraints, the safe direction to fail in, and the facts an
+agent cannot derive from the repo in front of it.
+
 1. **Capture the intent.** Often the conversation already contains the workflow -- "turn
    this into a skill" means the commands, the corrections and the output format are in the
    history. Mine that first, then confirm the gaps. Ask: what should this let the agent do,
@@ -238,13 +258,23 @@ executed is a draft, and a draft that claims to verify things is worse than noth
 4. **Draft the frontmatter and the body**, applying sections 1-6.
 5. **Re-read it cold.** Draft, then look at it as if you had never seen it. This is the
    single highest-yield step and it costs one pass.
-6. **Run `npm run validate`** and fix everything. It checks manifests, frontmatter, the
+6. **Write `agents/openai.yaml` alongside the draft**, not at the end of the project --
+   see section 3 and [openai-yaml.md](references/openai-yaml.md).
+7. **Route it from somewhere.** A skill nothing else names by marker is reachable only by
+   someone who already knows it exists, so `npm run validate` fails it. Name it in
+   `raid-mode`, the plugin's `AGENTS.md`, or a sibling skill that would hand off to it --
+   in backticks, as `` `skill-name` ``. A deliberate exception goes in `SELF_ROUTING` in
+   `scripts/validate-skill-metadata.js` with the reason.
+8. **Run `npm run validate`** and fix everything. It checks manifests, frontmatter, the
    routing cue and the 600-character cap, duplicate skill names, links that escape their
-   plugin, `sources.json` provenance and the `CLAUDE.md` symlinks. It runs on pre-commit
-   and in CI, so a failure here is a failure there.
-7. **Update the inventory.** New or renamed skills belong in
-   the repo's `docs/skills/README.md` inventory, and a change to
-   user-facing behavior belongs on the project wiki alongside the PR.
+   plugin, `sources.json` provenance, the `CLAUDE.md` symlinks, the Codex metadata and
+   reachability above, and drift between `docs/plugin-map/map.json` and the skills on disk.
+   It runs on pre-commit and in CI, so a failure here is a failure there.
+9. **Place it on the plugin map and update the inventory.** A new skill needs an entry in
+   `docs/plugin-map/map.json` (its role, and a section that shows it) followed by
+   `npm run map:png`; new or renamed skills belong in the repo's `docs/skills/README.md`
+   inventory; and a change to user-facing behavior belongs on the project wiki alongside
+   the PR.
 
 ## 8. Improving one
 
@@ -263,6 +293,10 @@ This is where most of the value is; a first draft is rarely the skill.
   helper by hand, write it once into `scripts/` and point at it -- within the runtime
   constraint in section 4.
 - **Change one thing at a time** when you are trying to find out what helped.
+
+Auditing a whole library rather than one skill -- overlapping skills, descriptions past the
+routing cutoff, instruction files that contradict the scripts -- is `skill-cleaner`'s job.
+Run it before a round of edits so you are cutting from evidence rather than impression.
 
 ## 9. Measuring it
 
@@ -292,5 +326,6 @@ gets forgotten, not to be recited.
 ---
 
 Related: `raid-mode` (routes work, and is itself an example of a
-`disable-model-invocation` entry point), `create-verification-skill` (generates a project-local skill
+`disable-model-invocation` entry point), `skill-cleaner` (audits an existing library instead of
+authoring into it), `create-verification-skill` (generates a project-local skill
 into a customer repo), `simplify-code` (the same subtract-first instinct, applied to code).
