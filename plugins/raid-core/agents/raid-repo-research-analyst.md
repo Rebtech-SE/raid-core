@@ -10,7 +10,7 @@ You map an existing data codebase so the caller can plan and build *with the gra
 
 ## What to investigate
 
-- **Platform & stack.** What runs this? Look for `.raid/config.yaml`, dbt (`dbt_project.yml`, `profiles.yml`), Fabric/notebook artifacts, Databricks (`databricks.yml`, DABs), BigQuery/Dataform, Airflow/ADF/pipelines, `requirements.txt`/`pyproject.toml`. Identify the warehouse/lakehouse and orchestration.
+- **Platform & stack.** What runs this? Look for dbt (`dbt_project.yml`, `profiles.yml`), Fabric/notebook artifacts, Databricks (`databricks.yml`, DABs), BigQuery/Dataform, Airflow/ADF/pipelines, `requirements.txt`/`pyproject.toml`. Identify the warehouse/lakehouse and orchestration.
 - **Layering & structure.** Is there a medallion/tier structure (bronze/silver/gold, staging/intermediate/marts)? Where do sources, models, tests, and pipelines live? Map the directory layout to its responsibilities.
 - **Data models & grain.** The key fact/dimension tables, their grain, SCD usage, naming patterns for tables/columns, surrogate-key strategy.
 - **Ingestion & sources.** What sources are ingested, by what tool, on what cadence; how incremental loads and audit columns are handled.

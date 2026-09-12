@@ -17,9 +17,9 @@ seen.
 It is the mechanism behind `principle-encode-lessons-in-structure`: the second time you
 write the same correction, it becomes a check instead of more prose.
 
-`map-repo` **reads** conventions into `AGENTS.md` so an agent follows them. This skill
-**enforces** them so a human cannot skip them. They are complementary; run `map-repo` first
-on an unfamiliar repo and start from what it found.
+`map-repo` **observes** conventions and lists them in its report, without writing them into
+`AGENTS.md`. This skill **enforces** them, so neither a human nor an agent can skip them. Run
+`map-repo` first on an unfamiliar repo and start from the conventions it reported.
 
 Two entry points, one artifact:
 
@@ -35,7 +35,8 @@ every rule lands with the user's yes.
 
 Project-root `CONVENTIONS.md`, created **lazily** -- never pre-create it empty. An empty
 conventions file gets read, believed, and found empty. Create it when the first real rule
-lands.
+lands, and add one line pointing at it to the repo's `AGENTS.md`, where the file routes to
+its docs.
 
 Two classes of rule, clearly separated:
 

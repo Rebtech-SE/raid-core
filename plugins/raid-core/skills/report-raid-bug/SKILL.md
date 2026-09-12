@@ -42,8 +42,8 @@ Ask only if a load-bearing detail is missing.
 
 Collect what a maintainer will need, so they don't have to ask:
 
-- RAID plugin version(s) installed (`raid-core` + the active tier) and the active
-  platform from `.raid/config.yaml`.
+- RAID plugin version(s) installed (`raid-core` + the active tier) and the platform
+  the repo is built on.
 - The skill/agent name and, if known, the reference file involved.
 - Relevant tool/CLI versions if implicated (`az version`, `git --version`, Python
   version) -- only those plausibly related to the bug.
@@ -70,9 +70,8 @@ Then create it on the detected host:
 gh issue create --title "bug(<component>): <symptom>" --body-file <body.md> \
   --label raid-plugin --label bug --label <component>
 
-# Azure DevOps — resolve the project (--project, else .raid/config.yaml
-# git.azure_devops.project, else ask). New work items start in state New (do not set an
-# invalid state). If Bug is not an available type, fall back to Issue/Task and say so.
+# Azure DevOps — resolve the project (--project, else ask). New work items start in
+# state New (do not set an invalid state). If Bug is not an available type, fall back to Issue/Task and say so.
 az boards work-item create \
   --title "bug(<component>): <symptom>" --type Bug --project "<project>" \
   --description "<html>" \

@@ -45,8 +45,7 @@ nobody will wonder why. If there was no real alternative, there's nothing to rec
 ### What qualifies on a data platform
 
 - **Architecture style.** "Medallion, not a Kimball core." "The gold layer is
-  Kimball-dimensional; bronze and silver are not modelled." Also the `architecture:` key in
-  `.raid/config.yaml` when it deviates from the default.
+  Kimball-dimensional; bronze and silver are not modelled."
 - **Grain decisions.** "The sales fact is at order-line grain, not shipment grain, because
   returns reference the line." Grain is the most expensive thing in a warehouse to change.
 - **History and SCD choices.** "`dim_customer` is SCD2 on address only; name changes

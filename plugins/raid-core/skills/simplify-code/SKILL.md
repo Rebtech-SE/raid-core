@@ -170,7 +170,7 @@ settings apply. Give each reviewer:
 
 - the resolved file paths and the changed hunks;
 - **the rules it owns from The standard, pasted in full**, plus the Balance clause;
-- the platform context from `.raid/config.yaml` (Fabric / Databricks / BigQuery / etc.)
+- the platform the repo is built on (Fabric / Databricks / BigQuery / etc.)
   and the dbt project's conventions, so its suggestions match the engine's idioms.
 
 Give it nothing else - no commit message, no ticket text, no account of why the code looks

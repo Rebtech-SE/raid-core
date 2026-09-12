@@ -12,7 +12,7 @@ You gather authoritative, version-correct documentation for a specific data fram
 
 ## Method
 
-1. **Identify the exact artifact and version.** Determine the framework/library and the version actually in use -- read the repo's `requirements.txt`/`pyproject.toml`/`packages.yml`/`dbt_project.yml`/`Package.swift`/lockfiles, or the platform the engagement runs on (from `.raid/config.yaml`). Version mismatches are the most common cause of broken guidance; resolve the version before fetching docs.
+1. **Identify the exact artifact and version.** Determine the framework/library and the version actually in use -- read the repo's `requirements.txt`/`pyproject.toml`/`packages.yml`/`dbt_project.yml`/`Package.swift`/lockfiles, or the platform the engagement runs on (read off the repo, or the stack its `AGENTS.md` states). Version mismatches are the most common cause of broken guidance; resolve the version before fetching docs.
 2. **Go to the official source.** Vendor/maintainer docs first: dbt Labs, Microsoft Learn / Fabric REST API reference, Databricks docs, Google Cloud BigQuery docs, Delta/Iceberg, the dlt docs, or the source system's API reference. Fetch the specific pages for the API/config in question. Note the doc's version applicability.
 3. **Extract the load-bearing detail** -- exact function/parameter names, required config keys and their valid values, auth/permission requirements, rate limits, known deprecations, and breaking changes between versions. Quote signatures precisely; an approximate parameter name is worse than none.
 4. **Cross-check against the repo** when relevant -- does the code use an API that this version actually exposes?

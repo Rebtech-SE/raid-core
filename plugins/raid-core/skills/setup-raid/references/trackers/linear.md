@@ -1,7 +1,7 @@
 # Recipes: Linear (via GraphQL API)
 
-Used when `.raid/config.yaml` has `tracker.provider: linear`. `<TEAM>` and the team
-UUID come from the `tracker.linear` block. Linear has no official CLI -- use the
+Used when the provider in `docs/agents/issue-tracker.md` is `linear`. `<TEAM>` and the
+team UUID come from the identifiers in that file. Linear has no official CLI -- use the
 GraphQL API with `curl`. Verify unfamiliar field names against Linear's public
 schema before scripting them.
 ## Where work lives
@@ -39,7 +39,7 @@ lq 'query { team(id: "<team-uuid>") { issues(filter: { state: { type: { nin: ["c
 
 Issue identifiers (`ENG-123`) work directly as the `id` argument on `issue` queries.
 Resolve `<team-uuid>` once with `query { teams { nodes { id key name } } }` and
-record it here.
+record it as `team_id` in the engagement's `docs/agents/issue-tracker.md`.
 
 ## Conventions
 
@@ -59,8 +59,9 @@ record it here.
 
 ## Pull requests as a request surface
 
-**No.** Linear is not a code-review surface. If the engagement connects a git
-platform, record that host's CLI commands here when set to `yes`.
+**No.** Linear is not a code-review surface. When the engagement's
+`docs/agents/issue-tracker.md` records `external_prs: yes`, take the PR commands from
+the git host's recipe (`github.md`, `azure-devops.md`).
 
 ## When a skill says "publish to the issue tracker"
 

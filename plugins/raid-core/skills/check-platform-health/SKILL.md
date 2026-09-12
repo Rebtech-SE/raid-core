@@ -28,18 +28,20 @@ or mutates data -- when it finds a problem it hands off to `debug-data-issue`.
 <input> #$ARGUMENTS </input>
 
 - **Scope** (optional): which tables/jobs/datasets to check, or a platform area (e.g. "the
-  gold marts", "the nightly ingestion job"). Blank = the key targets from `.raid/config.yaml`
-  (gold/silver tables, the scheduled pipelines) or, if none recorded, ask once what to watch.
+  gold marts", "the nightly ingestion job"). Blank = the key targets the repo shows
+  (gold/silver tables, the scheduled pipelines) or, if none are evident, ask once what to watch.
 - `--since <window>` (optional): how far back for run history (default: last 24h / last few runs).
 
 ## Workflow
 
 ### 1. Resolve platform and scope
 
-Read `.raid/config.yaml` for the platform and the naming/audit conventions (the
-`_ingestion_timestamp` / `_valid_from` columns the freshness check keys on). Determine the
-scope (argument -> config -> ask). If no engagement config exists, this platform isn't set up
-for RAID yet -- say so and point at `setup-raid`.
+Read the platform off the repo (the dbt project and its adapter, Fabric item folders,
+`databricks.yml`, BigQuery/Dataform) or the stack its `AGENTS.md` states, and the audit and
+SCD column names the freshness check keys on from the models themselves (the `scd-pattern` /
+`medallion-architecture` defaults are `_ingestion_timestamp` / `_valid_from`).
+Determine the scope (argument -> repo -> ask). If the repo does not settle the platform, ask
+once.
 
 ### 2. Gather signals via the platform expert
 
@@ -64,7 +66,7 @@ Turn the signals into a status per dimension:
 - **Run health:** OK = latest runs succeeded; WARN = a transient/retried failure or a run
   overdue vs schedule; ALERT = a current failed run or a job that hasn't run when it should have.
 - **Freshness:** compare `now - latest data timestamp` against the table's expected cadence
-  (from config, or stated by the user). OK within cadence; WARN approaching the bound; ALERT
+  (from the job's schedule, or stated by the user). OK within cadence; WARN approaching the bound; ALERT
   past it (stale data reaching consumers).
 - **Data quality:** OK = assertions/tests green; WARN = non-blocking check failures or rising
   dead-letter volume; ALERT = a failed gate or integrity violation on a consumed table.

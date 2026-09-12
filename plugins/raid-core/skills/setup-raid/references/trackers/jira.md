@@ -1,8 +1,8 @@
 # Recipes: Jira (via REST API)
 
-Used when `.raid/config.yaml` has `tracker.provider: jira`. `<SITE>` and `<PROJECT>`
-come from the `tracker.jira` block. If the customer ships its own Jira CLI in the
-repo, prefer it over raw REST.
+Used when the provider in `docs/agents/issue-tracker.md` is `jira`. `<SITE>` and
+`<PROJECT>` come from the identifiers in that file. If the customer ships its own Jira
+CLI in the repo, prefer it over raw REST.
 ## Where work lives
 
 Issues live in **Jira**, project `<PROJECT>` at `https://<SITE>.atlassian.net`.
@@ -27,7 +27,8 @@ jira "/issue/createmeta/<PROJECT>/issuetypes"            # valid types
 jira "/issue/<KEY>/transitions"                          # valid transitions for an issue
 ```
 
-Record the answers here once discovered, with the date. A project with `Defect`
+Record the answers in the engagement's `docs/agents/issue-tracker.md` once
+discovered, with the date. A project with `Defect`
 and no `Bug` is common; so is a status set that models state as workflow rather
 than labels.
 
@@ -49,7 +50,7 @@ than labels.
 - **Transition**: `POST /issue/<KEY>/transitions` with the transition id from the
   transitions call above. Look the id up by the target status *name* each time; ids
   differ per workflow and are never worth recording.
-- **Roles on an existing board**: when `tracker.mapping.roles` maps a role to a
+- **Roles on an existing board**: when the `mapping` block's `roles` map a role to a
   `status`, "set the role" means transition to that status (plus add the mapped
   `label` if one is given, and set `resolution` in the transition payload's `fields`
   when mapped, e.g. Done / "Won't Do" for `wontfix`). Querying a role then becomes
@@ -59,8 +60,9 @@ than labels.
 
 ## Pull requests as a request surface
 
-**No.** Jira is not a code-review surface. Code review happens on the git host;
-record its commands here only if this engagement routes requests through PRs.
+**No.** Jira is not a code-review surface. Code review happens on the git host; when
+the engagement's `docs/agents/issue-tracker.md` records `external_prs: yes`, take the
+PR commands from that host's recipe (`github.md`, `azure-devops.md`).
 
 ## When a skill says "publish to the issue tracker"
 
@@ -76,7 +78,7 @@ unavailable.
 
 The **map** is one issue (`Epic`); each implementation unit is a child issue.
 
-- **Map**: an `Epic` (or `tracker.mapping.wayfinder.map_issuetype`) labelled
+- **Map**: an `Epic` (or the `mapping` block's `wayfinder.map_issuetype`) labelled
   `wayfinder:map`, its description carrying the plan's scope, decisions and open
   questions. With `markers: body`, the label is replaced by `Type: wayfinder-map` at
   the top of the description.

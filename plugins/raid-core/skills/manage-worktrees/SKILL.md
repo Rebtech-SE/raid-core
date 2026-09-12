@@ -39,10 +39,9 @@ git worktree add ../<repo>-<branch-slug> -b feature/<branch> origin/main
 - Place worktrees as **siblings** of the repo (e.g. `../<repo>-<slug>`), not nested
   inside it -- a nested worktree pollutes the parent's status and can be scanned twice.
 - If the branch already exists, check it out into the worktree instead of `-b`.
-- Per-engagement setup is **not** copied automatically: a Python `.venv`, `.raid/`
-  config, or local secrets live in the original tree. Tell the user what the new
-  worktree needs (typically: create/point a `.venv`; `.raid/config.yaml` is read from
-  the repo, confirm it resolves). Don't silently assume the environment is ready.
+- Per-engagement setup is **not** copied automatically: a Python `.venv` or local
+  secrets live in the original tree. Tell the user what the new worktree needs
+  (typically: create/point a `.venv`). Don't silently assume the environment is ready.
 - Report the new worktree path and branch, and how to enter it (the user `cd`s there;
   this session stays in the current directory unless they move it).
 

@@ -128,7 +128,7 @@ Required temporal columns on historized entities:
 
 These are the framework-wide SCD column names, not Inmon-specific ones: `_valid_from`,
 `_valid_to`, `_is_current`, `_hash` are defined by [scd-pattern](../scd-pattern/SKILL.md)
-and recorded in `.raid/config.yaml` under `conventions.scd_columns`. An EDW uses the same
+unless the repo's models already use others. An EDW uses the same
 names as any other RAID layer -- do not substitute Inmon-literature spellings
 (`_effective_date` / `_expiry_date`), which would fork the convention and break the shared
 SCD tooling and reviewers.

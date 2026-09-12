@@ -44,9 +44,9 @@ review depth -- the depth only trims the always-on floor, never a warranted cond
 | `data-contract` | `raid-data-contract-reviewer` | Table/view schema changes, dbt model contracts, renamed/dropped/retyped columns, event schemas, anything a downstream consumer depends on |
 | `data-migration` | `raid-data-migration-reviewer` | Schema migrations, backfills, data transformations on persisted tables, structure changes -- **not** model/query-only changes without migration artifacts |
 | `adversarial` | `raid-adversarial-reviewer` | Diff has >=50 changed non-test, non-generated lines, OR touches high-risk domains (financial aggregations, PII, irreversible backfills, external-source ingestion) |
-| `medallion-architecture` | `raid-medallion-architecture-reviewer` | The diff **crosses or defines a layer/tier boundary** -- a new model placed in a layer, logic moved across layers, a changed cross-layer reference, a skipped tier -- **AND** the repo uses a medallion-style architecture (tier language in `architecture.html`, `.raid/config.yaml`, or an observable layered directory layout such as Bronze/Silver/Gold or staging/intermediate/marts). Skip for in-layer-only edits, and for repos whose settled architecture is not medallion (e.g. an Inmon EDW or a Kimball dimensional warehouse -- use `inmon-architecture` / `kimball-architecture` below -- Data Vault, or a flat dbt marts layout). Focus when selected: tier-boundary discipline, layering violations, business logic in the wrong tier |
-| `inmon-architecture` | `raid-inmon-architecture-reviewer` | Same boundary trigger as `medallion-architecture`, but for repos whose settled architecture is an **Inmon EDW** (`architecture: inmon` in `.raid/config.yaml`, staging/EDW/marts language in `architecture.html`, or an observable `edw_*` / subject-area layout). **Mutually exclusive with `medallion-architecture`** -- pick the one matching the repo's architecture, never both. Focus when selected: marts reading staging instead of the EDW, denormalization in the 3NF core, entities outside a subject area, destructive updates breaking non-volatility, per-mart dimensions that should be conformed |
-| `kimball-architecture` | `raid-kimball-architecture-reviewer` | Same boundary trigger, but for repos whose settled architecture is a **Kimball dimensional warehouse** (`architecture: kimball` in `.raid/config.yaml`, staging plus `dim_*`/`fct_*` presentation language in `architecture.html`, conformed dimensions and no normalized core). **Mutually exclusive with `medallion-architecture` and `inmon-architecture`** -- exactly one layering persona applies. Focus when selected: undeclared or drifting fact grain, per-star dimension copies breaking conformance, many-valued attributes flattened onto facts, aggregate-only facts, semi-additive measures summed across time, BI reading staging |
+| `medallion-architecture` | `raid-medallion-architecture-reviewer` | The diff **crosses or defines a layer/tier boundary** -- a new model placed in a layer, logic moved across layers, a changed cross-layer reference, a skipped tier -- **AND** the repo uses a medallion-style architecture (tier language in the architecture doc `AGENTS.md` points to or `architecture.html`, or an observable layered directory layout such as Bronze/Silver/Gold or staging/intermediate/marts). Skip for in-layer-only edits, and for repos whose settled architecture is not medallion (e.g. an Inmon EDW or a Kimball dimensional warehouse -- use `inmon-architecture` / `kimball-architecture` below -- Data Vault, or a flat dbt marts layout). Focus when selected: tier-boundary discipline, layering violations, business logic in the wrong tier |
+| `inmon-architecture` | `raid-inmon-architecture-reviewer` | Same boundary trigger as `medallion-architecture`, but for repos whose settled architecture is an **Inmon EDW** (staging/EDW/marts language in the architecture doc `AGENTS.md` points to or `architecture.html`, or an observable `edw_*` / subject-area layout). **Mutually exclusive with `medallion-architecture`** -- pick the one matching the repo's architecture, never both. Focus when selected: marts reading staging instead of the EDW, denormalization in the 3NF core, entities outside a subject area, destructive updates breaking non-volatility, per-mart dimensions that should be conformed |
+| `kimball-architecture` | `raid-kimball-architecture-reviewer` | Same boundary trigger, but for repos whose settled architecture is a **Kimball dimensional warehouse** (staging plus `dim_*`/`fct_*` presentation language in the architecture doc `AGENTS.md` points to or `architecture.html`, conformed dimensions and no normalized core). **Mutually exclusive with `medallion-architecture` and `inmon-architecture`** -- exactly one layering persona applies. Focus when selected: undeclared or drifting fact grain, per-star dimension copies breaking conformance, many-valued attributes flattened onto facts, aggregate-only facts, semi-additive measures summed across time, BI reading staging |
 
 **Synthesis agent:**
 
@@ -56,7 +56,7 @@ review depth -- the depth only trims the always-on floor, never a warranted cond
 
 ## Platform experts (conditional, platform-gated)
 
-Spawned only when the active platform (from `.raid/config.yaml`) matches and the diff
+Spawned only when the platform the repo is built on matches and the diff
 involves platform-specific execution. These live in the platform tier plugins, not
 `raid-core`.
 
@@ -129,14 +129,15 @@ The resolved depth is **announced** with the team (Stage 3 / rule 8), never aske
    crosses or defines a layer boundary, **and** the repo has a layered architecture.
    Then pick the **one** persona matching that architecture -- `medallion-architecture`
    for medallion repos, `inmon-architecture` for Inmon EDW repos,
-   `kimball-architecture` for Kimball dimensional repos (`architecture:` in
-   `.raid/config.yaml` decides it; absent = medallion). **Never spawn more than one.**
+   `kimball-architecture` for Kimball dimensional repos (named in the architecture doc
+   `AGENTS.md` points to or in `architecture.html`, else the repo's layout; with no signal,
+   medallion). **Never spawn more than one.**
    A skip here is an ordinary conditional non-selection (an in-layer edit, or a repo on
    none of the three) -- **not** a missing-agent-file Coverage note, and not a
    gap. Do not record it in Coverage.
 5. **For `data-security`**, spawn when the diff touches PII, secrets, grants, or
    regulated data; on GDPR-relevant repos default to spawning it.
-6. **For the platform expert**, spawn only when `.raid/config.yaml` names that
+6. **For the platform expert**, spawn only when the repo is built on that
    platform AND the diff involves its execution surface.
 7. **For `raid-deploy-verification-agent`**, spawn when the change is a risky deploy
    (destructive DDL, backfills, grain/NOT-NULL changes).

@@ -27,13 +27,13 @@ The map is a single issue on this repo's issue tracker, labelled `wayfinder:map`
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place, its ticket, so the map never restates it, only gists it and links.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** Use the tracker recorded as `tracker.provider` in `.raid/config.yaml`, and the command recipes for it in `setup-raid`'s `references/trackers/` (`azure-devops.md`, `jira.md`, `linear.md`, `github.md`). If no tracker has been configured, tell the user to invoke `setup-raid`, then stop; choosing a tracker or silently falling back to local files is the engagement's decision, not yours.
+**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** Use the tracker whose provider is recorded in `docs/agents/issue-tracker.md`, and the command recipes for it in `setup-raid`'s `references/trackers/` (`azure-devops.md`, `jira.md`, `linear.md`, `github.md`). If that file is absent, tell the user to invoke `setup-raid`, then stop; choosing a tracker or silently falling back to local files is the engagement's decision, not yours.
 
 Prefer native tracker relationships because they keep the frontier visible in the
-tracker UI. When a configured tracker lacks one of them, or the engagement's
-`tracker.mapping.wayfinder` block chooses them (`map_issuetype` for the map's issue
-type, `markers: body` where the label vocabulary is controlled), use these portable
-body fields instead:
+tracker UI. When a configured tracker lacks one of them, or the `wayfinder` key of the
+`mapping` block in `docs/agents/issue-tracker.md` chooses them (`map_issuetype` for the
+map's issue type, `markers: body` where the label vocabulary is controlled), use these
+portable body fields instead:
 
 | Concept | Native representation | Portable fallback |
 | --- | --- | --- |

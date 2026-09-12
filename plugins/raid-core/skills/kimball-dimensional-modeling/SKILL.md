@@ -29,8 +29,8 @@ Use this skill when users ask about:
 
 ## Kimball vs the other RAID architectures
 
-RAID supports three architecture styles, recorded as `architecture:` in
-`.raid/config.yaml`. `design-architecture` (in `raid-greenfield`) owns the choice on the
+RAID supports three architecture styles; the one a repo uses is named in the
+architecture doc its `AGENTS.md` points to, or shows in its layout (with no signal, medallion). `design-architecture` (in `raid-greenfield`) owns the choice on the
 full pipeline and carries the full trigger
 table -- this is the short version:
 

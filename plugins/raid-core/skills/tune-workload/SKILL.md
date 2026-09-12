@@ -84,7 +84,7 @@ For a friendly overview of what this skill is for, when to use hard metrics vs L
 
 **CRITICAL: The experiment log on disk is the single source of truth. The conversation context is NOT durable storage. Results that exist only in the conversation WILL be lost.**
 
-The files under `.raid/optimize/<spec-name>/` are local scratch state. Note that `.raid/config.yaml` IS tracked (it records the platform), so the scratch subtree must be excluded explicitly: ensure `.raid/optimize/` is listed in the repo's `.gitignore` (add it during Phase 0.5 if missing). Once ignored, the scratch files survive local resumes on the same machine but are not preserved by commits, branches, or pushes unless the user exports them separately.
+The files under `.raid/optimize/<spec-name>/` are local scratch state. Note that `.raid/config.yaml` IS tracked (it holds the telemetry opt-in), so the scratch subtree must be excluded explicitly: ensure `.raid/optimize/` is listed in the repo's `.gitignore` (add it during Phase 0.5 if missing). Once ignored, the scratch files survive local resumes on the same machine but are not preserved by commits, branches, or pushes unless the user exports them separately.
 
 This skill runs for hours. Context windows compact, sessions crash, and agents restart. Every piece of state that matters MUST live on disk, not in the agent's memory.
 

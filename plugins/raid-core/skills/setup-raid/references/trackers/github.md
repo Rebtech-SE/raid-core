@@ -1,6 +1,6 @@
 # Recipes: GitHub Issues (via `gh`)
 
-Used when `.raid/config.yaml` has `tracker.provider: github`. Run inside the clone
+Used when the provider in `docs/agents/issue-tracker.md` is `github`. Run inside the clone
 and `gh` infers the repo from the remote.
 ## Where work lives
 
@@ -19,8 +19,8 @@ run inside the clone and it infers the repo from the remote.
 
 ## Pull requests as a request surface
 
-**No.** _(Set to `yes` if this engagement treats external PRs as incoming
-requests.)_ When `yes`, PRs run through the same labels and states as issues via
+**No**, unless the engagement's `docs/agents/issue-tracker.md` records
+`external_prs: yes`. When `yes`, PRs run through the same labels and states as issues via
 the `gh pr` equivalents: `gh pr view <n> --comments`, `gh pr diff <n>`,
 `gh pr comment`, `gh pr edit --add-label`, `gh pr close`. List external PRs with
 `gh pr list --state open --json number,title,author,authorAssociation` and keep

@@ -43,7 +43,8 @@ relate. See [glossary-format](./references/glossary-format.md).
 **Create files lazily -- only when you have something real to write.** If no `GLOSSARY.md`
 exists, create it when the first term is resolved. If no `docs/adr/` exists, create it when
 the first ADR is needed. Never create either one empty: an empty `GLOSSARY.md` is a file
-that gets read, believed, and found empty.
+that gets read, believed, and found empty. When you create one, add a line pointing at it to
+the repo's `AGENTS.md`, where the file routes to its docs.
 
 ## During the session
 
@@ -103,7 +104,7 @@ If any of the three is missing, skip the ADR. Use the format in
 
 ## How this fits the rest of RAID
 
-- `map-repo` maps a repo's architecture and conventions into AGENTS.md. Domain vocabulary
+- `map-repo` keeps a repo's AGENTS.md a short router. Domain vocabulary
   is **not** its job: it should point at `GLOSSARY.md`, not copy terms into AGENTS.md. Two
   homes for the same term is how they drift apart.
 - `raid-mode` and `wayfinder` *consume* the glossary -- units, tickets and models use its

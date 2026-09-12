@@ -121,8 +121,7 @@ Requirements Completeness section:
 - Use `plan:` when passed (`plan_source: explicit`).
 - Else discover conservatively: the plan held in this session, when there is one (its
   inline units carry the requirements each advances), plus `architecture.html`, `design.html`,
-  `testplan.html`, `assessment.html` under `docs/artifacts/` (legacy: flat `docs/`, and
-  an older `plan.md`/`tasks.md`/`testplan.md` trio), and any prestudy referenced by the
+  `testplan.html`, `assessment.html` under `docs/artifacts/`, and any prestudy referenced by the
   branch/PR (`plan_source: inferred`).
 - If none found, note it once in Coverage and review against intent only.
 
@@ -144,11 +143,11 @@ diff signal at **either** depth, so a small-but-risky Lean diff still pulls its
 specialist. Select **the layering persona** only when the diff crosses or defines a
 layer boundary **and** the repo has a layered architecture -- then pick the one matching
 it: `medallion-architecture` for medallion repos, `inmon-architecture` for Inmon EDW
-repos, `kimball-architecture` for Kimball dimensional repos (`architecture:` in
-`.raid/config.yaml`; absent = medallion), never more than one. Its skip
+repos, `kimball-architecture` for Kimball dimensional repos (named in the architecture doc the repo's
+`AGENTS.md` points to, else read off its layout; with no layering signal, medallion), never more than one. Its skip
 is a normal non-selection, not a Coverage note. Select the
 `raid-deploy-verification-agent` when the change is a risky deploy, and the platform
-expert (e.g. `fabric-cli-expert`) when `.raid/config.yaml` names that platform and the
+expert (e.g. `fabric-cli-expert`) when the repo is built on that platform and the
 diff involves its execution surface.
 
 **4. Announce the depth and the team** before spawning -- the one-line reason the depth

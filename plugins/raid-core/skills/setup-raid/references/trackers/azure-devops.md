@@ -1,7 +1,7 @@
 # Recipes: Azure DevOps Boards (via `az`)
 
-Used when `.raid/config.yaml` has `tracker.provider: azure-devops`. `<ORG>` and
-`<PROJECT>` come from the `tracker.azure_devops` block. Command shapes follow the
+Used when the provider in `docs/agents/issue-tracker.md` is `azure-devops`. `<ORG>` and
+`<PROJECT>` come from the identifiers in that file. Command shapes follow the
 `az-cli` skill's `references/boards.md` -- read it for the full surface, and verify
 against the installed `azure-devops` extension version before scripting anything
 unfamiliar.
@@ -44,8 +44,8 @@ existing item rather than assuming.
 - **Labels** are `System.Tags`, a semicolon-joined string **replaced wholesale on
   write**. Read, modify, write back -- never blind-set, or you drop other people's
   tags: `az boards work-item update --id <id> --fields "System.Tags=ready-for-agent;wayfinder:task"`.
-  On a customised process whose columns already model state, `tracker.mapping.roles`
-  may map a role to a `status` instead: then set `System.State` (and the mapped tag,
+  On a customised process whose columns already model state, the `roles` in the
+  `mapping` block may map a role to a `status` instead: then set `System.State` (and the mapped tag,
   if any) rather than adding a tag, and query on `[System.State]` accordingly.
 - **Change state**: `az boards work-item update --id <id> --state "Active"`.
 - **Close**: `az boards work-item update --id <id> --state "Closed"` (or the
@@ -53,8 +53,8 @@ existing item rather than assuming.
 
 ## Pull requests as a request surface
 
-**No.** _(Set to `yes` only if this engagement treats external PRs as incoming
-requests.)_ PR commands: `az repos pr list`, `az repos pr show --id <id>`,
+**No**, unless the engagement's `docs/agents/issue-tracker.md` records
+`external_prs: yes`. PR commands: `az repos pr list`, `az repos pr show --id <id>`,
 `az repos pr create`.
 
 ## When a skill says "publish to the issue tracker"

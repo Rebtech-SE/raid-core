@@ -57,12 +57,15 @@ real data afterwards, so it does not go green while proving nothing.
 and diffed before and after; `simplify-code` is the in-place counterpart),
 **codify-conventions** (turn how the repo behaves into sqlfluff/dbt/hook checks that
 actually fire -- the mechanism behind `principle-encode-lessons-in-structure`, where
-`map-repo` only records them), **resolving-merge-conflicts** (dbt YAML, notebook and
+`map-repo` only reports them and offers it), **resolving-merge-conflicts** (dbt YAML, notebook and
 pipeline JSON, lock files and generated manifests).
 
-Other side-channel skills: **map-repo** (explore a repo read-only and prime durable agent
-context -- architecture + conventions into a managed block in `AGENTS.md`, plus a
-`docs/audit/` tech-debt report), **setup-raid** (platform detection + `.raid/config.yaml`),
+Other side-channel skills: **map-repo** (explore a repo read-only, generate or update its
+architecture doc, keep its `AGENTS.md` a short router to the stack, commands and docs, and
+offer `codify-conventions` for the conventions it finds, plus a `docs/audit/` tech-debt
+report), **setup-raid** (the telemetry
+opt-in in `.raid/config.yaml`, one sentence in `AGENTS.md` when the git host is not GitHub,
+and the issue tracker in `docs/agents/issue-tracker.md` when the team wants one),
 **domain-modeling** (settle the business vocabulary in `GLOSSARY.md` and record hard
 decisions as ADRs), **grilling** + its routers **grill-me** / **grill-with-docs**
 (stress-test a plan or decision in rounds down a design tree; the with-docs router
@@ -133,17 +136,13 @@ docs/
 `docs/inputs/` and `docs/artifacts/` are only created when `raid-greenfield` is installed
 -- a core-only engagement never scaffolds them.
 
-**Legacy fallback:** older engagements have the artifacts flat in `docs/`. When reading
-an artifact, look in `docs/artifacts/` first, then fall back to `docs/<name>`; write new
-artifacts to `docs/artifacts/` (matching where the existing one lives on a re-run, so a
-legacy engagement isn't left with two copies).
-
 ## Choosing the route
 
 **Incremental is the default.** On an existing codebase, the repo's conventions (layering,
 naming, grain, patterns) *are* the settled architecture and design -- don't re-derive
-them. On an unfamiliar repo, run **map-repo** first to capture those conventions into
-`AGENTS.md`; later skills build on the primed context instead of rediscovering it.
+them. On an unfamiliar repo, run **map-repo** first: it writes the architecture doc and makes
+`AGENTS.md` a short router to it, so later skills start oriented instead of rediscovering
+the repo.
 
 | Route | When | Flow | Where the breakdown lives |
 |---|---|---|---|
@@ -220,11 +219,13 @@ for the whole task — never mix providers or assume one the remote doesn't matc
 ## Platform tiers
 
 RAID is split into a core plugin, an optional full-pipeline plugin, and per-platform
-tier plugins so an engagement carries only the skills it needs. `setup-raid` (and
-`design-architecture`, when `raid-greenfield` is installed) records the active platform in
-`.raid/config.yaml`.
+tier plugins so an engagement carries only the skills it needs. Nothing records which
+platform is active: skills read it off the repo itself (the dbt project and its adapter,
+Fabric item folders, `databricks.yml`, BigQuery/Dataform) or from the stack its
+`AGENTS.md` states.
 
-Install `raid-core` plus exactly one tier: `raid-fabric`, `raid-gcp`, `raid-aws`, or
-`raid-databricks`. Add `raid-greenfield` when the engagement needs the discovery-and-design
-front end. Every other plugin depends on `raid-core`; `raid-core` depends on nothing and
-is fully usable alone.
+`raid-core` is open source (<https://github.com/Rebtech-SE/raid-core>), depends on nothing,
+and is fully usable alone. The tiers -- `raid-fabric`, `raid-gcp`, `raid-aws`,
+`raid-databricks` -- and `raid-greenfield` are rebtech-internal and depend on `raid-core`.
+Add at most one tier, and `raid-greenfield` when the engagement needs the
+discovery-and-design front end. No `raid-core` skill requires a tier to run.

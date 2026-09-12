@@ -15,9 +15,9 @@ RAID writes **no plan file into a customer's repo**. Work that must outlive the 
 lives on the engagement's issue tracker, as tickets an agent can claim. This skill is how
 it gets there.
 
-The tracker is `tracker.provider` in `.raid/config.yaml`; the command recipes are in
+The tracker is the provider in `docs/agents/issue-tracker.md`; the command recipes are in
 `setup-raid`'s `references/trackers/` (`azure-devops.md`, `github.md`, `jira.md`,
-`linear.md`). If no tracker is configured, say so and point at `setup-raid` -- do not pick
+`linear.md`). If that file is absent, say so and point at `setup-raid` -- do not pick
 one, and do not silently fall back to local files.
 
 Every ticket body uses the standard shape: **Goal, Scope, Context, Acceptance, Verify,
@@ -98,7 +98,7 @@ Publish in dependency order, blockers first, so each ticket's edges reference re
 - Use the tracker's **native** blocking or parent relation where it has one -- it renders
   the frontier visually in the tracker's own UI. Otherwise write the Blocked by section and
   reference the ids.
-- Apply the `ready-for-agent` role (resolved through the tracker config's role mapping)
+- Apply the `ready-for-agent` role (resolved through the `mapping` block in `docs/agents/issue-tracker.md`)
   **only when every brief section is filled**. A ticket missing Verify or Forbidden is not
   agent-ready, whatever else is true about it.
 - Do not close or modify a parent issue.

@@ -42,7 +42,7 @@ Everything below writes `<skills-dir>/verify-<platform>/`.
 
 ## 1. Interview the repo and the platform, not the user
 
-Answer these from `.raid/config.yaml`, the repo, and read-only probes. Ask only what you
+Answer these from the repo, its `AGENTS.md`, and read-only probes. Ask only what you
 genuinely cannot observe.
 
 - **Surface.** What do consumers actually read? The gold marts, the semantic model, the

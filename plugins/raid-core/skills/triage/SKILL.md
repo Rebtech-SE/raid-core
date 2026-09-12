@@ -15,11 +15,11 @@ disable-model-invocation: true
 Move issues on the engagement's issue tracker through a small state machine of
 triage roles.
 
-If this repo treats external pull requests as a request surface (the tracker
-config records whether it does), triage covers them too: **a PR is an issue
-with attached code** -- same roles, same states, same machine, with a few
-deltas marked "for a PR" below. Resolve a bare `#42` to an issue or PR per the
-tracker config.
+If this repo treats external pull requests as a request surface
+(`external_prs: yes` in `docs/agents/issue-tracker.md`; the default is no),
+triage covers them too: **a PR is an issue with attached code** -- same roles,
+same states, same machine, with a few deltas marked "for a PR" below. Resolve a
+bare `#42` to an issue or PR on the tracker that file names.
 
 Every comment or issue posted to the tracker during triage **must** start with
 this disclaimer:
@@ -30,8 +30,8 @@ this disclaimer:
 
 ## Tracker wiring (RAID)
 
-Read `tracker.provider` and the `tracker.mapping` block (when present) from
-`.raid/config.yaml`. The command recipes for the configured provider live in
+Read the provider and the `mapping` block (when present) from
+`docs/agents/issue-tracker.md`. The command recipes for the configured provider live in
 `setup-raid`'s `references/trackers/` -- read the file at the time you need it;
 nothing is copied into the repo. Skills reference the **canonical** role
 (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`,
@@ -41,8 +41,8 @@ the mapping says what a role means there -- a workflow status, a label, or both
 -- and what issue type a category is; apply and query roles through it, and
 keep the label default for anything unmapped.
 
-No tracker configured, or the tracker is unreachable? Report it and point the
-user at `setup-raid` -- do not guess the tracker, and do not fall back to a
+No `docs/agents/issue-tracker.md`, or the tracker is unreachable? Report it and
+point the user at `setup-raid` -- do not guess the tracker, and do not fall back to a
 local one silently (setup-raid owns the `local` decision).
 
 ## Reference docs
@@ -101,8 +101,8 @@ Query the issue tracker and present three buckets, oldest first:
    needs re-evaluation.
 
 When PRs are in scope, include external PRs in these buckets and tag each line
-`[PR]` or `[issue]`. Discovery surfaces only *external* PRs (the tracker
-config defines who counts as external) -- a colleague's in-flight PR is not
+`[PR]` or `[issue]`. Discovery surfaces only *external* PRs (the git host's
+recipe says how to tell who counts as external) -- a colleague's in-flight PR is not
 triage work. This filter is discovery-only; an explicitly named PR is always
 triaged regardless of author.
 

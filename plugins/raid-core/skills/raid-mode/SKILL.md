@@ -30,10 +30,12 @@ stages need `raid-greenfield`, and the platform CLI expert comes from the tier p
 
 ## First, orient
 
-- Unfamiliar repo? Run `map-repo` **before anything else**. It captures the repo's
-  architecture and conventions into `AGENTS.md`, so every later step builds on real
-  context instead of rediscovering it.
-- No `.raid/config.yaml`? Run `setup-raid` once.
+- Unfamiliar repo? Run `map-repo` **before anything else**. It writes or updates the
+  repo's architecture doc and keeps `AGENTS.md` a short router to it, so every later step
+  starts oriented instead of rediscovering the repo. When it offers `codify-conventions` for
+  the conventions it found, take it -- that is what turns them into checks.
+- Want work on an issue tracker, or usage telemetry? Run `setup-raid` once -- nothing
+  else needs it.
 - **Terms doing real work?** The moment a definition is contested or a measure has to be
   pinned down -- "net sales", "active customer", the grain of a table -- run
   `domain-modeling`. It settles the term in `GLOSSARY.md` and records genuinely hard
@@ -78,7 +80,8 @@ One unit at a time, each finished before the next starts. A unit is one coherent
 a Bronze ingestion, a Silver conform, a Gold mart, or whatever the repo's own layering
 calls a complete piece. Never half-built models.
 
-- **Set up first.** Detect the platform from `.raid/config.yaml`. If on the default
+- **Set up first.** Detect the platform the repo is built on -- its dbt project, Fabric
+  item folders, `databricks.yml`, or the stack `AGENTS.md` states. If on the default
   branch, cut a `feature/*` branch off freshly fetched `origin/main` before changing
   anything. Use the existing `.venv`/`venv`.
 - **Follow the repo, not the textbook.** Mirror existing models and notebooks. On a
@@ -105,7 +108,7 @@ calls a complete piece. Never half-built models.
   the unit's diff, and address the actionable findings. Per-unit passes are cheap and stay
   localized; deferring to the end accumulates findings across files.
 - **Update the docs the change touched** -- a project README, files under `docs/`,
-  AGENTS.md conventions, any skill whose behaviour changed. Part of done, not a follow-up.
+  `AGENTS.md`, `CONVENTIONS.md`, any skill whose behaviour changed. Part of done, not a follow-up.
 - **Stay in scope.** Adjacent work you discover becomes a note or a tracker item, not
   silent expansion.
 
@@ -142,8 +145,8 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Merge or rebase conflicts** -> `resolving-merge-conflicts`. dbt YAML, notebook and
   pipeline JSON conflict badly and resolve worse.
 - **Writing conventions down so something checks them** -> `codify-conventions`. `map-repo`
-  reads a repo's conventions so an agent follows them; this one wires them into sqlfluff,
-  dbt, or a hook so a human cannot skip them.
+  reports a repo's conventions and offers this; this one wires them into sqlfluff, dbt, or a
+  hook so neither a human nor an agent can skip them.
 - **Running out of context, or handing the work on** -> `handoff`. Writes what is
   done, what is verified against real data and what is not, and which gated actions are
   queued, to a temp file -- never into the customer's repo.
@@ -291,8 +294,8 @@ These are the parts that do not bend:
    `design-data-model` each wait for the operator's Approve or Revise. The pause is the
    point. Only `ship-engagement` switches them off, and its artifacts stay stamped *not
    operator approved*.
-3. **Anything that must outlive the session has a home.** Conventions in `AGENTS.md`,
-   domain terms in `GLOSSARY.md`, hard decisions in `docs/adr/`, greenfield deliverables in
+3. **Anything that must outlive the session has a home.** How the repo runs in `AGENTS.md`,
+   how it is built in the architecture doc that points to, conventions as checks and `CONVENTIONS.md`, domain terms in `GLOSSARY.md`, hard decisions in `docs/adr/`, greenfield deliverables in
    `docs/artifacts/`, and work-in-progress on the issue tracker. Nothing important stays
    only in the conversation.
 4. **Report what happened.** If a check failed, say so with the output. If a step was
