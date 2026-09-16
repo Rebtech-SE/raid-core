@@ -54,11 +54,10 @@ project-local `verify-<platform>` skill and the data map once per engagement;
 real data afterwards, so it does not go green while proving nothing.
 
 **Reshaping and enforcing** -- **refactoring** (structural moves with the output pinned
-and diffed before and after; `simplify-code` is the in-place counterpart),
+and diffed before and after; `simplify-code` is the in-place counterpart) and
 **codify-conventions** (turn how the repo behaves into sqlfluff/dbt/hook checks that
 actually fire -- the mechanism behind `principle-encode-lessons-in-structure`, where
-`map-repo` only reports them and offers it), **resolving-merge-conflicts** (dbt YAML, notebook and
-pipeline JSON, lock files and generated manifests).
+`map-repo` only reports them and offers it).
 
 Other side-channel skills: **map-repo** (explore a repo read-only, generate or update its
 architecture doc, keep its `AGENTS.md` a short router to the stack, commands and docs, and

@@ -142,8 +142,6 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Restructuring code that already works** -> `refactoring` when things move (split a
   fat model, re-layer, rename a conformed dimension, dedupe copy-pasted SQL); pin the
   output first and diff it after. `simplify-code` when the code stays where it is.
-- **Merge or rebase conflicts** -> `resolving-merge-conflicts`. dbt YAML, notebook and
-  pipeline JSON conflict badly and resolve worse.
 - **Writing conventions down so something checks them** -> `codify-conventions`. `map-repo`
   reports a repo's conventions and offers this; this one wires them into sqlfluff, dbt, or a
   hook so neither a human nor an agent can skip them.
