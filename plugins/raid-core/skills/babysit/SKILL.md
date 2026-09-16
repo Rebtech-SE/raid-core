@@ -222,8 +222,9 @@ rubric in [references/review-bot-triage.md](references/review-bot-triage.md): `f
 
 For a full pass over reviewer comments -- assessing each thread, implementing warranted
 fixes, drafting a reply for every thread -- hand off to the `resolve-pr-feedback` skill,
-which dispatches the `raid-pr-comment-resolver` agent per thread. Babysit's triage is the
-fast in-loop version; `resolve-pr-feedback` is the thorough one.
+which judges every unresolved item centrally against its rubric and dispatches fixer
+subagents only for the items it approves. Babysit's triage is the fast in-loop version;
+`resolve-pr-feedback` is the thorough one.
 
 Fetching threads: GitHub `gh pr view <prId> --json comments,reviews`; Azure DevOps
 `az devops invoke --area git --resource pullRequestThreads --route-parameters project=<project> repositoryId=<repoId> pullRequestId=<prId> --api-version 7.1 -o json`

@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+# Maps a PR review comment node ID to its parent thread.
+# Fetches all review threads (paginated) and their comments, then returns the
+# thread whose comments contain the target ID.
+
+set -e
+
+if [ $# -lt 2 ]; then
+    echo "Usage: get-thread-for-comment PR_NUMBER COMMENT_NODE_ID [OWNER/REPO]"
+    echo "Example: get-thread-for-comment 378 PRRC_kwDOP_gZVc6ySv89"
+    exit 1
+fi
+
+PR_NUMBER=$1
+COMMENT_NODE_ID=$2
+
+if [ -n "$3" ]; then
+    OWNER=$(echo "$3" | cut -d/ -f1)
+    REPO=$(echo "$3" | cut -d/ -f2)
+else
+    # `|| true` is load-bearing: under `set -e`, a failed command substitution
+    # in an assignment aborts the script immediately. Run outside a git repo,
+    # `gh repo view` exits 1, its stderr is swallowed by `2>/dev/null`, and the
+    # script would die here with rc=1 and no output -- making the friendly error
+    # below unreachable. Keep `|| true` so detection failure falls through to it.
+    OWNER=$(gh repo view --json owner -q .owner.login 2>/dev/null || true)
+    REPO=$(gh repo view --json name -q .name 2>/dev/null || true)
+fi
+
+if [ -z "$OWNER" ] || [ -z "$REPO" ]; then
+    echo "Error: could not resolve owner/repo. Run get-thread-for-comment from inside the target git repository, or pass OWNER/REPO as the third argument (e.g., get-thread-for-comment $PR_NUMBER $COMMENT_NODE_ID EveryInc/cora)." >&2
+    exit 1
+fi
+
+# The match below runs in Python: an engagement's build agent has a
+# python3, while jq is absent on Windows and most Linux images. Resolve it
+# before any network call so a machine without it fails fast.
+python_bin=
+for candidate in python3 python; do
+    if "$candidate" -c 'import sys; sys.exit(sys.version_info < (3, 7))' >/dev/null 2>&1; then
+        python_bin=$candidate
+        break
+    fi
+done
+
+if [ -z "$python_bin" ]; then
+    echo "Error: get-thread-for-comment needs Python 3.7+ to match the comment to its thread." >&2
+    exit 1
+fi
+
+# Pagination (issue #798): paginate the reviewThreads connection so PRs with
+# more than one page of threads can still resolve a comment to its parent
+# thread. Per-thread comments are still capped at 100 -- threads exceeding
+# that depth are not paginated here.
+tmp_threads=$(mktemp "${TMPDIR:-/tmp}/pr-threads.XXXXXX")
+trap 'rm -f "$tmp_threads"' EXIT
+
+gh api graphql --paginate --slurp \
+  -f owner="$OWNER" -f repo="$REPO" -F pr="$PR_NUMBER" \
+  -f query='
+query Threads($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $pr) {
+      reviewThreads(first: 100, after: $endCursor) {
+        nodes {
+          id
+          isResolved
+          isOutdated
+          path
+          line
+          originalLine
+          startLine
+          originalStartLine
+          comments(first: 100) {
+            nodes {
+              id
+              author { login }
+              body
+              createdAt
+              url
+            }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}' > "$tmp_threads"
+
+    "$python_bin" - "$tmp_threads" "$COMMENT_NODE_ID" <<'PY'
+import json
+import re
+import sys
+
+pages_path, comment_id = sys.argv[1:3]
+with open(pages_path, encoding="utf-8") as f:
+    pages = json.load(f)
+
+threads = [
+    thread
+    for page in pages
+    for thread in page["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    if any(comment.get("id") == comment_id for comment in thread["comments"]["nodes"])
+]
+if not threads:
+    sys.exit(f"No thread found for comment {comment_id}")
+
+match = re.search(r"discussion_r([0-9]+)", threads[0]["comments"]["nodes"][0]["url"])
+if not match:
+    sys.exit(f"No discussion_r comment ID in the root comment URL of thread {threads[0]['id']}")
+
+# Bodies carry emoji and non-Latin text that a Windows console codec rejects.
+sys.stdout.reconfigure(encoding="utf-8")
+json.dump({**threads[0], "root_comment_id": int(match.group(1))}, sys.stdout, indent=2, ensure_ascii=False)
+print()
+PY
