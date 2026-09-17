@@ -66,17 +66,16 @@ intact.** Its hedges are findings, not style.
    last and adding one part, so the reader watches the system assemble. To teach bronze ->
    silver -> gold, draw it three times: bronze to silver; redraw and add gold; redraw and
    add the consumer. Three small growing diagrams beat one crowded one, and a single
-   all-at-once diagram saved for the end is a reference, not teaching.
-
-   A mermaid diagram fits a flow, a dependency graph or a star schema where the labels
-   carry the meaning. When the idea is about *rows* -- what a grain change does, how SCD2
+   all-at-once diagram saved for the end is a reference, not teaching. Let `show-me` pick
+   the view. When the idea is about *rows* -- what a grain change does, how SCD2
    versions a key, how a late-arriving row lands -- a small before/after table of actual
-   rows beats a boxes-and-arrows picture. Use both kinds when both help. A single simple
+   rows beats a boxes-and-arrows picture. A single simple
    point needs no figure.
 
-Write every response through `unslop`, in plain spoken English, the way you would explain
-it to a colleague. Be tight, not terse: cut filler and hedging, keep the part that makes it
-click. Do not list models and columns like a changelog. State the concrete mechanism, not a
+Write every response through `unslop`, keeping `mannered-prose` as the constraint while you
+draft it, in plain spoken English, the way you would explain it to a colleague. Be tight,
+not terse: cut filler and hedging, keep the part that makes it click. Do not list models
+and columns like a changelog. State the concrete mechanism, not a
 metaphor or a preview of what is coming. Normal sentence case. No em dashes. Prefer periods
 over commas; if clauses pile up, split the sentence. Give each concept one name and keep it
 -- switching between synonyms for the same thing (mart, table, model) makes the reader

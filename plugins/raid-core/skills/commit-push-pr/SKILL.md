@@ -109,9 +109,9 @@ Never `git push --force` to a shared branch. If the working tree is clean and al
 - **Verification evidence (RAID):** For data changes, state what was verified against real data (row-count reconciliation, grain/key uniqueness, null/sentinel rates, FK integrity, before/after parity for migrations/backfills, tests/DQ green). If not validated against real data, label it explicitly "not validated against data".
 - **Attribution Badges:** Append the RAID attribution badge and harness/model badge after a `---` divider (see Step D of `references/pr-description-writing.md`).
 
-**2. Automatic `unslop` pass.** Run `unslop` on the draft title and body before applying:
+**2. Automatic `unslop` pass.** Keep `mannered-prose` as the constraint while drafting, then run `unslop` on the draft title and body before applying:
 - Audit against `unslop` guidelines: eliminate AI tells (em dashes, mid-sentence colon overuse, formulaic lead-ins like "This PR introduces...", fluff, empty adverbs, excessive hedging, sycophant tone, corporate padding).
-- Ensure the title and body are written in crisp, plain, direct, human prose.
+- Apply `mannered-prose`: replace any metaphor or flourish that stands in for a literal phrase, so the title and body read as crisp, plain, direct, human prose.
 
 ---
 

@@ -44,7 +44,9 @@ inference labelled as inference), and **teach** (walks a person through it plain
 of both -- also the handover explainer). **bro** is the blunt version of the same instinct:
 asked for by name, it restates whatever you just said in plain language with the jargon
 taken out -- useful when the reader is the customer's analyst or a stakeholder rather than
-an engineer.
+an engineer. When the explanation has to be presented -- a workshop, a steering
+group, a handover -- **frontend-slides** builds the deck: one self-contained HTML file in
+the Rebtech house style, exported to PDF, and shared as a file, never on a public URL.
 
 **Breaking work down** -- **to-tickets** cuts a plan, artifact or conversation into
 vertical slices that each land bronze-to-gold with their tests, declares the blocking

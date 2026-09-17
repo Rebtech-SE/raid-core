@@ -101,11 +101,11 @@ otherwise. No orphaned opening paragraphs above the first heading.
 data and the result; if you lacked read access to validate, say so and label the result
 "not validated against data." Never present an unverified-against-data claim as verified.
 
-**Visual aids:** reach for a diagram or table when it conveys the change faster than prose
--- relationships, flows, state transitions, sequences, trade-offs, before/after data, or
-any structure prose would have to enumerate. Mermaid and markdown tables cover most
-shapes. Place inline at the point of relevance. Skip for simple, prose-clear, or
-rename/dep-bump changes. Prose is authoritative when it conflicts with a visual.
+**Visual aids:** when a view conveys the change faster than prose, use `show-me` to pick
+it -- it covers Mermaid, trees, diff-shaped sketches and more; a markdown table covers
+tabular before/after. Place inline at the point of relevance. Skip for simple,
+prose-clear, or rename/dep-bump changes. Prose is authoritative when it conflicts with a
+visual.
 
 **Tracker links (only if an id was explicitly supplied):** use the host's reference
 syntax -- GitHub/GitLab `Closes #<id>` / `#<id>`, Azure Boards `AB#<id>` (explicit `AB#123`

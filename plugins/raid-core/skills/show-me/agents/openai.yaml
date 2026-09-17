@@ -1,0 +1,3 @@
+interface:
+  display_name: "Show Me"
+  short_description: "Draw the smallest diagram that makes the point land"

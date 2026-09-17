@@ -90,7 +90,7 @@ The same proportionality applies to the other how-questions:
 
 ## Answer
 
-Lead with the answer, then the trace or the mechanism that supports it. Reference the
+Lead with the answer, then the trace or the mechanism that supports it. When the shape is easier to see than to read, hand the pieces to `show-me` and let it choose the view. Reference the
 models and paths that let the reader check you -- repo-relative, never absolute.
 
 Say what you did not cover: the branch you did not walk, the source system you could not

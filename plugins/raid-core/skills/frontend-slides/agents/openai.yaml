@@ -1,0 +1,3 @@
+interface:
+  display_name: "Frontend Slides"
+  short_description: "Build HTML slide decks for talks and walkthroughs"
