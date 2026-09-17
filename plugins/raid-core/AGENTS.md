@@ -41,7 +41,10 @@ raid-mode -> work -> (write-test-report) -> simplify-code -> review-changes
 the transform and the grain at each hop), **why** (the recorded rationale behind a
 grain, an SCD choice or a discrepancy, cited to an ADR, artifact, commit or ticket, with
 inference labelled as inference), and **teach** (walks a person through it plainly, on top
-of both -- also the handover explainer).
+of both -- also the handover explainer). **bro** is the blunt version of the same instinct:
+asked for by name, it restates whatever you just said in plain language with the jargon
+taken out -- useful when the reader is the customer's analyst or a stakeholder rather than
+an engineer.
 
 **Breaking work down** -- **to-tickets** cuts a plan, artifact or conversation into
 vertical slices that each land bronze-to-gold with their tests, declares the blocking

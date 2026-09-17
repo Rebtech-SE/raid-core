@@ -1,0 +1,5 @@
+interface:
+  display_name: "Bro"
+  short_description: "Restate the previous message in plain language"
+policy:
+  allow_implicit_invocation: false
