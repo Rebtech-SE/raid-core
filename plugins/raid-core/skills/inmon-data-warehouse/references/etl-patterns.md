@@ -15,7 +15,7 @@ Modern Inmon implementations typically use **ELT**: land raw data first (staging
 
 ## Staging Area Patterns
 
-The staging area is functionally identical to the Bronze layer in medallion architecture. For detailed staging patterns, see [build-ingestion-pipeline](../../build-ingestion-pipeline/SKILL.md).
+The staging area is functionally identical to the Bronze layer in medallion architecture. For staging patterns and ingestion tool choice, see the Bronze layer in [medallion-architecture](../../medallion-architecture/SKILL.md).
 
 Key staging rules for Inmon EDW:
 
@@ -328,7 +328,7 @@ def load_with_error_handling(spark, source_df, target_table, business_key, dlq_t
 
 ## Orchestration Dependencies
 
-ETL jobs must execute in strict dependency order. See [data-platform-orchestration](../../data-platform-orchestration/SKILL.md) for scheduling patterns.
+ETL jobs must execute in strict dependency order.
 
 ### Dependency Graph
 

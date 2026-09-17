@@ -148,9 +148,6 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Running out of context, or handing the work on** -> `handoff`. Writes what is
   done, what is verified against real data and what is not, and which gated actions are
   queued, to a temp file -- never into the customer's repo.
-- **"What did we do last week", loose ends from a past session** -> `review-sessions`.
-  Read-only sweep over recent session history for decisions, fixes and unfinished threads
-  the in-the-moment loop did not capture.
 - **A second-model review of the diff** ("codex review", "autoreview", "have another model
   look at this") -> `autoreview`. One structured single-engine pass over a change bundle,
   every finding verified against the real code. Different from `review-changes`, which is
@@ -228,8 +225,9 @@ BLOCKED BY  the units that gate this one, or "none"
 
 Three rules that stop the common failures:
 
-- **One writer per branch or worktree.** Two agents in one working directory collide; use
-  `manage-worktrees` when running units in parallel.
+- **One writer per branch or worktree.** Two agents in one working directory collide; give each
+  parallel unit its own git worktree beside the repo, on a branch off fresh `origin/main`,
+  and never remove one that has uncommitted changes.
 - **Standing constraints go in every spawn and every resume, verbatim.** Directives decay
   across resumes, and each dropped one costs a human turn.
 - **You own the subagent's work.** Review the actual diff and write your own summary.

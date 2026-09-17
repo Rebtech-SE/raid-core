@@ -1,3 +1,0 @@
-interface:
-  display_name: "Build Ingestion Pipeline"
-  short_description: "Land source data into the bronze layer"

@@ -17,11 +17,11 @@ Before going online, check whether curated knowledge already exists in the insta
 1. **Discover available skills.** Use the native file-search/glob to find `SKILL.md` files under the active skill locations -- `.claude/skills/**/SKILL.md` and the installed plugins' `skills/**/SKILL.md` (raid-core plus the active platform tier). If an `AGENTS.md` skill inventory is present, use it as the index.
 2. **Match the topic to RAID skills.** Common mappings:
    - Medallion / tiering -> `medallion-architecture`
-   - Ingestion (dlt, PySpark, pipelines) -> `build-ingestion-pipeline`
+   - Ingestion tool choice / Bronze -> `medallion-architecture`
    - Slowly-changing dimensions -> `scd-pattern`
    - Data quality / assertions -> `data-quality-checks`
    - dbt modeling -> `build-dbt-models`, `write-dbt-unit-tests`; on Fabric -> `set-up-dbt-on-fabric`
-   - Orchestration / scheduling -> `data-platform-orchestration`
+   - Orchestration / scheduling -> the tier's: `create-fabric-pipeline`, `databricks-jobs`
    - Error routing -> `dead-letter-queue`
    - Warehouse modeling -> `inmon-data-warehouse`
    - Microsoft Fabric -> `fabric-architecture`, `init-fabric-workspace`, `create-fabric-notebook`, `deploy-fabric-notebook`, `create-fabric-pipeline`, `microsoft-fabric-api`

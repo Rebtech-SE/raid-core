@@ -225,7 +225,27 @@ Capture raw data exactly as received from source systems. Bronze is your insuran
 | `_ingestion_timestamp` | TIMESTAMP | When record was loaded |
 | `_source_system` | STRING | Source identifier |
 | `_batch_id` | STRING | Processing batch identifier |
+| `_ingestion_date` | DATE | Partition key |
+| `_source_file` | STRING (file sources) | Originating file path |
 | `_raw_data` | STRING (optional) | Original payload (JSON/XML) |
+
+With dlt, `_dlt_load_id` is the batch id -- don't add a second one.
+
+### Choosing the Ingestion Tool
+
+RAID defaults, unless the platform tier or the repo already settled it:
+
+| Source | Tool |
+|--------|------|
+| REST API, SaaS, SharePoint/M365 (Graph) | dlt |
+| Database table under ~100MB per load | dlt |
+| Database table over ~100MB per load | Spark JDBC with a partitioned read (`partitionColumn`/`numPartitions`) |
+| Files in object storage (ADLS, S3, OneLake), anything over ~1GB per load | Spark |
+| Kafka / Event Hubs | Spark Structured Streaming |
+| Small Excel files | pandas |
+| Plain copies, and landing a warehouse staging table | the platform's native copy (pipeline Copy activity, `COPY INTO`) |
+
+The platform tier carries the tool's own deploy and load commands (for Fabric, `set-up-dbt-on-fabric` and `create-fabric-notebook`).
 
 ### Patterns
 
@@ -605,7 +625,6 @@ spark.table("silver.orders") \
 - [data-quality-checks](../data-quality-checks/SKILL.md) - Validation at each layer
 - [dead-letter-queue](../dead-letter-queue/SKILL.md) - Error handling in Bronze
 - `fabric-architecture` (raid-fabric) - Fabric-specific implementation details
-- [data-platform-orchestration](../data-platform-orchestration/SKILL.md) - Scheduling, dependencies, retries, backfills
 - [inmon-data-warehouse](../inmon-data-warehouse/SKILL.md) - Alternative top-down EDW approach; coexistence guidance
 
 ## References

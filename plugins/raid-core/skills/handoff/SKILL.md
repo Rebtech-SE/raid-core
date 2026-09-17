@@ -61,4 +61,4 @@ workspaces by their configured names, not by embedding credentials that reach th
 The path to the document, and a three-line summary of where the work stands: what is done,
 what is next, what is blocked.
 
-Related: `raid-mode`, `review-sessions`, `domain-modeling`, `to-tickets`.
+Related: `raid-mode`, `domain-modeling`, `to-tickets`.

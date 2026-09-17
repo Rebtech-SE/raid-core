@@ -80,8 +80,7 @@ the intake front door whose `ready-for-agent` tickets this build loop claims; ve
 claims against real data before anything is brief-worthy),
 **debug-data-issue**,
 **tune-workload** (metric-driven tuning loop for query cost/runtime/DQ),
-**review-sessions** (read-only sweep over recent session history for decisions, fixes and
-unfinished threads the in-the-moment loop missed), **check-platform-health**,
+**check-platform-health**,
 **handoff** (compact the session into a pickup document in the OS temp directory --
 never into the customer's repo), **autoreview** (an extra single-engine review of a change
 bundle, asked for by name -- distinct from `review-changes`, which is the data-reviewer
@@ -89,7 +88,7 @@ panel in the build loop), **report-raid-bug** (RAID itself misbehaved),
 **unslop** (audit and rewrite copy to eliminate AI slop), and the git skills
 (**commit-push-pr** -- single unified skill to stage, commit, push, draft unslopped PR
 copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready;
-**manage-worktrees**, **resolve-pr-feedback**, **babysit** --
+**resolve-pr-feedback**, **babysit** --
 drive an open PR to merge-ready on any host, never merging it).
 
 ## One brief shape

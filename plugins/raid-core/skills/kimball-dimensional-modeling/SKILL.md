@@ -240,9 +240,7 @@ by the same merge -- do not invent a parallel mechanism.
 - [medallion-architecture](../medallion-architecture/SKILL.md) - alternative layered approach; its `gold-patterns.md` carries the star schema implementation code
 - [inmon-data-warehouse](../inmon-data-warehouse/SKILL.md) - alternative top-down approach with a normalized core
 - [data-quality-checks](../data-quality-checks/SKILL.md) - grain uniqueness, referential integrity, and conformance tests
-- [build-ingestion-pipeline](../build-ingestion-pipeline/SKILL.md) - staging layer patterns
 - [dead-letter-queue](../dead-letter-queue/SKILL.md) - handling rows that fail dimension lookup
-- [data-platform-orchestration](../data-platform-orchestration/SKILL.md) - dimensions-before-facts load ordering
 
 ## References
 

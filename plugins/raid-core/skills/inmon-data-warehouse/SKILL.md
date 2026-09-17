@@ -183,7 +183,7 @@ What are you building?
 |
 |-- Ingesting from an external source?
 |   |-> Staging layer (same as Bronze)
-|   |   See: build-ingestion-pipeline skill
+|   |   See: medallion-architecture (Bronze layer)
 |
 |-- Normalizing and conforming enterprise data?
 |   |-> EDW layer (3NF)
@@ -210,7 +210,7 @@ The staging area is functionally identical to the Bronze layer in medallion arch
 - No deduplication, no cleansing, no type casting
 - Partitioned by ingestion date for efficient incremental reads
 
-For staging patterns and implementation, see [build-ingestion-pipeline](../build-ingestion-pipeline/SKILL.md).
+For staging patterns and ingestion tool choice, see the Bronze layer in [medallion-architecture](../medallion-architecture/SKILL.md).
 
 ## Enterprise Data Warehouse (3NF)
 
@@ -642,7 +642,7 @@ WHERE c._is_current = TRUE
 
 The Inmon approach follows strict ETL ordering:
 
-1. **Extract**: Pull from sources into staging (see [build-ingestion-pipeline](../build-ingestion-pipeline/SKILL.md))
+1. **Extract**: Pull from sources into staging (see the Bronze layer in [medallion-architecture](../medallion-architecture/SKILL.md))
 2. **Transform**: Normalize, conform, and historize into EDW
 3. **Load**: Derive marts from EDW
 
@@ -682,9 +682,7 @@ See [etl-patterns.md](references/etl-patterns.md) for extract/transform/load pat
 - [scd-pattern](../scd-pattern/SKILL.md) - SCD Type 2 implementation for temporal tracking in the EDW
 - [data-quality-checks](../data-quality-checks/SKILL.md) - Validation at each warehouse layer
 - [dead-letter-queue](../dead-letter-queue/SKILL.md) - Error handling for ETL failures
-- [data-platform-orchestration](../data-platform-orchestration/SKILL.md) - Scheduling ETL dependencies across layers
 - [medallion-architecture](../medallion-architecture/SKILL.md) - Alternative bottom-up approach; hybrid coexistence guidance
-- [build-ingestion-pipeline](../build-ingestion-pipeline/SKILL.md) - Staging / Bronze layer patterns
 
 ## References
 

@@ -98,7 +98,7 @@ skills by *name prefix* (`fabric-*`, `principle-*`), never by subfolder. `refere
 `scripts/` and `assets/` inside a single skill are fine and are the only nesting there is.
 
 **Name it for what it does, not what it belongs to.** Action skills take a verb-first name
-(`build-ingestion-pipeline`, `deploy-fabric-notebook`, `review-changes`). Knowledge skills
+(`build-dbt-models`, `deploy-fabric-notebook`, `review-changes`). Knowledge skills
 that are a body of reference rather than an action keep their noun
 (`medallion-architecture`, `scd-pattern`, `az-cli`). A plugin install already namespaces a
 skill, so a `raid-` prefix buys nothing but length -- only `raid-mode` and `setup-raid`
