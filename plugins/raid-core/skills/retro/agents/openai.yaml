@@ -1,0 +1,5 @@
+interface:
+  display_name: "Retro"
+  short_description: "Review a coding session to improve the agent environment"
+policy:
+  allow_implicit_invocation: false

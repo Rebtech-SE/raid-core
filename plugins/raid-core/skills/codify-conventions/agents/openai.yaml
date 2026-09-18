@@ -1,3 +1,0 @@
-interface:
-  display_name: "Codify Conventions"
-  short_description: "Turn repo conventions into checks that fire"

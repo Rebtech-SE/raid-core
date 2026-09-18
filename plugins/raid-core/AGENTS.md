@@ -58,16 +58,14 @@ project-local `verify-<platform>` skill and the data map once per engagement;
 **maintain-verification-skill** audits and repairs that map against the models and against
 real data afterwards, so it does not go green while proving nothing.
 
-**Reshaping and enforcing** -- **refactoring** (structural moves with the output pinned
-and diffed before and after; `simplify-code` is the in-place counterpart) and
-**codify-conventions** (turn how the repo behaves into sqlfluff/dbt/hook checks that
-actually fire -- the mechanism behind `principle-encode-lessons-in-structure`, where
-`map-repo` only reports them and offers it).
+**Reshaping code that already works** -- **refactoring** (structural moves with the output
+pinned and diffed before and after; `simplify-code` is the in-place counterpart).
 
 Other side-channel skills: **map-repo** (explore a repo read-only, generate or update its
 architecture doc, keep its `AGENTS.md` a short router to the stack, commands and docs, and
-offer `codify-conventions` for the conventions it finds, plus a `docs/audit/` tech-debt
-report), **setup-raid** (the telemetry
+report the conventions it finds, plus a `docs/audit/` tech-debt report),
+**retro** (run a retrospective on a session: find where the environment slowed the agent
+down and propose fixes ordered by severity), **setup-raid** (the telemetry
 opt-in in `.raid/config.yaml`, one sentence in `AGENTS.md` when the git host is not GitHub,
 and the issue tracker in `docs/agents/issue-tracker.md` when the team wants one),
 **domain-modeling** (settle the business vocabulary in `GLOSSARY.md` and record hard

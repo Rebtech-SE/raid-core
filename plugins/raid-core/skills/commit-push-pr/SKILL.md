@@ -107,6 +107,7 @@ Never `git push --force` to a shared branch. If the working tree is clean and al
 - **Value-first description:** Focus on what is now fixed or possible, not an enumeration of diffs.
 - **Tracker link (opt-in only):** Link one *only* when the user explicitly passes `--work-items <id>` (GitHub/GitLab `Closes #<id>`; Azure Boards `AB#<id>`). Otherwise open the PR unlinked.
 - **Verification evidence (RAID):** For data changes, state what was verified against real data (row-count reconciliation, grain/key uniqueness, null/sentinel rates, FK integrity, before/after parity for migrations/backfills, tests/DQ green). If not validated against real data, label it explicitly "not validated against data".
+- **Change outline:** When the implementation shape is the story (schema/contract, key types, module or component boundaries, call/control/data flow), include a `## Change outline` built from `show-me` views (see Step C of `references/pr-description-writing.md`).
 - **Attribution Badges:** Append the RAID attribution badge and harness/model badge after a `---` divider (see Step D of `references/pr-description-writing.md`).
 
 **2. Automatic `unslop` pass.** Keep `mannered-prose` as the constraint while drafting, then run `unslop` on the draft title and body before applying:

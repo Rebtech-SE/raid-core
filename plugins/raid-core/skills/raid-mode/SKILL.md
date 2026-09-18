@@ -32,8 +32,7 @@ stages need `raid-greenfield`, and the platform CLI expert comes from the tier p
 
 - Unfamiliar repo? Run `map-repo` **before anything else**. It writes or updates the
   repo's architecture doc and keeps `AGENTS.md` a short router to it, so every later step
-  starts oriented instead of rediscovering the repo. When it offers `codify-conventions` for
-  the conventions it found, take it -- that is what turns them into checks.
+  starts oriented instead of rediscovering the repo.
 - Want work on an issue tracker, or usage telemetry? Run `setup-raid` once -- nothing
   else needs it.
 - **Terms doing real work?** The moment a definition is contested or a measure has to be
@@ -142,9 +141,8 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Restructuring code that already works** -> `refactoring` when things move (split a
   fat model, re-layer, rename a conformed dimension, dedupe copy-pasted SQL); pin the
   output first and diff it after. `simplify-code` when the code stays where it is.
-- **Writing conventions down so something checks them** -> `codify-conventions`. `map-repo`
-  reports a repo's conventions and offers this; this one wires them into sqlfluff, dbt, or a
-  hook so neither a human nor an agent can skip them.
+- **Reviewing a session to improve the setup** -> `retro`. Mine the session for where the
+  environment slowed the agent down and propose fixes ordered by severity.
 - **Running out of context, or handing the work on** -> `handoff`. Writes what is
   done, what is verified against real data and what is not, and which gated actions are
   queued, to a temp file -- never into the customer's repo.

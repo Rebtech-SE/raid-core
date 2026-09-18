@@ -96,5 +96,5 @@ Ask #data-eng before touching prod.
 
 The purpose line gained what the warehouse serves; the layers, grain and schedule went to
 the architecture doc and the router points there. The hand-written convention is untouched,
-and the report marks the model prefixes as enforceable and offers `codify-conventions`,
-which would add `CONVENTIONS.md` to "Where to read more" when it creates the file.
+and the report marks the model prefixes as enforceable, naming the check that would catch
+it.

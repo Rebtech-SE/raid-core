@@ -29,9 +29,9 @@ diagram to prose; drop a section the repo genuinely doesn't have.
 - **Schedules and dependencies** -- the jobs and their order, upstream systems, sibling
   repos, downstream consumers with a deadline.
 
-What stays out: conventions (`codify-conventions` enforces them and keeps `CONVENTIONS.md`),
-business definitions (`GLOSSARY.md`), decisions and their reasons (`docs/adr/`), and the
-tech-debt findings list (`docs/audit/`). Point at those instead.
+What stays out: conventions (checks and written rules the repo owns), business definitions
+(`GLOSSARY.md`), decisions and their reasons (`docs/adr/`), and the tech-debt findings list
+(`docs/audit/`). Point at those instead.
 
 ## Staying current
 

@@ -5,7 +5,7 @@ description: >-
   'onboard to this codebase', 'document the architecture', 'what are the conventions here',
   'audit the tech debt'. Explores a repo read-only, generates or updates its architecture
   doc, and keeps AGENTS.md a short router to the stack, the commands and the docs that go
-  deeper. Reports the conventions it finds and offers codify-conventions to enforce them;
+  deeper. Reports the conventions it finds, each marked enforceable or a judgement call;
   writes a dated tech-debt report to docs/audit/.
 argument-hint: "[path to a repo, or empty for the current working directory] "
 ---
@@ -29,9 +29,9 @@ things behind:
 **Conventions go in none of them.** Naming, layer vocabulary, audit and SCD column names,
 SQL style and test rules are picked up from the code an agent is imitating, and what it
 misses a check catches every time where a prose rule catches it sometimes. `map-repo`
-reports the conventions it observed and offers to run `codify-conventions`, which wires
-each enforceable one into sqlfluff, dbt, a linter or a hook, keeps the judgment calls in
-`CONVENTIONS.md`, and routes `AGENTS.md` to it.
+reports the conventions it observed, each marked enforceable (with the check that would
+catch it) or a judgement call. Writing them down and wiring the checks is the repo's
+own follow-up, not `map-repo`'s.
 
 It is **not** `assess-platform` (which ships in `raid-greenfield`). `assess-platform` produces a
 client-facing `assessment.html` deliverable, read once by a human at an approval gate, and
@@ -49,8 +49,7 @@ Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (cal
 `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded). Fall back
 to numbered options in chat only when no blocking tool exists. `map-repo` is mostly
 non-interactive - it explores and writes - but it **asks once before editing a file that
-already holds hand-authored content** (see Phase 2), asks once at the end whether to run
-`codify-conventions` (Phase 3), and never silently overwrites.
+already holds hand-authored content** (see Phase 2), and never silently overwrites.
 
 ## Input and routing
 
@@ -199,9 +198,7 @@ Tell the user what landed:
 - **The conventions observed**, each marked *enforceable* (naming the check that would catch
   it -- a sqlfluff rule, a dbt test, a pre-commit hook) or a *judgment call*.
 
-Then ask once whether to run `codify-conventions` now with those conventions as its
-starting audit. On a yes, invoke it. On a no, or in a pipeline/headless context, leave the
-list in the report and name `codify-conventions` as the step that enforces it.
+Writing the conventions down and wiring the checks is the repo's own follow-up.
 
 Point the next step at `raid-mode` for incremental work, or -- when the user is heading into
 a customer engagement and `raid-greenfield` is installed -- `assess-platform`, which builds

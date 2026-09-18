@@ -237,7 +237,7 @@ executed is a draft, and a draft that claims to verify things is worse than noth
 **First, decide it should be a skill at all.** A lesson from one task is not yet a
 procedure. Ask for evidence that it recurs across tasks before it earns a place in the
 prompt budget every future session pays for. Three things that look like skill material
-usually are not: a *repository convention* belongs to `codify-conventions`; a *mechanical
+usually are not: a *repository convention* belongs in the repo's written rules; a *mechanical
 invariant* belongs in tooling, where it fails a build instead of hoping a model reads it
 (`scripts/validate.js` is where most of RAID's live); and a *one-off fact* belongs nowhere
 -- discard it rather than growing a skill around it. What is left states a goal, a
