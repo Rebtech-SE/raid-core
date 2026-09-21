@@ -68,9 +68,10 @@ PRs need more selectivity, not more content.
 | Data / model / migration change | Add a verification line: what was validated against real data (row-count parity, grain/key uniqueness, null rates, FK integrity, before/after parity, tests/DQ green). For migrations/backfills also state risk & rollback. |
 | Performance improvement | Include before/after measurements as a markdown table. |
 
-For small + simple PRs, the value-led sentence is the entire description. For any change
-where the implementation shape is the story (schema/contract, key types, module or
-component boundaries, call/control/data flow), add a `## Change outline` (Step C).
+For small + simple PRs, the value-led sentence is the entire description. For medium and
+large PRs, and any change whose implementation shape is the story (schema/contract, key
+types, module or component boundaries, call/control/data flow), the `## Change outline`
+(Step C) is expected, not optional.
 
 ---
 
@@ -104,18 +105,19 @@ data and the result; if you lacked read access to validate, say so and label the
 "not validated against data." Never present an unverified-against-data claim as verified.
 
 **Visual aids:** when a view conveys the change faster than prose, use `show-me` to pick
-it -- it covers Mermaid, trees, diff-shaped sketches and more; a markdown table covers
-tabular before/after. Place inline at the point of relevance. Skip for simple,
-prose-clear, or rename/dep-bump changes. Prose is authoritative when it conflicts with a
-visual.
+it -- it covers trees, diff-shaped sketches, pseudocode and more; a markdown table covers
+tabular before/after. Place inline at the point of relevance. Prose is authoritative when
+it conflicts with a visual. Skip this for simple, prose-clear, or rename/dep-bump changes.
 
-**Change outline:** for a change whose shape is the story -- schema or contract changes,
-key data structures or types, module or component boundaries, call-tree, control-flow, or
-data-flow -- give the body a `## Change outline` section: a compact structural view built
-from `show-me` views. Prefer a `diff` block for a changed shape and a complete block for a
-mostly-new one; show only the views that help a reviewer; omit categories that did not
-change. This is the structured counterpart to a file-by-file changelog; do not restate the
-diff.
+**Change outline (expected for medium and large PRs, and any change whose shape is the
+story):** for a change that touches schema or contract, key data structures or types,
+module or component boundaries, call-tree, control-flow, or data-flow, give the body a
+`## Change outline` section. Load the `show-me` skill and pick the smallest view that shows
+the shape; prefer a `diff` block for a changed shape and a complete block for a mostly-new
+one. Include at least one concrete fenced block (diff, code, tree, or table) -- a one-line
+description of the shape is not the outline. Omit categories that did not change; do not
+restate the diff. **On Azure DevOps, use diff/code/tree/table blocks rather than mermaid,
+which an Azure PR body does not render.**
 
 **Tracker links (only if an id was explicitly supplied):** use the host's reference
 syntax -- GitHub/GitLab `Closes #<id>` / `#<id>`, Azure Boards `AB#<id>` (explicit `AB#123`
