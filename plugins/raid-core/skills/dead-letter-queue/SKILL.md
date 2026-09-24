@@ -65,7 +65,7 @@ Record processing fails
 |       - Preserve original record
 |       - Capture stack trace
 |
-|-- Always pair with a retry pipeline + alerting (see Mandatory sections above)
+|-- Always pair with a retry pipeline + alerting (see Mandatory sections below)
 ```
 
 ## DLQ Table Design
@@ -189,6 +189,68 @@ def is_recoverable(error_type: str) -> bool:
 
 ## Error Capture Patterns
 
+### The two invariants
+
+Every capture pattern below holds both, and a pipeline that breaks either one is
+silently losing data:
+
+1. **Every input row lands somewhere.** `rows_in == rows_loaded + rows_quarantined`,
+   checked per batch. A row that is neither loaded nor quarantined is the defect this
+   skill exists to prevent -- the usual culprits are a validation predicate that
+   evaluates to NULL (it is neither true nor false, so it passes neither the "valid" nor
+   the "invalid" filter), an `except: pass`, and `mode("DROPMALFORMED")`.
+2. **Every quarantined row can be replayed.** It keeps the whole original record, the
+   reason, and the batch it came from, in the DLQ schema above -- a bare dump of bad
+   rows into a table with no reason is not a quarantine, because nobody can tell why a
+   row is there or push it back through once the cause is fixed.
+
+### `write_to_dlq` -- the one write path
+
+All DataFrame-level routing goes through this helper, so every quarantined row has the
+same shape whichever check rejected it:
+
+```python
+from pyspark.sql import functions as F
+
+def write_to_dlq(
+    df,
+    error_type: str,
+    error_message: str,
+    source_table: str,
+    batch_id: str,
+    dlq_table: str,
+):
+    """Append every row of df to the DLQ with its reason. Returns the row count."""
+    count = df.count()
+    if count == 0:
+        return 0
+    (
+        df.select(
+            F.expr("uuid()").alias("error_id"),
+            # ignoreNullFields=false: to_json omits NULL fields by default, and a
+            # quarantined row is often there *because* a field is NULL -- the record
+            # must say so, and a replay must find the key.
+            F.to_json(
+                F.struct(*[F.col(c) for c in df.columns]), {"ignoreNullFields": "false"}
+            ).alias("original_record"),
+            F.lit(source_table).alias("source_table"),
+            F.lit(error_type).alias("error_type"),
+            F.lit(error_message).cast("string").alias("error_message"),
+            F.current_timestamp().alias("error_timestamp"),
+            F.lit(batch_id).cast("string").alias("batch_id"),
+            F.lit(0).alias("retry_count"),
+            F.lit("pending").alias("status"),
+            F.lit(None).cast("timestamp").alias("resolved_timestamp"),
+            F.lit(None).cast("string").alias("resolved_by"),
+        )
+        .write.mode("append").format("delta").saveAsTable(dlq_table)
+    )
+    return count
+```
+
+Cast every literal: an uncast `F.lit(None)` is a void-typed column, and Delta refuses to
+create a table with one.
+
 ### PySpark Try/Except Pattern
 
 ```python
@@ -200,6 +262,7 @@ from datetime import datetime
 def process_with_dlq(
     spark,
     source_df,
+    source_table: str,
     target_table: str,
     dlq_table: str,
     transform_func,
@@ -211,6 +274,7 @@ def process_with_dlq(
     Args:
         spark: SparkSession
         source_df: Source DataFrame
+        source_table: Name of the table/topic source_df was read from
         target_table: Target table for successful records
         dlq_table: DLQ table for failed records
         transform_func: Transformation function to apply
@@ -228,14 +292,17 @@ def process_with_dlq(
         except Exception as e:
             error_records.append({
                 "error_id": str(uuid.uuid4()),
-                "original_record": json.dumps(row.asDict()),
-                "source_table": source_df.schema.simpleString(),
+                # default=str: dates, timestamps and decimals are not JSON-serializable
+                "original_record": json.dumps(row.asDict(), default=str),
+                "source_table": source_table,
                 "error_type": classify_error(e),
                 "error_message": str(e),
                 "error_timestamp": datetime.now(),
                 "batch_id": batch_id,
                 "retry_count": 0,
-                "status": "pending"
+                "status": "pending",
+                "resolved_timestamp": None,
+                "resolved_by": None
             })
 
     # Write successful records
@@ -262,12 +329,14 @@ def route_by_validation(
     spark,
     source_df,
     validation_rules: list,
+    source_table: str,
     valid_table: str,
     dlq_table: str,
     batch_id: str = None
 ):
     """
-    Route records based on validation rules.
+    Route records based on validation rules. Each failing row is quarantined once,
+    under the first rule it fails.
 
     validation_rules: [
         {"name": "not_null_id", "condition": "id IS NOT NULL", "error_type": "NULL_ERR"},
@@ -275,61 +344,48 @@ def route_by_validation(
     ]
     """
     batch_id = batch_id or str(uuid.uuid4())
+    flags = [f"_valid_{rule['name']}" for rule in validation_rules]
 
-    # Add validation columns
-    df_with_validation = source_df
-    for rule in validation_rules:
-        df_with_validation = df_with_validation.withColumn(
-            f"_valid_{rule['name']}",
-            F.expr(rule["condition"])
+    # A predicate over a NULL column evaluates to NULL, not false -- `amount > 0` on a
+    # NULL amount. Such a row passes neither filter(valid) nor filter(~valid) and
+    # vanishes. coalesce() makes it fail the rule instead.
+    checked = source_df
+    for rule, flag in zip(validation_rules, flags):
+        checked = checked.withColumn(
+            flag, F.coalesce(F.expr(rule["condition"]), F.lit(False))
         )
 
-    # Build overall validity condition
-    validity_condition = F.lit(True)
-    for rule in validation_rules:
-        validity_condition = validity_condition & F.col(f"_valid_{rule['name']}")
+    all_valid = F.lit(True)
+    for flag in flags:
+        all_valid = all_valid & F.col(flag)
 
-    # Split valid and invalid
-    valid_df = df_with_validation.filter(validity_condition)
-    invalid_df = df_with_validation.filter(~validity_condition)
+    valid_df = checked.filter(all_valid).drop(*flags)
+    remaining = checked.filter(~all_valid)
 
-    # Clean up validation columns from valid records
-    for rule in validation_rules:
-        valid_df = valid_df.drop(f"_valid_{rule['name']}")
+    quarantined = 0
+    for rule, flag in zip(validation_rules, flags):
+        quarantined += write_to_dlq(
+            remaining.filter(~F.col(flag)).drop(*flags),
+            error_type=rule["error_type"],
+            error_message=f"Failed validation: {rule['name']} ({rule['condition']})",
+            source_table=source_table,
+            batch_id=batch_id,
+            dlq_table=dlq_table,
+        )
+        remaining = remaining.filter(F.col(flag))
 
-    # Write valid records
+    valid_count = valid_df.count()
     valid_df.write.mode("append").saveAsTable(valid_table)
 
-    # Process invalid records into DLQ format
-    if invalid_df.count() > 0:
-        # Determine which rule failed for each record
-        error_records = []
-        for row in invalid_df.collect():
-            for rule in validation_rules:
-                if not row[f"_valid_{rule['name']}"]:
-                    # Remove validation columns from original record
-                    original = {k: v for k, v in row.asDict().items() if not k.startswith("_valid_")}
-                    error_records.append({
-                        "error_id": str(uuid.uuid4()),
-                        "original_record": json.dumps(original),
-                        "source_table": valid_table,
-                        "error_type": rule["error_type"],
-                        "error_message": f"Failed validation: {rule['name']} ({rule['condition']})",
-                        "error_timestamp": datetime.now(),
-                        "batch_id": batch_id,
-                        "retry_count": 0,
-                        "status": "pending"
-                    })
-                    break  # Only capture first failure per record
+    # Invariant 1: every input row landed somewhere.
+    total = source_df.count()
+    if total != valid_count + quarantined:
+        raise RuntimeError(
+            f"Row accounting broken for batch {batch_id}: {total} in, "
+            f"{valid_count} loaded, {quarantined} quarantined"
+        )
 
-        error_df = spark.createDataFrame(error_records, schema=dlq_schema)
-        error_df.write.mode("append").saveAsTable(dlq_table)
-
-    return {
-        "valid": valid_df.count(),
-        "invalid": invalid_df.count() if invalid_df else 0,
-        "batch_id": batch_id
-    }
+    return {"valid": valid_count, "invalid": quarantined, "batch_id": batch_id}
 ```
 
 ## Mandatory Retry Pipeline
@@ -394,6 +450,7 @@ Implement `send_dlq_alert()` with the customer's notification channel:
 ### Exponential Backoff
 
 ```python
+import random
 import time
 from typing import Callable, Any
 
@@ -502,18 +559,89 @@ def process_dlq_retries(
     }
 ```
 
+### Replaying Rows After a Fix
+
+The retry pipeline only takes recoverable types. A `PARSE_ERR`, `NULL_ERR` or
+`RANGE_ERR` row fails the same way every time until someone fixes the source, the
+parser or the rule -- so it needs its own path back, run by hand once the cause is fixed.
+Without one, the quarantine can be inspected but not recovered, and the rows are lost
+in all but name.
+
+```python
+from delta.tables import DeltaTable
+
+def replay_dlq(
+    spark,
+    dlq_table: str,
+    target_table: str,
+    transform_func: Callable,
+    condition: str,
+    replayed_by: str,
+):
+    """
+    Push quarantined rows matching `condition` (e.g. "batch_id = '...'" or
+    "error_type = 'NULL_ERR' AND source_table = 'bronze.orders'") back through the load,
+    whatever their error type.
+
+    transform_func receives the stored original_record string -- JSON for rows captured
+    by write_to_dlq, the raw unparsed text for PARSE_ERR rows -- and returns a dict
+    matching target_table, or raises if the row is still bad.
+    """
+    rows = (
+        spark.table(dlq_table)
+        .filter(F.col("status").isin("pending", "failed"))
+        .filter(condition)
+        .collect()
+    )
+
+    loaded, resolved_ids, still_failing = [], [], 0
+    for row in rows:
+        try:
+            loaded.append(transform_func(row["original_record"]))
+            resolved_ids.append(row["error_id"])
+        except Exception:
+            still_failing += 1  # stays in the DLQ untouched, for the next attempt
+
+    if loaded:
+        # Load first, then mark resolved: a crash in between re-replays the rows
+        # (dedupe on the target's key), it never marks unloaded rows resolved.
+        # The target's own schema, not inference: inference reads a Python int as
+        # bigint, and Delta will not append bigint into an int column.
+        target_schema = spark.table(target_table).schema
+        spark.createDataFrame(loaded, target_schema).write.mode("append").saveAsTable(target_table)
+        DeltaTable.forName(spark, dlq_table).update(
+            condition=F.col("error_id").isin(resolved_ids),
+            set={
+                "status": F.lit("resolved"),
+                "resolved_timestamp": F.current_timestamp(),
+                "resolved_by": F.lit(replayed_by),
+            },
+        )
+
+    return {"matched": len(rows), "resolved": len(resolved_ids), "still_failing": still_failing}
+```
+
+Rows nobody will ever fix are closed with `status = 'ignored'` and a `resolved_by`, not
+deleted -- the DLQ is the record that they existed.
+
 ## Integration with Medallion Architecture
 
 ### Bronze Layer DLQ
 
 ```python
 # Bronze: Capture parse/schema errors
-def bronze_ingest_with_dlq(spark, source_path, bronze_table, dlq_table):
-    # Read with permissive mode
-    df = spark.read \
-        .option("mode", "PERMISSIVE") \
-        .option("columnNameOfCorruptRecord", "_corrupt_record") \
+def bronze_ingest_with_dlq(spark, source_path, schema, bronze_table, dlq_table, batch_id):
+    # PERMISSIVE keeps malformed lines instead of failing the read (FAILFAST) or
+    # dropping them (DROPMALFORMED). An explicit schema must include the corrupt-record
+    # column, or Spark has nowhere to put the raw line.
+    df = (
+        spark.read
+        .schema(StructType(schema.fields + [StructField("_corrupt_record", StringType())]))
+        .option("mode", "PERMISSIVE")
+        .option("columnNameOfCorruptRecord", "_corrupt_record")
         .json(source_path)
+        .cache()  # Spark refuses to query only the corrupt-record column of an uncached read
+    )
 
     # Split valid and corrupt
     valid = df.filter(F.col("_corrupt_record").isNull()).drop("_corrupt_record")
@@ -522,27 +650,28 @@ def bronze_ingest_with_dlq(spark, source_path, bronze_table, dlq_table):
     # Write valid to Bronze
     valid.write.mode("append").saveAsTable(bronze_table)
 
-    # Write corrupt to DLQ
-    if corrupt.count() > 0:
-        corrupt_dlq = corrupt.select(
-            F.expr("uuid()").alias("error_id"),
-            F.col("_corrupt_record").alias("original_record"),
-            F.lit(bronze_table).alias("source_table"),
-            F.lit("PARSE_ERR").alias("error_type"),
-            F.lit("Failed to parse JSON record").alias("error_message"),
-            F.current_timestamp().alias("error_timestamp"),
-            F.lit(None).alias("batch_id"),
-            F.lit(0).alias("retry_count"),
-            F.lit("pending").alias("status")
-        )
-        corrupt_dlq.write.mode("append").saveAsTable(dlq_table)
+    # Write corrupt to DLQ. The raw line is the original record: there is nothing
+    # parsed to serialise, and the raw text is what a replay needs.
+    corrupt.select(
+        F.expr("uuid()").alias("error_id"),
+        F.col("_corrupt_record").alias("original_record"),
+        F.lit(source_path).alias("source_table"),
+        F.lit("PARSE_ERR").alias("error_type"),
+        F.lit("Failed to parse JSON record").alias("error_message"),
+        F.current_timestamp().alias("error_timestamp"),
+        F.lit(batch_id).cast("string").alias("batch_id"),
+        F.lit(0).alias("retry_count"),
+        F.lit("pending").alias("status"),
+        F.lit(None).cast("timestamp").alias("resolved_timestamp"),
+        F.lit(None).cast("string").alias("resolved_by"),
+    ).write.mode("append").format("delta").saveAsTable(dlq_table)
 ```
 
 ### Silver Layer DLQ
 
 ```python
 # Silver: Capture validation/transformation errors
-def silver_transform_with_dlq(spark, bronze_table, silver_table, dlq_table):
+def silver_transform_with_dlq(spark, bronze_table, silver_table, dlq_table, batch_id):
     bronze_df = spark.table(bronze_table)
 
     validation_rules = [
@@ -552,7 +681,9 @@ def silver_transform_with_dlq(spark, bronze_table, silver_table, dlq_table):
     ]
 
     return route_by_validation(
-        spark, bronze_df, validation_rules, silver_table, dlq_table
+        spark, bronze_df, validation_rules,
+        source_table=bronze_table, valid_table=silver_table,
+        dlq_table=dlq_table, batch_id=batch_id,
     )
 ```
 

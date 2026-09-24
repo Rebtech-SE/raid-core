@@ -309,8 +309,14 @@ def process_batch(records: list):
             successful.append(result)
         except RecoverableError as e:
             if not retry_queue.add_for_retry(item.record, str(e), item.retry_count):
-                # Max retries exceeded, send to DLQ
-                write_to_dlq(item.record, str(e), item.retry_count)
+                # Max retries exceeded, send to DLQ (DLQManager in pyspark-dlq-patterns.md)
+                dlq_manager.write_error(
+                    record=item.record,
+                    source_table=source_table,
+                    error_type=classify_error(e),
+                    error_message=f"{e} (after {item.retry_count} retries)",
+                    batch_id=batch_id,
+                )
 
     return successful
 ```

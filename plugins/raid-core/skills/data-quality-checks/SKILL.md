@@ -392,12 +392,14 @@ row must be kept rather than discarded.
 # Route orphans to the DLQ instead of dropping or failing on them
 orphans = df.join(ref_keys, F.col(fk_column) == F.col("_ref_key"), "left_anti")
 
+# write_to_dlq is defined in dead-letter-queue ("write_to_dlq -- the one write path")
 write_to_dlq(
     orphans,
     error_type="FK_ERR",
-    error_detail=f"{fk_column} not found in {ref_table}",
+    error_message=f"{fk_column} not found in {ref_table}",
     source_table=source_table,
     batch_id=batch_id,
+    dlq_table=dlq_table,
 )
 
 clean = df.join(ref_keys, F.col(fk_column) == F.col("_ref_key"), "left_semi")

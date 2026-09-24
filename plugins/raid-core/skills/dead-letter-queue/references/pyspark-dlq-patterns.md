@@ -66,7 +66,7 @@ class DLQManager:
         """Write a single error to DLQ."""
         error_record = {
             "error_id": str(uuid.uuid4()),
-            "original_record": json.dumps(record) if isinstance(record, dict) else str(record),
+            "original_record": json.dumps(record, default=str) if isinstance(record, dict) else str(record),
             "source_table": source_table,
             "error_type": error_type,
             "error_message": error_message[:4000] if error_message else None,  # Truncate long messages
@@ -219,7 +219,7 @@ class DLQProcessor:
                 error_type = classify_error(e)
                 errors.append({
                     "error_id": str(uuid.uuid4()),
-                    "original_record": json.dumps(record),
+                    "original_record": json.dumps(record, default=str),
                     "source_table": self.source_table,
                     "error_type": error_type,
                     "error_message": str(e),
@@ -268,10 +268,14 @@ class DLQProcessor:
         """
         batch_id = batch_id or str(uuid.uuid4())
 
-        # Add validation columns
+        # Add validation columns. coalesce(..., False): a predicate over a NULL column
+        # is NULL, and a NULL row passes neither the valid nor the invalid filter.
         df = source_df
         for rule in validation_rules:
-            df = df.withColumn(f"_valid_{rule['name']}", F.expr(rule["condition"]))
+            df = df.withColumn(
+                f"_valid_{rule['name']}",
+                F.coalesce(F.expr(rule["condition"]), F.lit(False)),
+            )
 
         # Build validity condition
         validity_cols = [f"_valid_{rule['name']}" for rule in validation_rules]
@@ -287,17 +291,31 @@ class DLQProcessor:
         for col in validity_cols:
             valid_df = valid_df.drop(col)
 
-        # Apply transformation if provided
+        # Apply transformation if provided. A row that fails the transform goes to the
+        # DLQ like any other failure -- never `except: pass`, which drops it silently.
+        transform_errors = []
         if transform_func:
             transformed = []
             for row in valid_df.collect():
+                record = row.asDict()
                 try:
-                    transformed.append(transform_func(row.asDict()))
+                    transformed.append(transform_func(record))
                 except Exception as e:
-                    # Handle transformation errors
-                    pass
-            if transformed:
-                valid_df = self.spark.createDataFrame(transformed)
+                    transform_errors.append({
+                        "error_id": str(uuid.uuid4()),
+                        "original_record": json.dumps(record, default=str),
+                        "source_table": self.source_table,
+                        "error_type": classify_error(e),
+                        "error_message": str(e),
+                        "error_timestamp": datetime.now(),
+                        "batch_id": batch_id,
+                        "retry_count": 0,
+                        "status": "pending",
+                        "resolved_timestamp": None,
+                        "resolved_by": None
+                    })
+            self.dlq.write_errors_batch(transform_errors)
+            valid_df = self.spark.createDataFrame(transformed) if transformed else valid_df.limit(0)
 
         # Write valid records
         valid_count = valid_df.count()
@@ -316,7 +334,7 @@ class DLQProcessor:
                         original = {k: v for k, v in row.asDict().items() if not k.startswith("_valid_")}
                         errors.append({
                             "error_id": str(uuid.uuid4()),
-                            "original_record": json.dumps(original),
+                            "original_record": json.dumps(original, default=str),
                             "source_table": self.source_table,
                             "error_type": rule.get("error_type", "VALIDATION_ERR"),
                             "error_message": f"Failed validation: {rule['name']}",
@@ -331,11 +349,20 @@ class DLQProcessor:
 
             self.dlq.write_errors_batch(errors)
 
+        # Every input row landed somewhere: loaded, or quarantined with a reason.
+        total = source_df.count()
+        if total != valid_count + invalid_count + len(transform_errors):
+            raise RuntimeError(
+                f"Row accounting broken for batch {batch_id}: {total} in, {valid_count} loaded, "
+                f"{invalid_count + len(transform_errors)} quarantined"
+            )
+
         return {
             "batch_id": batch_id,
-            "total_records": source_df.count(),
+            "total_records": total,
             "valid": valid_count,
-            "invalid": invalid_count
+            "invalid": invalid_count,
+            "transform_failed": len(transform_errors)
         }
 ```
 
@@ -406,6 +433,11 @@ class DLQRetryProcessor:
             "failed": len(failed)
         }
 ```
+
+`get_retry_candidates()` only returns recoverable types. Rows of every other type wait in
+the DLQ until their cause is fixed, then go back through `replay_dlq()` in the skill's
+"Replaying Rows After a Fix" -- a quarantine with no way back out is a slower way of
+dropping the row.
 
 ## Usage Example
 

@@ -287,43 +287,19 @@ WHERE _rn = 1
 
 ### Corrupt Record Handling
 
-```python
-# PySpark - Handle corrupt records
-def ingest_with_error_handling(
-    spark,
-    source_path: str,
-    target_table: str,
-    error_table: str,
-    source_system: str,
-    batch_id: str
-):
-    # Read with PERMISSIVE mode
-    df = spark.read \
-        .option("mode", "PERMISSIVE") \
-        .option("columnNameOfCorruptRecord", "_corrupt_record") \
-        .json(source_path)
+Read with `mode=PERMISSIVE` and a `_corrupt_record` column, append the clean rows to
+Bronze, and route the corrupt ones to the dead-letter queue -- `error_type = 'PARSE_ERR'`,
+the batch id, and the raw line as `original_record`, in the DLQ table schema. The full
+function is `bronze_ingest_with_dlq` in `dead-letter-queue`; use it rather than a
+per-pipeline error table with its own columns, so one retry pipeline, one replay path
+and one set of alerts cover every source.
 
-    # Split valid and corrupt
-    valid_df = df.filter(F.col("_corrupt_record").isNull()).drop("_corrupt_record")
-    corrupt_df = df.filter(F.col("_corrupt_record").isNotNull())
+Two things that look equivalent and are not:
 
-    # Add audit columns
-    valid_df = add_audit_columns(valid_df, source_system, batch_id)
-    corrupt_df = add_audit_columns(corrupt_df, source_system, batch_id) \
-        .withColumn("_error_type", F.lit("PARSE_ERROR"))
-
-    # Write valid to Bronze
-    valid_df.write.mode("append").format("delta").saveAsTable(target_table)
-
-    # Write corrupt to error table
-    if corrupt_df.count() > 0:
-        corrupt_df.write.mode("append").format("delta").saveAsTable(error_table)
-
-    return {
-        "valid_records": valid_df.count(),
-        "corrupt_records": corrupt_df.count()
-    }
-```
+- **`mode=DROPMALFORMED`** discards malformed rows with no record at all -- the load
+  succeeds and the row count is quietly short.
+- **A bare `corrupt_df.write.saveAsTable("...quarantine")`** keeps the rows but not
+  *why* they are bad or which load they came from, so nobody can replay them.
 
 ### Schema Validation
 

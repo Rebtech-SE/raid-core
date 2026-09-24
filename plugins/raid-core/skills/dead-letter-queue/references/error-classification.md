@@ -289,16 +289,15 @@ try:
 except Exception as e:
     classification = classify_error_full(e, {"record": record})
 
-    dlq_record = {
-        "error_id": str(uuid.uuid4()),
-        "original_record": json.dumps(record),
-        "error_type": classification.error_type,
-        "error_subtype": classification.subtype,
-        "error_message": str(e),
-        "is_recoverable": classification.is_recoverable,
-        "recommended_action": classification.recommended_action,
-        "status": "pending" if classification.is_recoverable else "needs_review"
-    }
-
-    write_to_dlq(dlq_record)
+    # The DLQ schema is fixed (SKILL.md, "DLQ Table Design"): the subtype and the
+    # recommended action ride in error_message rather than in extra columns. Whether a
+    # row is retried automatically follows from error_type, so every row starts
+    # "pending" -- non-recoverable ones wait there for replay_dlq() after a fix.
+    dlq_manager.write_error(
+        record=record,
+        source_table=source_table,
+        error_type=classification.error_type,
+        error_message=f"[{classification.subtype}] {e} -- {classification.recommended_action}",
+        batch_id=batch_id,
+    )
 ```
