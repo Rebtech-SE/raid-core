@@ -13,8 +13,9 @@ argument-hint: "[optional: PR id; defaults to the PR for the current branch]"
 # RAID Babysit
 
 **You own the merge frontier. Declare a mode, clear one PR at a time, stop where the
-human's call begins.** Babysitting starts when the *user asks for it* -- normally once a
-unit or a whole stack is built, not the moment a PR opens. Building and babysitting compete
+human's call begins.** Babysitting starts when the user asks for it or when
+`commit-push-pr` hands off completed work -- normally once a unit or a whole stack is built,
+not the moment each intermediate PR opens. Building and babysitting compete
 for the same agent: interleaving them stalls the build and spends CI minutes on commits a
 later wave will restart. Finish the work, get it green here, then hand it back.
 
@@ -46,8 +47,11 @@ never guess a merge verdict.
 | `threads-only` | "address the review-bot comments" | answer review threads, touch nothing else |
 | `check` | "check on X", "is it green" | one status pass and a report, no loop |
 
-Undeclared defaults to `drive` -- which is how a babysitter running inside another agent's
-turn stops that agent from ever finishing. Small or docs-only PRs get `check`, not `drive`.
+Undeclared defaults to `drive`. PR size never changes the mode: a small or docs-only PR
+still gets `drive` when drive was asked for, and `commit-push-pr`'s handoff is always
+`drive`. `check` never stands in for a drive -- one snapshot followed by a stop is not
+babysitting. Inside another agent's still-running plan, use `background` so the caller can
+finish.
 
 ## 2. Work the merge frontier and nothing above it
 
@@ -243,16 +247,37 @@ abandoned the PR.
 
 Stop conditions: the frontier is merge-ready (report and stop); another actor merged the
 frontier (advance to the new frontier and continue); the whole stack is merged (done); an
-explicit stop from the user. Answer a user question mid-loop and continue. For a stack,
+explicit stop from the user. A required review or an unvoted required reviewer is **not** a
+stop condition: it is a wait that step 7a carries across turns. Answer a user question mid-loop and continue. For a stack,
 capture the PR list bottom-to-top **once** and reuse that frozen list on every re-arm --
 rediscovering the stack after a parent merges can lose retargeted descendants. The only
 revision is step 2's sanctioned follow-up PR: drop the merged owner, append the new PR at
 the end.
 
+## 7a. Keep the watch alive past the turn
+
+Nothing re-invokes you after your turn ends unless you arm it. Before ending a turn in
+`drive` or `background` without merge-ready, a merged or abandoned PR, or a user stop, arm a
+wake through the host's own mechanism: a PR activity subscription or notification where one
+exists (it costs nothing while idle), else a self-scheduled wake-up or recurring task. Pace
+it to what is pending: minutes while CI or review automation runs, 20-30 minutes while only
+humans are pending, backing off to hourly when the state has not changed. Each wake takes one
+status read (step 4), triages new review comments (step 6), pushes and re-arms after fixes,
+and re-arms the wake when nothing changed. Stop arming at merge-ready, a merged or abandoned
+PR, an access blocker, a user stop, or a day of unchanged human wait; report which one ended
+it.
+
+With no wake mechanism, stay in the turn on the host's blocking watch until CI and any review
+automation have settled, then hand back with the exact resume request (for example
+`babysit <PR URL>`). **Never tell the user you are watching, following, or will fix later
+feedback unless a wake is armed and the host confirmed it.** That promise with nothing armed
+is the failure this section exists for.
+
 ## 8. Stop at the human's line
 
-Owner approval is a **wait**, not a blocker to fix. Surface the escalation and keep working
-the rest. Escalate rather than decide: anything needing a rebase or restack, a policy you
+Owner approval is a **wait**, not a blocker to fix. Surface the escalation, keep working
+the rest, and keep step 7a's watch armed: a review that lands with comments is still this
+drive's work. Escalate rather than decide: anything needing a rebase or restack, a policy you
 cannot evaluate, a bot finding in security/auth/billing/data, or a required reviewer who has
 not voted.
 
@@ -262,5 +287,6 @@ recur is a candidate entry for [references/review-bot-triage.md](references/revi
 engagement's compounding convention. Never keep it only in private memory.
 
 **Reply with:** the mode, the frontier and its state, what you fixed versus dismissed and
-why, what is still pending, which host commands you could not verify, and what needs the
-human. Repo-relative paths throughout.
+why, what is still pending, which host commands you could not verify, what needs the human, and
+the watch state: armed (mechanism and next check) or ended (why, and the request that resumes
+it). Repo-relative paths throughout.

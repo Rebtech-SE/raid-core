@@ -162,9 +162,10 @@ Report the PR URL, target branch (`main`), and commits included.
 ## Step 6: Automatic babysit integration
 
 Unless `--no-babysit` is explicitly passed:
-1. Automatically run `babysit` on the opened or updated PR URL / ID.
-2. `babysit` monitors the PR: checks branch policy / status, CI runs, reviewer votes, and conflict status until the PR is merge-ready.
-3. Does **not** auto-merge — leaves final merge approval to the user.
+1. Automatically run `babysit` in `drive` mode on the opened or updated PR URL / ID. The mode is `drive` for every PR size; a `check` snapshot is not follow-through.
+2. `babysit` monitors the PR: checks branch policy / status, CI runs, reviewer votes, and conflict status until the PR is merge-ready. A required human review is a wait it keeps watching across turns (its step 7a), not the end of the drive.
+3. Tell the user you will follow the PR only as far as `babysit` reports its watch armed, and end the report with its CI/review state and watch state.
+4. Does **not** auto-merge — leaves final merge approval to the user.
 
 ---
 
