@@ -38,7 +38,6 @@ metric:
       primary: mean_score
       secondary:
         - high_fp_risk_rate
-    model: haiku
     sample_size: 10
     batch_size: 5
     sample_seed: 42

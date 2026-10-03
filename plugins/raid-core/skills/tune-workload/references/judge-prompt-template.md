@@ -107,7 +107,7 @@ Rules:
 
 ## Notes
 
-- Designed for Haiku by default -- prompts are concise and well-structured for smaller models
+- Judge sub-agents inherit the session model -- prompts stay concise and well-structured so any capable model can follow them
 - The rubric is part of the immutable measurement harness -- the experiment agent cannot modify it
 - The `ambiguous` flag on items helps the orchestrator identify noisy evaluations without forcing bad scores
 - For singleton evaluation, the orchestrator provides cluster summaries (not full contents) to keep judge context lean

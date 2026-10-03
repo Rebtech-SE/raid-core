@@ -165,7 +165,7 @@ You cannot be a cold reader of code you just wrote - you know why every line is 
 those reasons are what keep the shape alive. So delegate the reading.
 
 Spawn the four reviewers below in a single message (one `Agent`/`Task` dispatch each,
-mid-tier model - `model: "sonnet"`). Omit the `mode` parameter so the user's permission
+no model override - they inherit the session model). Omit the `mode` parameter so the user's permission
 settings apply. Give each reviewer:
 
 - the resolved file paths and the changed hunks;

@@ -169,10 +169,9 @@ RUN_ID=$(date +%Y%m%d-%H%M%S)-$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' ')
 mkdir -p "/tmp/raid/review-changes/$RUN_ID"
 ```
 
-**Model tiering.** `raid-correctness-reviewer` and `raid-adversarial-reviewer` inherit
-the session model (highest-stakes analysis). All other personas, synthesis agents, and
-validators use the platform's mid-tier model (`model: "sonnet"` in Claude Code) to cut
-cost/latency. Omit the override where the dispatch primitive has none.
+**Model.** Every persona, synthesis agent, and validator inherits the session model.
+Never pass a model name or tier to the dispatch primitive -- RAID runs across Claude,
+OpenAI, and other providers, and a hard-coded name breaks on all but one of them.
 
 **Bounded parallel dispatch.** Respect the harness active-subagent limit; queue and
 fill freed slots. Treat concurrency-limit spawn errors as backpressure (re-queue),
@@ -221,7 +220,7 @@ Convert the compact returns into one deduplicated, confidence-gated set:
 
 Independent re-verification with `references/validator-template.md`. Runs whenever at
 least one finding survives Stage 5. One validator sub-agent per surviving finding
-(mid-tier model, read-only). Budget cap 15 by severity (P0 first); **never drop a
+(session model, read-only). Budget cap 15 by severity (P0 first); **never drop a
 P0/P1 from validation** -- raise the cap if P0/P1 alone exceed 15. Pass each validator
 the finding fields, `why_it_matters` from the artifact file, the diff, and the scope
 mode / `PR_HEAD_REF`. `validated:false` drops the finding (record the reason);

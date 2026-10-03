@@ -121,13 +121,6 @@ required_fields:
                 default: []
                 description: "Additional scoring fields to log (not optimized against)"
         optional_children:
-          model:
-            type: enum
-            values:
-              - haiku
-              - sonnet
-            default: haiku
-            description: "Model to use for judge evaluation. Haiku is cheaper and faster; Sonnet is more nuanced."
           sample_size:
             type: integer
             default: 10
