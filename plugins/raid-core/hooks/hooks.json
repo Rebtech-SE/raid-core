@@ -36,6 +36,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/close-the-loop.sh\"",
+            "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/close-the-loop.ps1\"",
+            "cwd": "."
+          }
+        ]
+      }
     ]
   }
 }

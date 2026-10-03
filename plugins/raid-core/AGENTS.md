@@ -213,7 +213,8 @@ for the whole task — never mix providers or assume one the remote doesn't matc
 - **Issue / work-item linking is optional and tracker-neutral.** Do not ask about,
   infer, or nag for one when opening a PR — teams use different trackers (GitHub Issues,
   Jira, Linear, Azure Boards, etc.). Link or reference a tracker item only when the user
-  explicitly supplies an id, using that host's reference syntax (e.g. GitHub/GitLab
+  explicitly supplies an id, or the session itself claimed the ticket it built (recorded in
+  `.raid/session.json`), using that host's reference syntax (e.g. GitHub/GitLab
   `Closes #<id>`, Azure Boards `AB#<id>`). RAID assumes no particular tracker and no
   particular item-state model.
 

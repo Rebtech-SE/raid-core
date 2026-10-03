@@ -5,8 +5,8 @@
   This is the RECORD of what the tests did in a development cycle - not a decision
   document and not a sign-off gate, so it carries no approval badge. It is DERIVED FROM
   the append-only ledger docs/testing/test-results.jsonl (written by the raid-mode work loop) plus the
-  planned tests (testplan.html on a greenfield build, the plan's inline DQ checks on
-  incremental work). Never reconstruct outcomes by re-running tests - report only what the ledger
+  planned tests (the TP ids in testplan.html when it exists, else the tickets' Acceptance or the
+  units' inline DQ checks - raid-mode's references/planned-tests.md). Never reconstruct outcomes by re-running tests - report only what the ledger
   records.
   Branding: rebtech palette (ink/cream/gold/brown/sand) and inline logo - do not alter them.
 
@@ -197,8 +197,9 @@
 
   <section id="coverage">
     <h2><span class="no">02</span>Planned vs Executed</h2>
-    <!-- FILL: reconcile the ledger against the PLANNED tests - testplan.html#per-source and #baseline on
-         a greenfield build, or the plan's inline per-unit DQ checks on incremental work. Every planned test
+    <!-- FILL: reconcile the ledger against the PLANNED tests by planned_id - the TP ids in
+         testplan.html#per-source and #baseline when it exists, else the tickets' Acceptance or the units'
+         inline DQ checks. Lead the Planned test cell with the TP id when there is one. Every planned test
          gets a row even if it never ran; a planned test with no ledger entry is the finding this section
          exists to surface. Badge status .b-pass/.b-fail/.b-notrun. -->
     <table id="coverage-table" data-fill="coverage-table">

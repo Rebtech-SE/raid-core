@@ -35,6 +35,10 @@ Where the greenfield artifacts exist, they are the input and they are binding:
 entity model, the load modes and the **wave order**. The wave order is usually most of the
 dependency graph already -- do not re-derive it.
 
+When `docs/artifacts/testplan.html` exists, its TP ids are the planned tests, and every one
+of them has to land in exactly one slice. Where planned tests come from, and the rules for
+them, are in `raid-mode`'s `references/planned-tests.md`.
+
 ## 2. Read the repo before slicing
 
 Ticket titles and bodies use the project's vocabulary from `GLOSSARY.md`, and respect the
@@ -50,7 +54,9 @@ Each ticket is a **tracer bullet**: a narrow but complete path through every lay
   conform to `dim_customer`, with its tests" is a slice. "All of bronze" is not: it is a
   layer, it demos nothing, and it cannot be verified against anything.
 - **A slice includes its tests and its data checks.** Not "later", not a separate ticket.
-  A slice whose tests are someone else's ticket cannot satisfy its own Acceptance.
+  A slice whose tests are someone else's ticket cannot satisfy its own Acceptance. With a
+  test plan, the slice's Acceptance lists the TP ids it covers, id and title only
+  (`- [ ] TP-customer-03 customer_key is unique`) -- the plan holds the detail.
 - Each slice is verifiable on its own, against real data.
 - Each slice fits one fresh context window.
 - Prefactoring first.
@@ -88,6 +94,11 @@ it delivers** end to end. Then ask:
 - Is the granularity right -- too coarse, too fine?
 - Are the blocking edges real, or did a ticket inherit a blocker it does not need?
 - Should any be merged or split?
+
+With a test plan, end the list with a coverage line: `planned tests with no ticket: <ids>`
+and `planned tests in more than one ticket: <ids>`, or `all <n> TP ids assigned once`. A
+gap is fixed before publishing, or kept and named in the slice that cannot build it -- never
+dropped silently. With no test plan, skip the line.
 
 Iterate until the user approves. Do not publish an unapproved breakdown.
 

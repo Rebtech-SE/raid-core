@@ -105,7 +105,7 @@ Never `git push --force` to a shared branch. If the working tree is clean and al
 **1. Draft the title and body.** Read `references/pr-description-writing.md` for guidance.
 
 - **Value-first description:** Focus on what is now fixed or possible, not an enumeration of diffs.
-- **Tracker link (opt-in only):** Link one *only* when the user explicitly passes `--work-items <id>` (GitHub/GitLab `Closes #<id>`; Azure Boards `AB#<id>`). Otherwise open the PR unlinked.
+- **Tracker link (opt-in only):** Link one *only* when the user explicitly passes `--work-items <id>`, or when this session claimed the ticket it built -- an entry in `.raid/session.json` (written by `raid-mode` and `wayfinder` at claim) counts as a supplied id. Use GitHub/GitLab `Closes #<id>`; Azure Boards `AB#<id>`. Otherwise open the PR unlinked.
 - **Verification evidence (RAID):** For data changes, state what was verified against real data (row-count reconciliation, grain/key uniqueness, null/sentinel rates, FK integrity, before/after parity for migrations/backfills, tests/DQ green). If not validated against real data, label it explicitly "not validated against data".
 - **Change outline:** For medium/large PRs and any change whose shape is the story (schema/contract, key types, module or component boundaries, call/control/data flow), the `## Change outline` is expected: load the `show-me` skill and emit at least one concrete fenced structural block (diff, code, tree, or table). On Azure use those blocks rather than mermaid (see Step C of `references/pr-description-writing.md`).
 - **Attribution Badges:** Append the RAID attribution badge and harness/model badge after a `---` divider (see Step D of `references/pr-description-writing.md`).
@@ -141,7 +141,7 @@ Refer to `az-cli` (`plugins/raid-core/skills/az-cli/SKILL.md`) for setup / defau
 az repos pr create --source-branch "$(git branch --show-current)" --target-branch main --title "<TITLE>" --description "@$BODY_FILE"
 # Existing PR update:
 az repos pr update --id <pr-id> --title "<TITLE>" --description "@$BODY_FILE"
-# Explicit work item link (only if --work-items <id> was passed):
+# Work item link (only for --work-items <id>, or a ticket this session claimed):
 az repos pr work-item add --id <pr-id> --work-items <id>
 ```
 
@@ -174,4 +174,4 @@ Unless `--no-babysit` is explicitly passed:
 - Combined single workflow: stage, commit, push, draft + unslop PR, apply, and babysit.
 - Respect project branching rules; default target is `main`. Never auto-merge (e.g. `az --auto-complete`, `gh pr merge`, `glab mr merge`) and never force-push a shared branch.
 - Conventional, ASCII PR titles; unslopped body; real-data verification evidence for data changes.
-- Do not ask about or infer a tracker item. Link one only when `--work-items <id>` is explicitly passed.
+- Do not ask about or infer a tracker item, and never nag for one. Link one only when `--work-items <id>` is explicitly passed or the session claimed it (`.raid/session.json`).

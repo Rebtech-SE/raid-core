@@ -21,9 +21,10 @@ The deliverable is **`docs/testing/testreport.html`**, rendered from
 `references/testreport-template.html`. It is a record, not a decision document -- there is
 no approval gate on it, and it carries no approval badge.
 
-**Works with or without `raid-greenfield`.** A greenfield build reads planned
-tests from `docs/artifacts/testplan.html` when it exists; incremental work reads them from the
-per-unit DQ checks inline in the session's plan. The report is written to
+**Works with or without `raid-greenfield`.** Where the planned tests come from -- the TP
+ids in `docs/artifacts/testplan.html` when it exists, else the claimed tickets' Acceptance,
+else the units' inline DQ checks -- is defined once in `raid-mode`'s
+`references/planned-tests.md`; read it rather than guessing. The report is written to
 `docs/testing/`, beside its ledger, rather than the greenfield-owned `docs/artifacts/` --
 a core-only engagement must never be made to scaffold that directory. On a greenfield
 engagement, link the report from the artifacts index rather than moving it.
@@ -48,8 +49,9 @@ Three things the report must do, in order of how easily they are lost:
 
 - **The ledger** -- `docs/testing/test-results.jsonl`, append-only, written by the `raid-mode` work loop as each unit's tests run.
   Format and the rules for keeping it honest: [results-ledger.md](references/results-ledger.md).
-- **The planned tests** -- `docs/artifacts/testplan.html` (sections `#per-source`,
-  `#baseline`) when it exists; otherwise the DQ checks the units carried when they were built.
+- **The planned tests** -- per `raid-mode`'s `references/planned-tests.md`: the TP ids in
+  `docs/artifacts/testplan.html` (sections `#per-source`, `#baseline`) when it exists;
+  otherwise the tickets' Acceptance or the DQ checks the units carried when they were built.
 - `$ARGUMENTS` may name a cycle id or a plan; blank means the newest cycle in the ledger.
 
 **If the ledger is missing or empty**, say so plainly and stop -- do not render an empty
@@ -71,9 +73,10 @@ Group by `test_id` and derive:
 - **unplanned** -- ledger lines with no `planned_id` (coverage drift; report, do not hide)
 - **per-cycle totals** -- planned, run, passed, failed, pass rate
 
-Reconcile against the planned tests by `planned_id`, falling back to `test_id` where the
-plan predates ids. Where a planned test cannot be matched at all, list it as never run and
-note the ambiguity rather than guessing.
+Reconcile against the planned tests by `planned_id` -- the TP id, or the Acceptance line or
+check name when there is no test plan. Match on `test_id` only for ledger lines written
+before `planned_id` was recorded, and say so in the report. Where a planned test cannot be
+matched at all, list it as never run and note the ambiguity rather than guessing.
 
 ### Phase 2: Render
 
@@ -107,4 +110,4 @@ healed without explanation. If tests are still failing, another pass through the
 
 ## References
 
-- [results-ledger.md](references/results-ledger.md) - ledger format, how the work loopan` writes it, how to harvest outcomes from dbt/Fabric, and the rules that keep the history trustworthy
+- [results-ledger.md](references/results-ledger.md) - ledger format, how the work loop writes it, how to harvest outcomes from dbt/Fabric, and the rules that keep the history trustworthy

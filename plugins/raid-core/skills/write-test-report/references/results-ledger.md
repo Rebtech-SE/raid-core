@@ -20,8 +20,8 @@ One JSON object per line, one line per test **execution**. Never edit or delete 
 a correction is a new line, the same as any other append-only store.
 
 ```json
-{"cycle":"2026-08-18-001","ts":"2026-08-18T09:41:22Z","test_id":"silver.assignment.relationships_broker_id","name":"assignment.Broker_Id -> broker","planned_id":"TP-14","unit":"U3","layer":"silver","outcome":"fail","reason":"12 orphan rows: Broker_Id not present in broker","duration_s":4.2}
-{"cycle":"2026-08-18-002","ts":"2026-08-18T14:02:10Z","test_id":"silver.assignment.relationships_broker_id","name":"assignment.Broker_Id -> broker","planned_id":"TP-14","unit":"U3","layer":"silver","outcome":"pass","reason":null,"duration_s":3.9}
+{"cycle":"2026-08-18-001","ts":"2026-08-18T09:41:22Z","test_id":"silver.assignment.relationships_broker_id","name":"assignment.Broker_Id -> broker","planned_id":"TP-assignment-04","unit":"U3","ticket":"412","layer":"silver","outcome":"fail","reason":"12 orphan rows: Broker_Id not present in broker","duration_s":4.2}
+{"cycle":"2026-08-18-002","ts":"2026-08-18T14:02:10Z","test_id":"silver.assignment.relationships_broker_id","name":"assignment.Broker_Id -> broker","planned_id":"TP-assignment-04","unit":"U3","ticket":"412","layer":"silver","outcome":"pass","reason":null,"duration_s":3.9}
 ```
 
 | Field | Required | Notes |
@@ -30,8 +30,9 @@ a correction is a new line, the same as any other append-only store.
 | `ts` | yes | UTC ISO-8601, when the test ran |
 | `test_id` | yes | Stable identifier -- the dbt test name, notebook assertion id, or `<layer>.<model>.<check>`. **Stability matters more than beauty**: it is the key that joins a failure in cycle 3 to the pass in cycle 9. Renaming it silently breaks the history. |
 | `name` | yes | Human-readable, for the report |
-| `planned_id` | no | The id of the planned test in `testplan.html` / the plan unit. Absent means unplanned -- surfaced in the report as coverage drift, not hidden. |
-| `unit` | no | The plan's U-ID this ran under |
+| `planned_id` | no | The planned test this execution covers: the TP id from `testplan.html`, else the ticket's Acceptance line or the unit's check name (`raid-mode`'s `references/planned-tests.md`). Absent means unplanned -- surfaced in the report as coverage drift, not hidden. |
+| `unit` | no | The unit this ran under |
+| `ticket` | no | The tracker id of the claimed ticket the unit was built for, so a ticket's Resolve comment and the report can list its TP ids' outcomes |
 | `layer` | no | bronze/silver/gold, staging/edw/mart, staging/dimension/fact |
 | `outcome` | yes | `pass` \| `fail` \| `error` \| `skip`. `fail` = assertion failed; `error` = the test could not run. |
 | `reason` | on failure | **Required whenever outcome is not `pass`.** A failure line with a null reason is a defect in the writer, not a terse entry -- the story this serves asks for the reason explicitly. |

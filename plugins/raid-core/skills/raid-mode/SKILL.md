@@ -71,7 +71,8 @@ publishes each on the engagement's issue tracker in the standard brief shape, ma
 two agents avoid colliding. Work that arrived from outside this session -- a reported data
 bug, a customer request -- reaches you the same way: it has been through `triage` and
 arrives as a `ready-for-agent` ticket with an agent brief; read the brief as the contract
-and claim the ticket before building.
+and claim the ticket before building. Claiming also records the ticket in
+`.raid/session.json` -- see [references/close-the-loop.md](./references/close-the-loop.md).
 
 ## Do the work
 
@@ -94,7 +95,9 @@ calls a complete piece. Never half-built models.
 - **Dispatch the platform expert** (`fabric-cli-expert`, `databricks-expert`,
   `bigquery-expert`) for platform-specific execution rather than guessing CLI syntax.
 - **Build the tests with the code**, in the same unit -- unique/not_null on keys,
-  relationships on FKs, reconciliation. Not "later".
+  relationships on FKs, reconciliation. Not "later". The unit's planned tests -- TP ids
+  from `docs/artifacts/testplan.html`, else the ticket's Acceptance, else its inline DQ
+  checks -- are defined in [references/planned-tests.md](./references/planned-tests.md).
 - **Verify before moving on.** Targeted `dbt build`/`dbt test`, the notebook run, the DQ
   assertions. A unit is not done until its verification is green. Never leave the tree red.
 - **Validate against real data** -- see The bar. A green compile is not a verified unit.
@@ -108,6 +111,13 @@ calls a complete piece. Never half-built models.
   localized; deferring to the end accumulates findings across files.
 - **Update the docs the change touched** -- a project README, files under `docs/`,
   `AGENTS.md`, `CONVENTIONS.md`, any skill whose behaviour changed. Part of done, not a follow-up.
+- **Close the loop.** A unit built for a ticket is not done until the ledger has a line
+  per planned test it covers (`planned_id` set), the claimed ticket carries the tracker's
+  Resolve comment -- what was built, which planned ids are green or red, verified against
+  data or not -- and the ticket is moved to its done state or left for the PR merge to
+  close. Then mark it resolved in `.raid/session.json`. No `docs/agents/issue-tracker.md`:
+  write the ledger lines and skip the rest silently. Steps and recipes:
+  [references/close-the-loop.md](./references/close-the-loop.md).
 - **Stay in scope.** Adjacent work you discover becomes a note or a tracker item, not
   silent expansion.
 

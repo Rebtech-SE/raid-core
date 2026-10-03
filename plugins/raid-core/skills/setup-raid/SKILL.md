@@ -137,6 +137,12 @@ it, in one sentence placed where the file talks about how work is organised:
 Issues live in Jira project `DATA`; `docs/agents/issue-tracker.md` has the details.
 ```
 
+Then make sure `.raid/.gitignore` lists `session.json` (append the line if it is missing,
+creating `.raid/` if needed). A session that claims a ticket records it there for the
+Stop hook and `commit-push-pr` (`raid-mode`'s `references/close-the-loop.md`); it is
+local state and must never be committed into the customer's repo. The claim step adds the
+line too, so an engagement set up before this still stays clean.
+
 Two cases worth handling explicitly:
 
 - **The tracker already has its own conventions** -- a board whose columns model state,
@@ -156,7 +162,7 @@ Two cases worth handling explicitly:
 
 ### 6. Confirm and hand off
 
-Print what was written -- `.raid/config.yaml`, the git host sentence and the tracker
+Print what was written -- `.raid/config.yaml`, `.raid/.gitignore`, the git host sentence and the tracker
 pointer with the file that holds them, `docs/agents/issue-tracker.md`, the `docs/`
 directories -- and the environment gaps. Point the user at the next step: `map-repo` when
 the instruction file does not yet orient an agent, then `raid-mode` for the work -- or, when
