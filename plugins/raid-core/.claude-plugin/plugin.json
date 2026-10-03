@@ -1,6 +1,6 @@
 {
   "name": "raid-core",
-  "description": "RAID core - AI-assisted data platform engineering. The orchestration pipeline (project plan, requirements intake, assess, architecture, design, plan, work, compliance, compound) plus tech-agnostic data skills (medallion, ingestion, SCD, data quality, dbt, orchestration) and the data-platform reviewer subagents. Install this plus the plugin for your platform (raid-fabric, raid-gcp, raid-aws, raid-databricks).",
+  "description": "RAID core - AI-assisted data platform engineering. The orchestration pipeline (project plan, requirements intake, assess, architecture, design, work, review, retro) plus tech-agnostic data skills (medallion, ingestion, SCD, data quality, dbt, orchestration) and the data-platform reviewer subagents. Install this plus the plugin for your platform (raid-fabric, raid-gcp, raid-aws, raid-databricks).",
   "author": {
     "name": "Rebtech",
     "url": "https://dev.azure.com/rebtech"

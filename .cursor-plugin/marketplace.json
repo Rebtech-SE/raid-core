@@ -12,7 +12,7 @@
     {
       "name": "raid-core",
       "source": "raid-core",
-      "description": "The RAID build loop (plan, work, simplify, compliance, compound) plus tech-agnostic data skills and the data-platform reviewer subagents. Install this first, then add your platform plugin."
+      "description": "The RAID build loop (work, simplify, review, retro) plus tech-agnostic data skills and the data-platform reviewer subagents. Install this first, then add your platform plugin."
     }
   ]
 }

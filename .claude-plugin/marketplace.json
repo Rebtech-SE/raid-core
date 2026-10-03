@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "raid-core",
-      "description": "The RAID build loop (plan, work, simplify, compliance, compound) plus tech-agnostic data skills and the data-platform reviewer subagents. Everything you need to build and review data work in an existing codebase. Install this first, then add your platform plugin.",
+      "description": "The RAID build loop (work, simplify, review, retro) plus tech-agnostic data skills and the data-platform reviewer subagents. Everything you need to build and review data work in an existing codebase. Install this first, then add your platform plugin.",
       "author": {
         "name": "Rebtech",
         "url": "https://github.com/rebtech-se"

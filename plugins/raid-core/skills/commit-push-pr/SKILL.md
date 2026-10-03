@@ -86,9 +86,9 @@ Write conventional commit messages (`feat:`, `fix:`, `docs:`, `chore:`, `refacto
 
 ---
 
-## Step 3: Plan-status gate and push
+## Step 3: Close-the-loop check and push
 
-**Plan-status gate (hard, before push).** If the branch implements a plan held in this session, verify the plan's `Status:` reflects what is shipping (`complete` if this PR finishes the plan's scope, `active` if units remain) and that completed units' Status boxes / met Definition of Done items are checked. Carry the current status into the PR description **before** pushing.
+**Close-the-loop check (hard, before push).** If this session claimed tickets (`.raid/session.json`), verify each unit has closed the loop as `raid-mode` defines it (`raid-mode/references/close-the-loop.md`): a ledger line per planned TP id it covers, and the claimed ticket carrying its Resolve comment. Name every planned TP id that is red or not built in the PR description **before** pushing.
 
 Then push:
 
