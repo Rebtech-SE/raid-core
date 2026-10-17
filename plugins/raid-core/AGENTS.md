@@ -83,6 +83,8 @@ claims against real data before anything is brief-worthy),
 never into the customer's repo), **autoreview** (an extra single-engine review of a change
 bundle, asked for by name -- distinct from `review-changes`, which is the data-reviewer
 panel in the build loop), **report-raid-bug** (RAID itself misbehaved),
+**use-skill-library** (find, install and publish skills through a Skill Library registry
+-- the company's shared store for skills that are not part of RAID),
 **unslop** (audit and rewrite copy to eliminate AI slop), and the git skills
 (**commit-push-pr** -- single unified skill to stage, commit, push, draft unslopped PR
 copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready;

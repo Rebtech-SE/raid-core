@@ -166,6 +166,9 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
   missing) -> `report-raid-bug`.
 - **Writing or fixing a skill** -> `create-skill`. Also the reference for any skill RAID
   generates into a customer repo.
+- **Finding, installing or publishing a skill in the company skill library** ("is there a
+  skill for X", "share this skill with the team") -> `use-skill-library`. Publishing is an
+  outward action: dry run, show the files, and wait for a yes.
 - **Platform work** -> dispatch the tier's expert agent (`fabric-cli-expert`,
   `databricks-expert`, `bigquery-expert`) rather than guessing CLI syntax.
 

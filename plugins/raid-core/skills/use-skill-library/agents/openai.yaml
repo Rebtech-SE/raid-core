@@ -1,0 +1,3 @@
+interface:
+  display_name: "Use Skill Library"
+  short_description: "Find, install and publish skills in the library"
