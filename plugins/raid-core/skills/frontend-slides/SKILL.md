@@ -70,6 +70,8 @@ When enhancing existing presentations, fixed-stage fitting is the biggest risk:
 
 ## Phase 5: Delivery
 
+Run `unslop` over the slide copy as the final quality gate before you open the deck.
+
 1. **Clean up**, Delete `.frontend-slides/slide-previews/` if it exists
 2. **Open**, Use `open [filename].html` to launch in browser
 3. **Summarize**, Tell the user:

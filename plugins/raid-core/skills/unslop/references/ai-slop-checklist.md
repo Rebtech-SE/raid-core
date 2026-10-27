@@ -8,10 +8,10 @@ automatically.
 
 Two kinds of rules live here:
 
-- **Mechanical** — exact strings the linter catches deterministically. Listed
+- **Mechanical.** Exact strings the linter catches deterministically. Listed
   in the marked blocks below. Fix every one; there are no false positives worth
   keeping.
-- **Judgment** — patterns a human (or a reviewing agent) has to read for. The
+- **Judgment.** Patterns a human (or a reviewing agent) has to read for. The
   linter can't see these. Read this file before declaring copy done.
 
 Run the linter as the cheap first gate, then read the judgment section yourself:
@@ -55,7 +55,7 @@ moreover, furthermore, additionally
 ### Banned openers
 
 Don't start a piece, section, or paragraph with these. Includes throat-clearing
-openers — warm-up phrases that delay the actual point.
+openers, warm-up phrases that delay the actual point.
 
 <!-- lint:openers -->
 welcome to, introducing, here's the thing, let me be clear, i'll be honest,
@@ -79,7 +79,7 @@ going forward, let's dive in
 Never use em dashes (—) in any output. Don't substitute the literal double
 hyphen (`--`) either. Restructure with commas, periods, or parentheses, or
 split into two sentences. (A normal hyphen inside a compound word like
-`best-in-class` or `two-tap` is fine — the linter ignores those.)
+`best-in-class` or `two-tap` is fine; the linter ignores those.)
 
 ### Emoji piling
 
@@ -88,14 +88,14 @@ the same line reads as AI exuberance. The linter flags lines with 2+ emoji.
 
 ---
 
-## Judgment rules (read these yourself — the linter can't)
+## Judgment rules (read these yourself, the linter can't)
 
 These are the tells that need a reader, not a regex. Check them by hand before
 declaring copy done.
 
 ### Structural tells
 
-- **Rule of three.** "X, Y, and Z" lists everywhere. Use 2 or 4 — whatever the
+- **Rule of three.** "X, Y, and Z" lists everywhere. Use 2 or 4, whatever the
   content actually has. One rule-of-three list in a piece is fine; a cadence of
   them is the tell.
 - **Negative parallelism.** "It's not about X, it's about Y." Once per piece,
@@ -112,11 +112,17 @@ declaring copy done.
   twist:". Manufactured suspense. Cut and make the claim directly.
 - **Dramatic fragmentation.** "That's it. That's the whole thing." Punchy
   fragments stacked for effect. One is a beat; three is a tic.
+- **Staccato sentences.** Two or three clipped, parallel fragments: "More
+  reliable. Less expensive." / "Sleep better. Live longer." / "Thinner.
+  Lighter. Faster." The default voice of AI landing pages and ads, so in
+  headlines, taglines, and feature copy even one pair is a hit. Join the
+  ideas in a sentence. Add the mechanism or number behind them only when the
+  source gives it; otherwise ask for it.
 
 ### Tone tells
 
 - **Inflated symbolism.** Framing mundane things as epic narratives.
-- **Editorializing.** Telling the reader how to feel — "This is exciting,"
+- **Editorializing.** Telling the reader how to feel, "This is exciting,"
   "Interestingly." Present the thing; let them react.
 - **Superficial -ing commentary.** Vague gerund phrases that add nothing:
   "Creating a more engaging experience."
@@ -138,7 +144,7 @@ declaring copy done.
 - **Fake-profound kickers.** The closing "deep" line that restates the point as
   a metaphor or aphorism: "The future isn't coming. It's already here." /
   "And that changes everything." Delete it. End on a concrete point, a takeaway,
-  or the next action — never on a manufactured mic-drop.
+  or the next action, never on a manufactured mic-drop.
 
 ### Formatting tells
 
@@ -157,7 +163,7 @@ Words like `just`, `simply`, `actually`, `literally`, `honestly`, `truly`,
 `fundamentally`, `importantly`, `crucially`, `inherently`, `inevitably` are
 usually filler ("this is *just* a simpler way" → "this is a simpler way").
 Not linted, because a few are legitimate in casual/spoken copy and the false-
-positive rate would be high — read for them by hand and cut the ones that add
+positive rate would be high. Read for them by hand and cut the ones that add
 nothing.
 
 ### Context-dependent words and phrases (judgment, not a hard ban)
@@ -182,11 +188,11 @@ a plainer concrete word: "substrate" becomes "base", "wedge in" becomes "add",
 "vector" becomes "way" or "method", "gold-plating" becomes "more than the job
 needs", "ratchet" becomes the mechanism's real name, "evacuate" becomes "move
 out", "endgame" becomes "the last phase". Several have literal uses (a real
-wedge, an actual surface area) — swap only when the metaphor is doing the work.
+wedge, an actual surface area); swap only when the metaphor is doing the work.
 
 ### The read-aloud test
 
-Read the draft out loud. AI slop is smooth, even, and frictionless — every
+Read the draft out loud. AI slop is smooth, even, and frictionless: every
 sentence the same length, every clause balanced. Real copy has uneven rhythm:
 a three-word line next to a long one, a fragment, a hard stop. If it sounds
 like it was written to be inoffensive, it was. Rewrite for friction.

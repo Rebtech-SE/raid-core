@@ -77,6 +77,7 @@ history), report it as "unknown", not "OK". A silent gap reads as health it didn
 ### 4. Report the pulse
 
 Print a compact status board, then the detail only for what needs attention:
+Apply `unslop` as a write-through constraint on the detail lines.
 
 ```
 Platform pulse - <platform> - <scope> - <window>

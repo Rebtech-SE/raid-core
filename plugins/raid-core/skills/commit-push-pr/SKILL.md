@@ -110,9 +110,9 @@ Never `git push --force` to a shared branch. If the working tree is clean and al
 - **Change outline:** For medium/large PRs and any change whose shape is the story (schema/contract, key types, module or component boundaries, call/control/data flow), the `## Change outline` is expected: load the `show-me` skill and emit at least one concrete fenced structural block (diff, code, tree, or table). On Azure use those blocks rather than mermaid (see Step C of `references/pr-description-writing.md`).
 - **Attribution Badges:** Append the RAID attribution badge and harness/model badge after a `---` divider (see Step D of `references/pr-description-writing.md`).
 
-**2. Automatic `unslop` pass.** Keep `mannered-prose` as the constraint while drafting, then run `unslop` on the draft title and body before applying:
+**2. Automatic `unslop` pass.** Apply `unslop` as a write-through constraint while drafting, then run it as an audit on the draft title and body before applying:
 - Audit against `unslop` guidelines: eliminate AI tells (em dashes, mid-sentence colon overuse, formulaic lead-ins like "This PR introduces...", fluff, empty adverbs, excessive hedging, sycophant tone, corporate padding).
-- Apply `mannered-prose`: replace any metaphor or flourish that stands in for a literal phrase, so the title and body read as crisp, plain, direct, human prose.
+- Replace any metaphor or flourish that stands in for a literal phrase, so the title and body read as crisp, plain, direct, human prose.
 
 ---
 

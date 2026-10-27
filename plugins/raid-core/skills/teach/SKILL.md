@@ -72,10 +72,10 @@ intact.** Its hedges are findings, not style.
    rows beats a boxes-and-arrows picture. A single simple
    point needs no figure.
 
-Write every response through `unslop`, keeping `mannered-prose` as the constraint while you
-draft it, in plain spoken English, the way you would explain it to a colleague. Be tight,
-not terse: cut filler and hedging, keep the part that makes it click. Do not list models
-and columns like a changelog. State the concrete mechanism, not a
+Write every response through `unslop` as a write-through constraint, in plain spoken
+English, the way you would explain it to a colleague. Be tight, not terse: cut filler and
+hedging, keep the part that makes it click. Do not list models and columns like a changelog.
+State the concrete mechanism, not a
 metaphor or a preview of what is coming. Normal sentence case. No em dashes. Prefer periods
 over commas; if clauses pile up, split the sentence. Give each concept one name and keep it
 -- switching between synonyms for the same thing (mart, table, model) makes the reader

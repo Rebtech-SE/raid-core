@@ -92,6 +92,7 @@ history section with reassurance -- if nothing has ever failed, one line says so
 
 ### Phase 3: Hand off
 
+Apply `unslop` as a write-through constraint on the report's prose and on this headline.
 Report the headline to the user: planned / passing / failing / never run, and anything that
 healed without explanation. If tests are still failing, another pass through the `raid-mode` work loop is the next step, not
 `review-changes` -- a red cycle is not ready for review.

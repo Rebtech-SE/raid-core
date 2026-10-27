@@ -88,7 +88,8 @@ bundle, asked for by name -- distinct from `review-changes`, which is the data-r
 panel in the build loop), **report-raid-bug** (RAID itself misbehaved),
 **use-skill-library** (find, install and publish skills through a Skill Library registry
 -- the company's shared store for skills that are not part of RAID),
-**unslop** (audit and rewrite copy to eliminate AI slop), and the git skills
+**unslop** (remove AI slop and performed phrasing; the write-through constraint on everything a
+person reads, an audit with a lint gate, or a deslopify rewrite), and the git skills
 (**commit-push-pr** -- single unified skill to stage, commit, push, draft unslopped PR
 copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready;
 **resolve-pr-feedback**, **babysit** --

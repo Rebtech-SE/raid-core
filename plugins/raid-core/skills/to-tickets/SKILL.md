@@ -105,6 +105,7 @@ Iterate until the user approves. Do not publish an unapproved breakdown.
 ## 5. Publish
 
 Publish in dependency order, blockers first, so each ticket's edges reference real ids.
+Apply `unslop` as a write-through constraint on each ticket's title and body.
 
 - Use the tracker's **native** blocking or parent relation where it has one -- it renders
   the frontier visually in the tracker's own UI. Otherwise write the Blocked by section and

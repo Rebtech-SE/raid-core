@@ -60,6 +60,8 @@ Compose the bug:
   Azure Boards takes HTML — render the body to match the target.
 - **Labels/tags:** `raid-plugin`, `bug`, plus the component (`raid-core`/`raid-fabric`/...).
 
+Apply `unslop` as a write-through constraint on the title and body.
+
 ### 4. Confirm, then create
 
 Show the assembled item and **confirm before creating** (filing is an outward action).

@@ -28,6 +28,9 @@ Skills below are named by what they do. `raid-core` is always installed; the gre
 stages need `raid-greenfield`, and the platform CLI expert comes from the tier plugin
 (`raid-fabric`, `raid-databricks`, `raid-gcp`, `raid-aws`).
 
+Route everything the user reads (replies, reports, tickets, PR copy, client-facing
+artifacts) through `unslop` as a write-through constraint.
+
 ## First, orient
 
 - Unfamiliar repo? Run `map-repo` **before anything else**. It writes or updates the

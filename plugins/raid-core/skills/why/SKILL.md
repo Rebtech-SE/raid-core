@@ -93,6 +93,7 @@ labelled as inference" is a good answer and a common one.
 Lead with the supported answer. Then the anchors (repo-relative paths, commit shas, ADR
 numbers), the direct evidence, clearly labelled inference, unresolved competing
 explanations, and the concrete gaps.
+Apply `unslop` as a write-through constraint on the answer.
 
 If the answer turns out to be **undocumented and worth keeping**, offer to record it:
 `domain-modeling` writes the term or the ADR. Offer, do not write it unasked.

@@ -257,6 +257,7 @@ inferred are P3/advisory/report-only), Actionable Findings, Pre-existing,
 Deployment Notes (from
 `raid-deploy-verification-agent` when it ran), Coverage, and a blockquote Verdict. No
 time estimates. Run the template's format-verification gate before delivering.
+Apply `unslop` as a write-through constraint on the finding text and the verdict.
 
 ### JSON output format (`mode:agent` only)
 

@@ -15,6 +15,8 @@ allowed-tools: Bash(gh *), Bash(git *), Bash(az *), Bash(python3 *), Read
 
 Evaluate and fix PR review feedback, then reply and resolve threads. The orchestrator judges every item centrally (the legitimacy gate), then dispatches generic subagents seeded with a skill-local fixer prompt only for items it has approved for a fix.
 
+Apply `unslop` as a write-through constraint on every thread reply and on the final summary.
+
 **Escalations never block.** needs-human is the escalation channel: leave the thread open with a natural reply and report the structured `decision_context`. Never pause mid-run to ask. That is what lets an autonomous caller, `babysit` running unattended, for example, loop this skill. Items that need a human decision come back as needs-human results for the caller to surface, rather than stalling the run; that includes a fix that would change behavior the author chose deliberately (see the rubric).
 
 **`mode:pipeline`** (set by an orchestrator such as `babysit`): the run is unattended, so **never call the blocking-question tool for any reason**, and read `references/pipeline-mode.md` before acting. It owns the two things ordinary mode leaves open. First, the open thread is the escalation ledger, so never write a PR-body residual section of your own. Second, the caller may pass a `trajectory` (`unresolved_trend`, `new_threads_this_tick`); when it shows that the feedback is not converging, answer with one approach-level needs-human rather than fixing nit after nit.

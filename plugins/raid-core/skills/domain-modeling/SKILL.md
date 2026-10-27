@@ -85,6 +85,7 @@ down and mark it explicitly as unverified rather than silently asserting it.
 
 When a term is resolved, update `GLOSSARY.md` right there. Don't batch these up -- capture
 them as they happen. Use the format in [glossary-format](./references/glossary-format.md).
+Apply `unslop` as a write-through constraint on every definition and ADR you write.
 
 `GLOSSARY.md` is a glossary and nothing else. Keep implementation detail out of it: no
 table names, no SQL, no column lists, no pipeline mechanics. If you're tempted to write

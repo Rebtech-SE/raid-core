@@ -72,5 +72,6 @@ If any box is unchecked, you cannot write a trustworthy data contract yet. Keep 
 ```
 
 This report is the raw material the RAID assess stage folds into its requirements summary.
+Apply `unslop` as a write-through constraint on the report's prose and verdict.
 See also [data-quality-checks](../data-quality-checks/SKILL.md) for the assertions that
 later enforce what this investigation discovers.

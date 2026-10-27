@@ -122,6 +122,8 @@ report.
 
 These rules govern every edit to a file that already exists:
 
+- **Write plainly.** Apply `unslop` as a write-through constraint on the architecture doc,
+  the router and the tech-debt report.
 - **Fill gaps; don't restate.** For each fact: already said and still true -> leave it.
   Covered by another doc -> a pointer to that doc, never a copy. Said, but contradicted by
   the code -> propose the correction, showing what the file says and what the code does.
@@ -190,6 +192,8 @@ dev-facing markdown, deliberately *not* a templated HTML deliverable.
 ### Phase 3: Report and hand off
 
 Tell the user what landed:
+
+Apply `unslop` as a write-through constraint on this report.
 
 - **The architecture doc and the instruction file, named explicitly**, and what changed in
   each -- created, facts added or corrected, pointers added, or already complete. If their

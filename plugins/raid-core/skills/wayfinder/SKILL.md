@@ -142,6 +142,9 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
+Apply `unslop` as a write-through constraint on the map, every ticket and every resolution
+comment.
+
 Two modes. Either way, **never resolve more than one ticket per session**, with the exception of research tickets.
 
 ### Chart the map
