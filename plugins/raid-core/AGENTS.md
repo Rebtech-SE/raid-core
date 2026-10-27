@@ -12,6 +12,9 @@ skills below as the steps need them -- holding the approval gates and the
 validate-against-real-data bar. Call the individual skills directly only when you already
 know exactly which one you want.
 
+**New to RAID?** `/intro` gives a short, hands-on orientation: what RAID is, where to
+start, and the commands worth knowing. Run it when someone asks how to use RAID.
+
 ## The build loop
 
 `raid-core` is the **build loop** -- everything you need to work, review and ship data
