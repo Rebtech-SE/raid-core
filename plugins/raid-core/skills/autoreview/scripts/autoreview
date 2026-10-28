@@ -34,7 +34,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, BinaryIO, NamedTuple
 
 
-ENGINES = ("codex", "claude", "amp", "pi", "kimi", "copilot")  # RAID: copilot engine
+ENGINES = ("codex", "claude", "amp", "pi", "kimi", "copilot", "raid")  # RAID: copilot and raid engines
 ENGINE_GIT_CONFIG_OVERRIDES = (
     ("core.fsmonitor", "false"),
     ("core.pager", "cat"),
@@ -385,6 +385,9 @@ DEFAULT_MODEL_BY_ENGINE = {
     "codex": "gpt-5.6-sol",
     "claude": "claude-fable-5-1",  # RAID: upstream still defaults to claude-fable-5
     "copilot": "gpt-5.6-sol",  # RAID: copilot engine
+    # RAID: raid engine. The strongest model Berget serves (its largest and priciest); move this
+    # when Berget adds a stronger one. Override with --model or AUTOREVIEW_RAID_MODEL.
+    "raid": "berget/moonshotai/Kimi-K3",
 }
 DEFAULT_CODEX_ACCESS_FALLBACK_MODEL = "gpt-5.6-terra"
 AMP_THINKING_VALUES = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
@@ -400,6 +403,7 @@ THINKING_LEVELS_BY_ENGINE = {
     "pi": {"off", "minimal", "low", "medium", "high", "xhigh"},
     "kimi": {"off", "on"},
     "copilot": {"none", "minimal", "low", "medium", "high", "xhigh", "max"},  # RAID: copilot engine
+    "raid": set(),  # RAID: raid engine; pick a variant with --model provider/model#variant
 }
 CLAUDE_SAFE_MODE_MIN_VERSION = (2, 1, 169)
 CLAUDE_FABLE_MIN_VERSION = (2, 1, 170)
@@ -1069,8 +1073,16 @@ def safe_engine_env(
         "GITHUB_TOKEN",
         "GH_TOKEN",
     }
+    # RAID: raid engine auth. A Berget Code seat signs in through RAID Agent's own store under
+    # HOME; an API key or a gateway key arrives through these.
+    raid_allowed_exact = {
+        "BERGET_API_KEY",
+        "RAID_AGENT_BASE_URL",
+        "RAID_GATEWAY_URL",
+    }
     engine_allowed_exact = {
         "amp": amp_allowed_exact,
+        "raid": raid_allowed_exact,
         "copilot": copilot_allowed_exact,
         "claude": claude_allowed_exact,
         "codex": codex_allowed_exact,
@@ -1122,6 +1134,8 @@ def safe_engine_env(
         "claude": ("CLAUDE_CONFIG_DIR",),
         "codex": ("CODEX_HOME",),
         "pi": ("PI_CODING_AGENT_DIR",),
+        # RAID: raid engine; RAID Agent keeps its sign-in and settings under the XDG dirs.
+        "raid": ("XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME"),
     }
     for key in engine_config_paths.get(engine or "", ()):
         value = os.environ.get(key)
@@ -6384,11 +6398,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mode", choices=["auto", "local", "uncommitted", "branch", "commit"], default="auto")
     parser.add_argument("--base", help="Branch base, or explicit commit to compare with the index in local mode.")
     parser.add_argument("--commit", default="HEAD")
-    parser.add_argument("--engine", choices=ENGINES, default=os.environ.get("AUTOREVIEW_ENGINE", "codex"))
+    parser.add_argument(
+        "--engine",
+        choices=ENGINES,
+        # RAID: inside RAID Agent the review stays on Berget unless the caller picks another engine.
+        default=os.environ.get("AUTOREVIEW_ENGINE", "raid" if raid_agent_session() else "codex"),
+    )
     parser.add_argument(
         "--model",
         action="append",
-        help="Model override or engine=model. Repeatable. Defaults: codex=gpt-5.6-sol with an access-only gpt-5.6-terra retry, claude=claude-fable-5-1, amp=openai/gpt-5.6-sol, copilot=gpt-5.6-sol.",
+        help="Model override or engine=model. Repeatable. Defaults: codex=gpt-5.6-sol with an access-only gpt-5.6-terra retry, claude=claude-fable-5-1, amp=openai/gpt-5.6-sol, copilot=gpt-5.6-sol, raid=berget/moonshotai/Kimi-K3.",
     )
     parser.add_argument("--thinking", action="append", help="Thinking/effort override or engine=level. Repeatable. Codex: none, minimal, low, medium, high, xhigh, max; gpt-6-astra requires low through max. Claude: low, medium, high, xhigh, max. Amp: none, low, medium, high, xhigh, max. Pi: off, minimal, low, medium, high, xhigh. Kimi: off, on.")
     parser.add_argument(
@@ -6418,6 +6437,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pi-bin", default=os.environ.get("PI_BIN", "pi"))
     parser.add_argument("--kimi-bin", default=os.environ.get("KIMI_BIN", "kimi"))
     parser.add_argument("--copilot-bin", default=os.environ.get("COPILOT_BIN", "copilot"))  # RAID: copilot engine
+    parser.add_argument("--raid-bin", default=os.environ.get("RAID_BIN", "raid"))  # RAID: raid engine
     parser.add_argument("--no-tools", dest="tools", action="store_false", default=True, help="Disable tools for engines that support it. Amp, Pi, and Kimi always run without tools; Codex rejects no-tools review.")
     parser.add_argument("--no-web-search", dest="web_search", action="store_false", default=True)
     parser.add_argument(
@@ -6530,6 +6550,93 @@ def run_copilot(args: argparse.Namespace, repo: Path, prompt: str) -> str:
     return result.stdout
 
 
+# --------------------------------------------------------------------------
+# RAID: raid engine (not upstream)
+#
+# Inside RAID Agent the review must not leave Sweden, so the second opinion runs
+# on another Berget model through RAID Agent itself (`raid run`). It is confined
+# the way the copilot engine is: the validated bundle is written to an empty
+# per-run workspace, and the reviewer session may only read, glob and grep.
+# Everything else, including files outside the workspace, the shell, web access
+# and RAID's own commands, is denied, and any permission prompt is rejected
+# because `raid run` is non-interactive. --standalone keeps that configuration in
+# a private server instead of the user's background one.
+# --------------------------------------------------------------------------
+
+RAID_REVIEWER_PERMISSIONS = json.dumps(
+    {
+        "permissions": [
+            {"action": "*", "resource": "*", "effect": "deny"},
+            *(
+                {"action": action, "resource": "*", "effect": "allow"}
+                for action in ("read", "glob", "grep")
+            ),
+        ]
+    }
+)
+
+
+def raid_agent_session() -> bool:
+    """True when autoreview was started from RAID Agent's shell tool, which sets RAID_AGENT=1."""
+    return os.environ.get("RAID_AGENT") == "1" or os.environ.get("AI_AGENT") == "raid-agent"
+
+
+def run_raid(args: argparse.Namespace, repo: Path, prompt: str) -> str:
+    if not args.tools:
+        raise SystemExit(
+            "--no-tools is not supported by the raid engine; the reviewer needs its "
+            "read-only file view to load the review bundle without exposing it in argv"
+        )
+    raid_bin = resolve_command(args.raid_bin, repo)
+    with tempfile.TemporaryDirectory(
+        prefix="autoreview-raid-workspace.",
+        dir=safe_temp_root(repo),
+        ignore_cleanup_errors=True,
+    ) as workspace_dir:
+        review_root = Path(workspace_dir)
+        if os.name == "posix":
+            os.chmod(review_root, 0o700)
+        prompt_path = review_root / "prompt.txt"
+        prompt_path.write_bytes(prompt.encode("utf-8"))
+        if os.name == "posix":
+            os.chmod(prompt_path, 0o600)
+        cmd = [
+            raid_bin,
+            "run",
+            "--standalone",
+            "--format",
+            "json",
+            "--title",
+            "autoreview",
+            "--model",
+            args.model,
+            'Read "prompt.txt" and follow it exactly. Return only the requested JSON object.',
+        ]
+        result = run_with_heartbeat(
+            cmd,
+            review_root,
+            label="raid",
+            max_runtime_seconds=getattr(args, "engine_timeout_seconds", None),
+            stream_output=args.stream_engine_output,
+            env=safe_engine_env(
+                repo,
+                [Path(raid_bin).parent],
+                engine="raid",
+                extra={
+                    "OPENCODE_CONFIG_CONTENT": RAID_REVIEWER_PERMISSIONS,
+                    # The reviewer is part of the caller's command, not a session of its own.
+                    "RAID_TELEMETRY_DISABLED": "1",
+                },
+            ),
+        )
+    if result.returncode != 0:
+        raise ReviewerUnavailable(
+            f"raid engine failed ({result.returncode})\n{result.stderr or result.stdout}",
+            result=result,
+        )
+    return result.stdout
+
+
 def run_engine(args: argparse.Namespace, repo: Path, prompt: str) -> str:
     if args.engine == "codex":
         return run_codex(args, repo, prompt)
@@ -6543,6 +6650,8 @@ def run_engine(args: argparse.Namespace, repo: Path, prompt: str) -> str:
         return run_kimi(args, repo, prompt)
     if args.engine == "copilot":  # RAID: copilot engine
         return run_copilot(args, repo, prompt)
+    if args.engine == "raid":  # RAID: raid engine
+        return run_raid(args, repo, prompt)
     raise SystemExit(f"unsupported engine: {args.engine}")
 
 
@@ -6739,6 +6848,7 @@ def resolve_engine_binary(reviewer: argparse.Namespace, repo: Path) -> tuple[boo
         "pi": getattr(reviewer, "pi_bin", None),
         "kimi": getattr(reviewer, "kimi_bin", None),
         "copilot": getattr(reviewer, "copilot_bin", None),  # RAID: copilot engine
+        "raid": getattr(reviewer, "raid_bin", None),  # RAID: raid engine
     }
     bin_name = bin_by_engine.get(engine)
     if bin_name is None:

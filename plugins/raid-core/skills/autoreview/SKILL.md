@@ -87,7 +87,12 @@ parent-relative patch; otherwise leave the attribution unknown.
 
 ## Engines
 
-Codex is the default: `gpt-5.6-sol`, high reasoning, with a `gpt-5.6-terra` retry
+**Inside RAID Agent the default is the `raid` engine** (RAID addition): the second review
+runs through RAID Agent itself on the strongest Berget model (`berget/moonshotai/Kimi-K3`), so
+the code never leaves Sweden. Do not pick another engine there unless the user asks for it by
+name. Override the model with `--model berget/<model>` or `AUTOREVIEW_RAID_MODEL`.
+
+Elsewhere, Codex is the default: `gpt-5.6-sol`, high reasoning, with a `gpt-5.6-terra` retry
 only for an account-access failure. Honor explicit engine/model choices; do not
 switch because a review is slow or rate-limited.
 
@@ -157,6 +162,7 @@ split context overrides are unsupported when projection is selected.
 | Pi              | CLI 0.79.0+; configured model; no tools or project resources                                          |
 | Kimi            | CLI 0.30.0+; configured model; Python 3.11+ or `tomli` for TOML config                                |
 | Copilot (RAID)  | Copilot CLI signed in; tools required (`--no-tools` is rejected)                                      |
+| RAID (RAID)     | RAID Agent's `raid` CLI signed in to Berget; tools required (`--no-tools` is rejected)                |
 
 **RAID addition: the `copilot` engine.** Upstream dropped Copilot because its file tools
 could not be confined to the reviewed bundle. RAID keeps it for users whose only CLI is
@@ -164,6 +170,13 @@ Copilot, confined the way Codex is: the validated bundle is written to an empty 
 workspace, file tools are pinned there, custom instructions are off so the reviewed branch
 cannot steer its reviewer, and no repository file is mirrored. Prefer Codex or Claude when
 available; upstream tests and maintains those.
+
+**RAID addition: the `raid` engine.** Selected by default when autoreview runs from RAID
+Agent (its shell sets `RAID_AGENT=1`). It runs `raid run --standalone` on a Berget
+model in an empty per-run workspace holding only the bundle. The reviewer session may read,
+glob and grep there and nothing else: no shell, no web, no RAID commands, no files outside
+the workspace, and any permission prompt is rejected. Its telemetry is off, because the
+review is part of the caller's command.
 
 ## Runtime boundaries
 

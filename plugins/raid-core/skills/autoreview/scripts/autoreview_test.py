@@ -536,6 +536,78 @@ def amp_test_mcp_denial_result(
     )
 
 
+class AutoreviewRaidTests(unittest.TestCase):
+    """RAID: the raid engine runs the second review on Berget through RAID Agent."""
+
+    def parse(self, argv: list[str], env: dict[str, str]) -> argparse.Namespace:
+        with mock.patch.object(sys, "argv", ["autoreview", *argv]), mock.patch.dict(os.environ, env, clear=True):
+            return AUTOREVIEW.parse_args()
+
+    def test_raid_is_the_default_engine_only_inside_raid_agent(self) -> None:
+        self.assertEqual(self.parse([], {"AI_AGENT": "raid-agent"}).engine, "raid")
+        self.assertEqual(self.parse([], {"AI_AGENT": "claude-code", "RAID_AGENT": "1"}).engine, "raid")
+        self.assertEqual(self.parse([], {"AI_AGENT": "opencode"}).engine, "codex")
+        self.assertEqual(self.parse([], {}).engine, "codex")
+        explicit = {"AI_AGENT": "raid-agent", "AUTOREVIEW_ENGINE": "claude"}
+        self.assertEqual(self.parse([], explicit).engine, "claude")
+        self.assertEqual(self.parse(["--engine", "codex"], {"AI_AGENT": "raid-agent"}).engine, "codex")
+
+    def test_raid_defaults_to_a_berget_model_and_rejects_thinking(self) -> None:
+        args = self.parse(["--engine", "raid", "--raid-bin", "/opt/raid"], {})
+        reviewer = AUTOREVIEW.reviewer_args(args)[0]
+        self.assertEqual(reviewer.raid_bin, "/opt/raid")
+        self.assertTrue(reviewer.model.startswith("berget/"))
+        self.assertIsNone(reviewer.thinking)
+        with self.assertRaises(SystemExit), contextlib.redirect_stderr(io.StringIO()):
+            AUTOREVIEW.reviewer_args(self.parse(["--engine", "raid", "--thinking", "high"], {}))
+
+    @unittest.skipIf(os.name == "nt", "POSIX permissions")
+    def test_raid_run_is_confined_to_a_read_only_workspace(self) -> None:
+        args = argparse.Namespace(
+            raid_bin="raid",
+            model="berget/moonshotai/Kimi-K3",
+            tools=True,
+            stream_engine_output=False,
+        )
+        observed: dict[str, object] = {}
+
+        def fake_run(command: list[str], cwd: Path, **kwargs: object) -> subprocess.CompletedProcess[str]:
+            observed["command"] = command
+            observed["workspace"] = sorted(path.name for path in cwd.iterdir())
+            observed["prompt"] = (cwd / "prompt.txt").read_text(encoding="utf-8")
+            observed["env"] = kwargs["env"]
+            event = {"type": "text", "part": {"text": json.dumps(FINAL_REPORT)}}
+            return subprocess.CompletedProcess(command, 0, json.dumps(event) + "\n", "")
+
+        inherited = {"BERGET_API_KEY": "k", "OPENAI_API_KEY": "leak", "HOME": "/home/reviewer"}
+        with mock.patch.object(AUTOREVIEW, "resolve_command", return_value="/usr/bin/raid"), \
+                mock.patch.object(AUTOREVIEW, "run_with_heartbeat", side_effect=fake_run), \
+                mock.patch.dict(os.environ, inherited, clear=True):
+            raw = AUTOREVIEW.run_raid(args, Path.cwd(), "review diff PRIVATE_MARKER")
+        command = observed["command"]
+        assert isinstance(command, list)
+        self.assertEqual(command[:2], ["/usr/bin/raid", "run"])
+        self.assertIn("--standalone", command)
+        self.assertEqual(command[command.index("--model") + 1], "berget/moonshotai/Kimi-K3")
+        self.assertNotIn("PRIVATE_MARKER", " ".join(command))
+        self.assertEqual(observed["workspace"], ["prompt.txt"])
+        self.assertEqual(observed["prompt"], "review diff PRIVATE_MARKER")
+        env = observed["env"]
+        assert isinstance(env, dict)
+        self.assertEqual(env["BERGET_API_KEY"], "k")
+        self.assertNotIn("OPENAI_API_KEY", env)
+        self.assertEqual(env["RAID_TELEMETRY_DISABLED"], "1")
+        rules = json.loads(env["OPENCODE_CONFIG_CONTENT"])["permissions"]
+        self.assertEqual(rules[0], {"action": "*", "resource": "*", "effect": "deny"})
+        self.assertEqual({rule["action"] for rule in rules[1:]}, {"read", "glob", "grep"})
+        self.assertEqual(AUTOREVIEW.extract_json(raw), FINAL_REPORT)
+
+    def test_raid_rejects_no_tools(self) -> None:
+        args = argparse.Namespace(raid_bin="raid", model="berget/x", tools=False, stream_engine_output=False)
+        with self.assertRaises(SystemExit):
+            AUTOREVIEW.run_raid(args, Path.cwd(), "prompt")
+
+
 class AutoreviewAmpTests(unittest.TestCase):
     def test_amp_bin_cli_option_and_defaults(self) -> None:
         with mock.patch.object(
