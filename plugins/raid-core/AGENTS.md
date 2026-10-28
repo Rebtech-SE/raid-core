@@ -81,7 +81,8 @@ the intake front door whose `ready-for-agent` tickets this build loop claims; ve
 claims against real data before anything is brief-worthy),
 **debug-data-issue**,
 **tune-workload** (metric-driven tuning loop for query cost/runtime/DQ),
-**check-platform-health**,
+**check-platform-health**, **check-kubernetes-health** (read-only node, workload and pod
+health of a Kubernetes cluster; its exit code drives scheduled alerts),
 **handoff** (compact the session into a pickup document in the OS temp directory --
 never into the customer's repo), **autoreview** (an extra single-engine review of a change
 bundle, asked for by name -- distinct from `review-changes`, which is the data-reviewer

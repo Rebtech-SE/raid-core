@@ -1,0 +1,3 @@
+interface:
+  display_name: "Check Kubernetes Health"
+  short_description: "Read-only health report for a Kubernetes cluster"
