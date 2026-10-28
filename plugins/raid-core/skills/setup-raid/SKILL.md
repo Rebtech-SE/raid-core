@@ -48,6 +48,14 @@ split is deliberate: customer material and generated deliverables never mix flat
 
 `.raid/config.yaml` holds the telemetry opt-in and nothing else.
 
+**In RAID Agent, skip the question.** RAID Agent reports usage on its own, on by default, to
+rebtech's servers in Sweden; asking for an opt-in here would contradict that, and an
+`enabled: false` written by this step would switch it off for the repo. Ask only for the
+engagement id, so events are counted against the right engagement, and write the file
+below with `enabled: true` and that id. Leave an existing `.raid/config.yaml` as it is.
+Someone who wants it off for this repo can set `enabled: false` themselves. Everywhere
+else (Claude Code, Codex, Copilot, Cursor), the opt-in below applies.
+
 Ask the user once: RAID can send anonymous usage telemetry to rebtech -- one event per
 skill invocation containing only `{timestamp, skill name, plugin version, engagement id,
 session id, installation id}`; never prompts, code, paths, names, or hostnames (full
