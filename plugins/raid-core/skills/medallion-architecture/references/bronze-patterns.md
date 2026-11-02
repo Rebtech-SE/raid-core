@@ -78,52 +78,69 @@ def ingest_files(
     return {"records": df.count(), "batch_id": batch_id}
 ```
 
-### API Sources (REST, GraphQL)
+### API Sources (REST, SaaS, Graph): use dlt
+
+RAID's default for API sources is [dlt](https://dlthub.com/docs) -- dltHub's `dlt` Python
+library (`pip install dlt`), not Databricks Delta Live Tables, which is also imported as
+`dlt`. Its `rest_api` source handles pagination, retries, incremental cursors and schema
+evolution from a config dict, so don't hand-roll a `requests` loop.
 
 ```python
-# PySpark - API ingestion with raw payload preservation
-import requests
-import json
+# pip install "dlt[<destination extra>]" -- e.g. dlt[fabric], dlt[databricks], dlt[bigquery], dlt[az,deltalake]
+import dlt
+from dlt.sources.rest_api import rest_api_source
 
-def ingest_api(
-    spark,
-    api_url: str,
-    target_table: str,
-    source_system: str,
-    batch_id: str = None,
-    headers: dict = None
-):
-    batch_id = batch_id or str(uuid.uuid4())
+source = rest_api_source(
+    max_table_nesting=0,  # Bronze: keep nested objects as one JSON column, flatten in Silver
+    config={
+        "client": {
+            "base_url": "https://api.example.com/v1/",
+            "auth": {"type": "bearer", "token": dlt.secrets["sources.shop.token"]},
+            "paginator": "header_link",  # or json_link / offset / page_number / cursor
+        },
+        "resources": [{
+            "name": "orders",
+            "primary_key": "id",
+            "write_disposition": "append",  # Bronze is append-only
+            "endpoint": {
+                "path": "orders",
+                "params": {
+                    "updated_since": {
+                        "type": "incremental",
+                        "cursor_path": "updated_at",
+                        "initial_value": "2026-01-01T00:00:00Z",
+                    },
+                },
+            },
+        }],
+    },
+)
 
-    # Fetch from API
-    response = requests.get(api_url, headers=headers)
-    response.raise_for_status()
-    data = response.json()
-
-    # Handle list or single object
-    records = data if isinstance(data, list) else [data]
-
-    # Create DataFrame preserving raw payload
-    df = spark.createDataFrame([
-        {
-            "_raw_payload": json.dumps(record),
-            **record  # Also extract fields for queryability
-        }
-        for record in records
-    ])
-
-    # Add audit columns
-    df = add_audit_columns(df, source_system, batch_id)
-
-    # Append to Bronze
-    df.write \
-        .mode("append") \
-        .format("delta") \
-        .partitionBy("_ingestion_date") \
-        .saveAsTable(target_table)
-
-    return {"records": len(records), "batch_id": batch_id}
+pipeline = dlt.pipeline(
+    pipeline_name="shop_orders",
+    destination="filesystem",  # the platform tier names the destination and credentials
+    dataset_name="bronze_shop",  # schema / folder that holds the tables
+)
+print(pipeline.run(source, table_format="delta"))
 ```
+
+What dlt gives Bronze, so don't rebuild it:
+
+- **Batch id**: every row carries `_dlt_load_id`, and `_dlt_loads` records each load. That is
+  the `_batch_id`; don't add a second one. Add `_source_system` only if one dataset mixes
+  sources -- the dataset name usually says it.
+- **Incremental state** lives in the destination (`_dlt_pipeline_state`), so an ephemeral
+  notebook or container run resumes where the last one stopped. A second run with nothing
+  new loads nothing.
+- **Nesting**: with the default `max_table_nesting`, nested lists become child tables
+  (`orders__lines`, joined on `_dlt_parent_id`). For Bronze prefer `max_table_nesting=0`
+  and parse the JSON in Silver.
+- **Secrets** come from `dlt.secrets` (environment variables such as
+  `SOURCES__SHOP__TOKEN`, or `.dlt/secrets.toml` kept out of git), never inline.
+
+GraphQL or an API `rest_api` can't express: write a `@dlt.resource` generator that yields
+pages, and keep the same pipeline. Fall back to Spark only when one load is too big for a
+single Python process (see "Choosing the Ingestion Tool" in the skill).
 
 ### Database Sources (JDBC, CDC)
 
