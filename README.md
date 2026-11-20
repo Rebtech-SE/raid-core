@@ -22,8 +22,9 @@ repo. No registry, no build step, no account with Rebtech.
 | `plugins/raid-core/hooks/` | The **opt-in** usage telemetry hook. Off by default. See [PRIVACY.md](PRIVACY.md). |
 | `plugins/raid-core/AGENTS.md` | The engagement rules the skills assume (git workflow, conventional commits, paths) |
 
-The platform tiers (`raid-fabric`, `raid-gcp`, `raid-aws`, `raid-databricks`) and the
-greenfield discovery-and-design stages are **not** in this mirror. `raid-core` depends on
+The platform tiers (`raid-fabric`, `raid-gcp`, `raid-aws`, `raid-databricks`), the
+greenfield discovery-and-design stages and the open lakehouse operations plugin
+(`raid-openlakehouse-ops`) are **not** in this mirror. `raid-core` depends on
 nothing and is fully usable on its own. The tiers are installed *on top of* this repo's
 `raid-core@raid-core` - they declare it as a dependency against this marketplace - so this
 is the right place to install core from even when a tier follows.
