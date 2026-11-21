@@ -30,10 +30,7 @@ nullable. Model shape shows behaviour and never proves intent.
 - **A whole subsystem** -- trace the primary path end to end, then name the branches you
   did not walk rather than implying you covered them.
 
-Delegate independent slices to subagents when a host supports it and separate context
-genuinely helps -- one per source system, one per layer. Give each a distinct scope and
-concrete paths. Reconcile what comes back and follow unresolved links yourself; a
-delegate's summary is not evidence.
+Trace the scoped paths in the current session and check the source for each claim.
 
 State a reasonable reading of an ambiguous target and proceed. Ask only when the missing
 decision changes which model you would open.
@@ -65,8 +62,7 @@ Read the platform's own lineage or dependency metadata where it exists -- `dbt` 
 and `ref()` graph, the platform's lineage view, a pipeline's activity dependencies -- and
 treat it as a starting map, not as the answer. It records edges, not what happens on them.
 
-**Dispatch the tier's platform expert** (`fabric-cli-expert`, `databricks-expert`,
-`bigquery-expert`) rather than guessing CLI or metadata-query syntax.
+**Read the installed tier skill** for CLI and metadata-query syntax.
 
 Where you have read access, **check the trace against real data** -- row counts at each
 hop, key uniqueness at the grain you claimed, the null rate on the column in question.

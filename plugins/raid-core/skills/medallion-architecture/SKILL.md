@@ -245,7 +245,7 @@ RAID defaults, unless the platform tier or the repo already settled it:
 | Small Excel files | pandas |
 | Plain copies, and landing a warehouse staging table | the platform's native copy (pipeline Copy activity, `COPY INTO`) |
 
-"dlt" here is dltHub's `dlt` Python library (`pip install dlt`), not Databricks Delta Live Tables. The worked API example is in [Bronze Patterns](references/bronze-patterns.md#api-sources-rest-saas-graph-use-dlt). The platform tier says where dlt runs and which destination it writes to: `create-fabric-notebook` (Fabric), the `databricks-expert` agent (Databricks), `set-up-dbt-on-bigquery` (BigQuery).
+"dlt" here is dltHub's `dlt` Python library (`pip install dlt`), not Databricks Delta Live Tables. The worked API example is in [Bronze Patterns](references/bronze-patterns.md#api-sources-rest-saas-graph-use-dlt). The platform tier says where dlt runs and which destination it writes to: `create-fabric-notebook` (Fabric), `operate-databricks` (Databricks), `set-up-dbt-on-bigquery` (BigQuery).
 
 ### Patterns
 

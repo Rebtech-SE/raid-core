@@ -37,7 +37,7 @@ raid-mode -> work -> (write-test-report) -> simplify-code -> review-changes
   a test goes green -> `docs/testing/testreport.html` (beside its ledger, so a core-only
   engagement never needs the greenfield-owned `docs/artifacts/`)
 - **simplify-code** - quality-only tidy of the changed models/notebooks
-- **review-changes** - multi-agent review: correctness, integrity, medallion, SCD, reliability
+- **review-changes** - scoped data review: correctness, integrity, requirements and change risks
 
 **Understanding, not changing** -- a question is not authorization to edit anything:
 **how** (mechanism, and the lineage trace back from a number to its source, naming
@@ -85,8 +85,7 @@ claims against real data before anything is brief-worthy),
 health of a Kubernetes cluster; its exit code drives scheduled alerts),
 **handoff** (compact the session into a pickup document in the OS temp directory --
 never into the customer's repo), **autoreview** (an extra single-engine review of a change
-bundle, asked for by name -- distinct from `review-changes`, which is the data-reviewer
-panel in the build loop), **report-raid-bug** (RAID itself misbehaved),
+bundle, asked for by name -- distinct from `review-changes`, which checks data changes in the build loop), **report-raid-bug** (RAID itself misbehaved),
 **use-skill-library** (find, install and publish skills through a Skill Library registry
 -- the company's shared store for skills that are not part of RAID),
 **unslop** (remove AI slop and performed phrasing; the write-through constraint on everything a
@@ -95,6 +94,14 @@ person reads, an audit with a lint gate, or a deslopify rewrite), and the git sk
 copy, apply across GitHub/Azure DevOps/GitLab, and babysit to merge-ready;
 **resolve-pr-feedback**, **babysit** --
 drive an open PR to merge-ready on any host, never merging it).
+
+## Delegation
+
+Run work and verification in the current session. A separate context is useful
+for a concrete independent check on a consequential change, or when the input
+would exceed the current context. Keep synthesis in the current session. Honor
+the user's and host's delegation rules. Use the ticket brief for implementation
+delegated at the user's request.
 
 ## One brief shape
 
@@ -127,7 +134,7 @@ the discovery-and-design front end and the pipeline runner:
 ```
 
 `raid-greenfield` also ships **ship-engagement** (runs the whole chain autonomously) and
-**review-document** (planning-doc persona panel). Core's skills stay useful on their own:
+**review-document** (planning-document review). Core's skills stay useful on their own:
 The work loop consumes `architecture.html`/`design.html` when they exist and works from the
 repo's own conventions when they don't, and calls `review-document` only when installed.
 
@@ -166,7 +173,7 @@ installed, say so and offer the install rather than improvising the artifacts.
 ## Glossary
 
 - **Skill** - a slash-invoked capability that orchestrates: pulls its own reference
-  files progressively and dispatches subagents. User-facing.
+  files progressively and applies the workflow in the current session.
 - **Agent (subagent)** - a specialized worker a skill dispatches in an isolated
   context to return a result. Not invoked directly by users.
 - **Domain skill** - tech knowledge (medallion, ingestion, scd, fabric-*, etc.) the
@@ -180,8 +187,8 @@ installed, say so and offer the install rather than improvising the artifacts.
   review passes -- run the query and check the actual numbers: row-count parity,
   grain/key uniqueness, null/sentinel rates, FK integrity, before/after parity for
   migrations and backfills. A correctness, integrity, migration, or SCD claim -- and its
-  all-clear -- is not trustworthy until checked against real data. The platform expert
-  (`fabric-cli-expert` / `databricks-expert` / `bigquery-expert`) runs these probes.
+  all-clear -- is not trustworthy until checked against real data. Run these probes
+  using the installed tier skill or the engagement verification tool.
   If you do **not** have read access, say so explicitly, lower confidence accordingly,
   and label the conclusion "not validated against data" -- never present an
   unverified-against-data result as verified. Validation is read-only; the only writes

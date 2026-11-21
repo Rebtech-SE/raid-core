@@ -1,21 +1,16 @@
 ---
 name: review-changes
 description: >-
-  Use before opening a PR or after finishing a unit of data work. Structured review of a
-  data change using tiered reviewer personas, confidence-gated findings, an independent
-  validator pass, and a merge/dedup pipeline. Combines requirements traceability with
-  data-correctness review (integrity, SCD, layering, reliability, cost, security).
-  Interactive mode applies safe, verified fixes; mode:agent reports JSON and the caller
-  applies.
+  Use before opening a PR or after a unit of data work. Review the scoped diff for
+  data correctness, requirements coverage and risk. Verify findings against source
+  evidence. Interactive mode applies safe fixes. mode:agent reports JSON.
 argument-hint: "[mode:agent] [base:<ref>] [plan:<path>] [blank to review current branch, or a PR/MR id or URL on GitHub, Azure DevOps, or GitLab]"
 ---
 
 # RAID Compliance Review
 
-Reviews a data change (SQL, dbt models, notebooks, pipelines) using dynamically
-selected reviewer personas. Spawns parallel sub-agents that return structured JSON,
-independently validates surviving findings, then merges and deduplicates into a
-single report. Built on the collaboration backbone in `references/`.
+Review the scoped change in the current session. Read the evidence once, apply the
+checks that match the change, and report what you verified.
 
 ## When to use
 
@@ -36,7 +31,7 @@ the remainder as a PR/MR id or URL (GitHub, Azure DevOps, or GitLab) or branch n
 | `plan:<path>` | Plan/requirements file for traceability (explicit). |
 | `depth:<full\|lean>` | Force the review depth, skipping auto-inference. Otherwise the depth is inferred (Stage 3) and announced. |
 
-Stop without dispatching when incompatible scope selectors conflict (e.g. `base:` and
+Stop the review when incompatible scope selectors conflict (e.g. `base:` and
 a PR id together). Emit a one-line reason; in `mode:agent` return
 `{"status":"failed","reason":"..."}`.
 
@@ -51,18 +46,18 @@ a PR id together). Emit a one-line reason; in `mode:agent` return
   metadata, and the plan. Note uncertainty in Coverage; do not stop to ask.
 - **Depth is inferred and announced, never asked.** The review **depth** (Full | Lean)
   is resolved from the `depth:` token, the plan's announced tier, and the diff scope
-  (Stage 3), then announced with the team. Default to **Full** when uncertain -- Lean
+  (Stage 3), then announced with the checks. Default to **Full** when uncertain -- Lean
   is an opt-down taken only when the change is clearly small and low-risk.
 - **Explicit mutations only.** Never run `git checkout`/`switch` or a provider PR/MR
   checkout (`gh pr checkout`, `az repos pr checkout`, `glab mr checkout`). A PR id/branch
   selects review **scope**, not permission to switch trees.
-- **Validate against real data when read access exists.** Reviewers run read-only SQL
-  (`SELECT COUNT(*)`, schema introspection) -- or dispatch the platform expert -- to
+- **Validate against real data when read access exists.** Run read-only SQL
+  (`SELECT COUNT(*)`, schema introspection) using the installed tier guidance to
   confirm data-dependent findings (and all-clears) against actual data; never DDL/DML.
   Per `raid-core/AGENTS.md`, when warehouse read access is available the review is not
   trustworthy on code-reading alone: a clean result that *could* have been checked
   against data but was not is reported as such (in Coverage / residual_risks), not as a
-  confident pass. Tell reviewers in their context whether warehouse access is available.
+  confident pass. Record whether warehouse access is available.
 - **Follow `raid-core/AGENTS.md`** -- repo-relative paths in everything this skill emits.
 
 ## Severity, confidence, routing
@@ -70,20 +65,6 @@ a PR id together). Emit a one-line reason; in `mode:agent` return
 Defined in `references/findings-schema.json` and `references/action-class-rubric.md`:
 P0-P3 severity; discrete confidence anchors `0/25/50/75/100`; `autofix_class`
 (`gated_auto`/`manual`/`advisory`); `owner` (`downstream-resolver`/`human`/`release`).
-
-## Reviewers
-
-The reviewer team is selected from `references/persona-catalog.md` -- 6 always-on
-personas, plus conditional
-personas (including the layering persona -- `medallion-architecture`,
-`inmon-architecture` or `kimball-architecture`) chosen by reading the diff. The
-**review depth** scales the always-on floor: **Full** runs all 6 always-on
-personas; **Lean** trims to `correctness`, `data-integrity`,
-`project-standards`, and `compliance-traceability` (see `references/persona-catalog.md`
--> Review depth). All always-on and conditional review personas now have agent files;
-the platform experts beyond `fabric-cli-expert` and the doc-review personas are still
-pending. **Skip any persona whose agent file does not exist yet and note it in
-Coverage.**
 
 ## How to run
 
@@ -110,12 +91,11 @@ exclusions for Coverage. Review tracked changes only.
 ### Stage 2: Intent discovery
 
 Write a 2-3 line summary of what the change is trying to accomplish, from the PR
-title/body, the branch name, the latest commits, and the conversation. This intent is
-passed to every reviewer so they can check code against stated purpose.
+title/body, the branch name, the latest commits, and the conversation. Check the change against this stated purpose.
 
 ### Stage 2b: Plan / requirements discovery
 
-Establish the requirements baseline for the `compliance-traceability` persona and the
+Establish the requirements baseline for the `compliance-traceability` check and the
 Requirements Completeness section:
 
 - Use `plan:` when passed (`plan_source: explicit`).
@@ -125,107 +105,33 @@ Requirements Completeness section:
   branch/PR (`plan_source: inferred`).
 - If none found, note it once in Coverage and review against intent only.
 
-### Stage 3: Select reviewers
+### Stage 3: Select checks
 
-**1. Resolve the review depth** (Full | Lean) by precedence per
-`references/persona-catalog.md` -> Review depth: the `depth:` token wins; else a
-large-or-high-risk diff (PII, financial, backfill, migration, new source) forces
-**Full**; else the plan's announced tier (Stage 2b); else the diff-scope heuristic
-(Lean for a small brownfield-incremental diff); else **default Full**.
+Read [the review checklist](references/review-checklist.md). Resolve Lean or Full
+in this order: explicit `depth:`, large or high-risk diff, announced plan depth,
+small incremental diff, otherwise Full. State the depth and reasons for additional
+checks. Run applicable risk checks at either depth.
 
-**2. Select the always-on floor for that depth** (skip missing agent files, note in
-Coverage): **Full** runs all 6 always-on personas; **Lean** trims to
-`correctness`, `data-integrity`, `project-standards`, and `compliance-traceability`.
-**3. Select conditional personas by judgment** from the full diff per
-`references/persona-catalog.md` (scd-correctness, pipeline-reliability, cost-perf,
-data-security, data-contract, data-migration, adversarial) -- these fire on their own
-diff signal at **either** depth, so a small-but-risky Lean diff still pulls its
-specialist. Select **the layering persona** only when the diff crosses or defines a
-layer boundary **and** the repo has a layered architecture -- then pick the one matching
-it: `medallion-architecture` for medallion repos, `inmon-architecture` for Inmon EDW
-repos, `kimball-architecture` for Kimball dimensional repos (named in the architecture doc the repo's
-`AGENTS.md` points to, else read off its layout; with no layering signal, medallion), never more than one. Its skip
-is a normal non-selection, not a Coverage note. Select the
-`raid-deploy-verification-agent` when the change is a risky deploy, and the platform
-expert (e.g. `fabric-cli-expert`) when the repo is built on that platform and the
-diff involves its execution surface.
+Read the root and applicable nested `AGENTS.md` / `CLAUDE.md` files and the
+requirements baseline. For a remote PR, inspect its exact head and base.
 
-**4. Announce the depth and the team** before spawning -- the one-line reason the depth
-was inferred, plus a one-line justification per conditional reviewer selected. This is
-an announcement, not a prompt; do not wait for a reply.
+### Stage 4: Review and verify
 
-### Stage 3b: Discover project-standards paths
+Walk the changed behavior once using the selected checks. Trace the effects on
+consumers and validate data-dependent conclusions with read-only probes. Record
+checks that could not run. For risky deployments, include baseline, post-run
+assertions and rollback in Deployment Notes.
 
-Collect the relevant `CLAUDE.md`/`AGENTS.md` paths (root plus any in ancestor
-directories of changed files) to pass to `raid-project-standards-reviewer` in a
-`<standards-paths>` block.
+Follow [the findings procedure](references/check-findings.md). It covers
+verification, optional independent review and routing.
 
-### Stage 4: Spawn sub-agents
+### Stage 5: Finalize findings
 
-**Run ID** -- generate before dispatch; scopes all artifacts:
-
-```bash
-RUN_ID=$(date +%Y%m%d-%H%M%S)-$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' ')
-mkdir -p "/tmp/raid/review-changes/$RUN_ID"
-```
-
-**Model.** Every persona, synthesis agent, and validator inherits the session model.
-Never pass a model name or tier to the dispatch primitive -- RAID runs across Claude,
-OpenAI, and other providers, and a hard-coded name breaks on all but one of them.
-
-**Bounded parallel dispatch.** Respect the harness active-subagent limit; queue and
-fill freed slots. Treat concurrency-limit spawn errors as backpressure (re-queue),
-not reviewer failure.
-
-Spawn each persona with the `references/subagent-template.md` wrapper, substituting:
-the persona's agent-file content, `references/diff-scope.md`, `references/findings-schema.json`,
-PR metadata (`<pr-context>`), and review context (intent, file list, diff, scope mode,
-`PR_HEAD_REF` when set, run id, reviewer name). For `project-standards` append the
-`<standards-paths>` block; for `compliance-traceability` append a
-`<requirements-context>` block with the Stage 2b paths; for `data-migration` append the
-resolved `<review-base>`.
-
-Each persona writes full JSON to
-`/tmp/raid/review-changes/$RUN_ID/<reviewer>.json` and returns compact JSON
-(merge-tier fields). The synthesis agent (`raid-deploy-verification-agent`) is
-dispatched through the same scheduler with the same context bundle; its output is
-unstructured and synthesized in Stage 6.
-
-### Stage 5: Merge findings
-
-Convert the compact returns into one deduplicated, confidence-gated set:
-
-1. **Validate** each return against the merge-tier field/value constraints; drop
-   malformed findings and record the count.
-2. **Deduplicate** by fingerprint `normalize(file) + line_bucket(line, +/-3) +
-   normalize(title)`; keep highest severity and anchor; record which reviewers flagged it.
-3. **Cross-reviewer agreement** -- when 2+ reviewers match a fingerprint, promote one
-   anchor step (`50->75`, `75->100`). Note the agreement in the Reviewer column.
-4. **Separate pre-existing** (`pre_existing: true`) into their own list.
-5. **Normalize routing** -- set final `autofix_class`/`owner`/`requires_verification`;
-   keep the more conservative route on disagreement.
-6. **Mode-aware demotion** -- a P2/P3 + `advisory` finding flagged **only** by
-   `testing` or `maintainability` moves to `testing_gaps` / `residual_risks`
-   respectively. Any cross-reviewer corroboration keeps it in primary.
-7. **Confidence gate** -- suppress remaining findings below anchor 75; exception: P0 at
-   anchor 50+ survives. Record suppressed counts by anchor.
-8. **Partition** -- actionable queue (`gated_auto`/`manual` owned by
-   `downstream-resolver`) vs report-only (`advisory`, or `human`/`release` owned).
-9. **Sort and number** by severity -> anchor desc -> file -> line; assign stable `#`
-   reused across all sections.
-10. **Collect coverage** -- union residual_risks and testing_gaps; preserve the
-    synthesis-agent outputs.
-
-### Stage 5b: Validation pass
-
-Independent re-verification with `references/validator-template.md`. Runs whenever at
-least one finding survives Stage 5. One validator sub-agent per surviving finding
-(session model, read-only). Budget cap 15 by severity (P0 first); **never drop a
-P0/P1 from validation** -- raise the cap if P0/P1 alone exceed 15. Pass each validator
-the finding fields, `why_it_matters` from the artifact file, the diff, and the scope
-mode / `PR_HEAD_REF`. `validated:false` drops the finding (record the reason);
-validator infra failure drops P2/P3 but keeps P0/P1 as `degraded`. Record metrics for
-Coverage.
+Report every applicable check ID in the top-level `reviewers` JSON field. On each
+finding, use `reviewer` for a single supporting check ID or `reviewers` for all
+supporting IDs when deduplicating across checks. Keep the attribution on entries
+in `actionable_findings` too. Record the independent check in Coverage when it
+occurred. Produce the findings list before applying any fixes.
 
 ### Stage 5c: Act on findings (default mode only)
 
@@ -250,21 +156,24 @@ surface what was skipped.
 **Load `references/review-output-template.md` and mirror it** -- it is the canonical
 skeleton. **Default:** pipe-delimited markdown tables grouped by severity (5 columns:
 `# | File | Issue | Reviewer | Confidence`), terse `Issue` cell with depth in a keyed
-`- **#N** -- ...` detail line. Sections: Header (scope/intent/mode/team), Applied
+`- **#N** -- ...` detail line. Sections: Header (scope/intent/mode/checks), Applied
 (default only), per-severity Findings, Requirements Completeness (only when a plan was
 found in Stage 2b -- explicit unaddressed requirements are P1/manual/actionable;
 inferred are P3/advisory/report-only), Actionable Findings, Pre-existing,
-Deployment Notes (from
-`raid-deploy-verification-agent` when it ran), Coverage, and a blockquote Verdict. No
+Deployment Notes (for a risky deploy), Coverage, and a blockquote Verdict. No
 time estimates. Run the template's format-verification gate before delivering.
 Apply `unslop` as a write-through constraint on the finding text and the verdict.
 
 ### JSON output format (`mode:agent` only)
 
-Emit **one raw JSON object** (no markdown fence) and also write `review.json` under
+Generate a unique run ID. Emit **one raw JSON object** (no markdown fence) and also write `review.json` under
 `/tmp/raid/review-changes/<run-id>/`. Minimum fields: `status`, `verdict`, `scope`,
 `intent`, `depth`, `reviewers`, `findings`, `actionable_findings`, `artifact_path`,
 `run_id`. `depth` records the resolved review depth (`full`/`lean`) for traceability.
+This is the combined report contract. Use `findings.items` in
+`references/findings-schema.json` for each finding's fields and keep the
+per-finding attribution from Stage 5. The schema's root `reviewer` field applies
+to per-check envelopes.
 `mode:agent` does not apply fixes; the handoff is `actionable_findings`. Failure:
 `{"status":"failed","reason":"..."}`; partial: `"status":"degraded"` with a reason.
 
@@ -272,16 +181,14 @@ Emit **one raw JSON object** (no markdown fence) and also write `review.json` un
 
 - Never push, switch branches, or run DDL/DML.
 - Suppress findings below anchor 75 (except P0 at 50+).
-- Always validate P0/P1 findings (Stage 5b).
-- Skip-and-note any persona whose agent file is not yet built.
+- Verify every P0/P1 against the reviewed version and record missing evidence.
 - Default to **Full** when depth inference is ambiguous; never silently
-  under-review. The depth trims the always-on floor only, never a warranted conditional.
+  under-review. The depth trims the always-on floor only, never an applicable risk check.
 
 ## Included references
 
-- `references/persona-catalog.md` -- reviewer roster and selection rules
-- `references/subagent-template.md` -- the persona spawn wrapper + output contract
-- `references/validator-template.md` -- the independent validation pass
+- [Review checklist](references/review-checklist.md)
+- [Findings procedure](references/check-findings.md)
 - `references/diff-scope.md` -- scope discovery + remote PR/MR scope + finding tiers
 - `references/action-class-rubric.md` -- autofix_class + owner routing
 - `references/findings-schema.json` -- the structured findings contract

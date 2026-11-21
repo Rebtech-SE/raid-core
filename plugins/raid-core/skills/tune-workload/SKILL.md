@@ -417,7 +417,7 @@ Read the code within `scope.mutable` to understand:
 - Obvious improvement opportunities
 - Constraints and dependencies between components
 
-Optionally dispatch `raid-repo-research-analyst` for deeper codebase analysis if the scope is large or unfamiliar.
+Use the brownfield inventory in `map-repo` if the scope is large or unfamiliar.
 
 ### 2.2 Generate Hypothesis List
 
@@ -479,7 +479,7 @@ If the backlog is non-empty but no runnable hypotheses remain because everything
 
 ### 3.2 Dispatch Experiments
 
-For each hypothesis in the batch, dispatch according to `execution.mode`. In `serial` mode, run exactly one experiment to completion before selecting the next hypothesis. In `parallel` mode, dispatch the full batch concurrently.
+In `serial` mode, implement and measure one experiment at a time in its worktree from the current session. Use delegated execution only for a user-approved parallel run or explicitly requested Codex backend.
 
 **Worktree backend:**
 1. Create experiment worktree:
@@ -494,12 +494,12 @@ For each hypothesis in the batch, dispatch according to `execution.mode`. In `se
    - Mutable and immutable scope
    - Constraints and approved dependencies
    - Rolling window of last 10 experiments (concise summaries)
-4. Dispatch a subagent with the filled prompt, working in the experiment worktree
+4. Apply the filled procedure in the experiment worktree. For an approved parallel batch, give each worker a separate worktree.
 
 **Codex backend:**
 1. Check environment guard -- do NOT delegate if already inside a Codex sandbox:
    ```bash
-   # If these exist, we're already in Codex -- fall back to subagent
+   # If these exist, use the worktree backend in the current session
    test -n "${CODEX_SANDBOX:-}" || test -n "${CODEX_SESSION_ID:-}" || test ! -w .git
    ```
 2. Fill the experiment prompt template
@@ -624,7 +624,7 @@ If no stopping criterion is met, proceed to the next batch (step 3.1).
 
 ### 3.7 Cross-Cutting Concerns
 
-**Codex failure cascade**: Track consecutive Codex delegation failures. After 3 consecutive failures, auto-disable Codex for remaining experiments and fall back to subagent dispatch. Log the switch.
+**Codex failure cascade**: After three consecutive Codex failures, disable that backend for the remaining experiments, continue in the worktree backend and log the switch.
 
 **Error handling**: If an experiment's measurement command crashes, times out, or produces malformed output:
 - Log as outcome `error` or `timeout` with the error message

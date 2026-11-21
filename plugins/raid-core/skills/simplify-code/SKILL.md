@@ -159,28 +159,13 @@ what remains is empty, stop with "nothing to simplify".
 If none of these yields a non-empty scope, stop and ask what to simplify rather than
 guessing.
 
-## Step 2: Launch 4 review agents in parallel
+## Step 2: Review the scoped diff
 
-You cannot be a cold reader of code you just wrote - you know why every line is there, and
-those reasons are what keep the shape alive. So delegate the reading.
+Read the changed files and their nearest callers. Work through the checks below in the
+current session. Record concrete changes with a rule and location. Skip any check that
+does not apply to the diff.
 
-Spawn the four reviewers below in a single message (one `Agent`/`Task` dispatch each,
-no model override - they inherit the session model). Omit the `mode` parameter so the user's permission
-settings apply. Give each reviewer:
-
-- the resolved file paths and the changed hunks;
-- **the rules it owns from The standard, pasted in full**, plus the Balance clause;
-- the platform the repo is built on (Fabric / Databricks / BigQuery / etc.)
-  and the dbt project's conventions, so its suggestions match the engine's idioms.
-
-Give it nothing else - no commit message, no ticket text, no account of why the code looks
-the way it does. Anything that explains the shape re-anchors the reviewer to the shape you
-are trying to escape. Tell each one: *"it was already like that" is not a defense - judge
-what is on the page; you have no baseline, so never claim behavior is broken; report, do
-not edit; finding nothing is a real answer.* Findings come back as
-`[rule] path:line - what is wrong -> what it should be instead`.
-
-### Agent 1: Reuse Reviewer - rules [15] [17]
+### Reuse - rules [15] [17]
 
 For each change:
 
@@ -198,7 +183,7 @@ For each change:
    date window re-derived in several models. Name where it should live and what the other
    sites should `ref()` instead.
 
-### Agent 2: Clarity Reviewer - rules [1] [7] [8] [9] [10] [11]
+### Clarity - rules [1] [7] [8] [9] [10] [11]
 
 Read the changed files top to bottom, cold, at reading speed, and note every place you
 slowed down. Those places are the findings.
@@ -226,7 +211,7 @@ slowed down. Those places are the findings.
    renames; a column whose origin takes more than three hops to answer. Inlining is a
    valid finding.
 
-### Agent 3: Contract & State Reviewer - rules [2] [3] [4] [5] [6] [12] [13] [14] [16]
+### Contract and state - rules [2] [3] [4] [5] [6] [12] [13] [14] [16]
 
 Read signatures and contracts before bodies: macro arguments, model `config()` and
 `unique_key`, `schema.yml` columns/tests/contracts, notebook function parameters, pipeline
@@ -259,7 +244,7 @@ code be in, and how many of them are reachable?**
 
 Close with the current state count for the scope and what it would be after your findings.
 
-### Agent 4: Efficiency Reviewer - tag findings [E]
+### Efficiency - tag findings [E]
 
 Review the same changes for wasted work (correctness-preserving only):
 
@@ -284,17 +269,17 @@ that changes grain, null handling, or ordering belongs to `review-changes`, not 
 
 ## Step 3: Apply the fixes
 
-Wait for all four agents. Aggregate findings, order them by the Order of operations
+Order the findings by the Order of operations
 (subtract before collapse before polish), and fix each directly. Skip false positives and
 anything not worth the churn - note it and move on; do not argue with a finding or raise
-it to the user. The reviewers read, you edit.
+it to the user.
 
 Before applying each fix, confirm it preserves behavior against **What must not change**
 below. If a change cannot clear that bar, skip it - Step 4's checks do not cover every
 behavior.
 
 If the applied fixes changed the shape of the scope substantially - a model split or
-merged, a macro extracted, a layer collapsed - run one more reviewer pass over the new
+merged, a macro extracted, a layer collapsed - run one more pass over the new
 state, then stop. Two passes is the ceiling; say how many ran and what the last one found.
 
 ## What must not change

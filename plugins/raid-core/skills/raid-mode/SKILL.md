@@ -25,7 +25,7 @@ order, and hold the two things that make the output trustworthy: **the approval 
 and **validation against real data**.
 
 Skills below are named by what they do. `raid-core` is always installed; the greenfield
-stages need `raid-greenfield`, and the platform CLI expert comes from the tier plugin
+stages need `raid-greenfield`, and platform CLI guidance comes from the tier plugin
 (`raid-fabric`, `raid-databricks`, `raid-gcp`, `raid-aws`).
 
 Route everything the user reads (replies, reports, tickets, PR copy, client-facing
@@ -95,8 +95,8 @@ calls a complete piece. Never half-built models.
 - **Read the knowledge skill for the one pattern you are about to write** (an SCD2
   dimension, a Bronze load, a dbt model) and only that one. They route themselves by
   description; do not pre-load the set.
-- **Dispatch the platform expert** (`fabric-cli-expert`, `databricks-expert`,
-  `bigquery-expert`) for platform-specific execution rather than guessing CLI syntax.
+- **Use the installed tier skill** (`operate-fabric`, `operate-databricks`,
+  `operate-bigquery` or `aws-solution-architect` when applicable).
 - **Build the tests with the code**, in the same unit -- unique/not_null on keys,
   relationships on FKs, reconciliation. Not "later". The unit's planned tests -- TP ids
   from `docs/artifacts/testplan.html`, else the ticket's Acceptance, else its inline DQ
@@ -110,8 +110,7 @@ calls a complete piece. Never half-built models.
   collect them. Append, never rewrite: the ledger is the only record that a test failed
   once it goes green again. Format in `write-test-report`'s `references/results-ledger.md`.
 - **Self-review each unit**, not just at the end: `review-changes mode:agent` scoped to
-  the unit's diff, and address the actionable findings. Per-unit passes are cheap and stay
-  localized; deferring to the end accumulates findings across files.
+  the unit's diff, and address the actionable findings. Keep per-unit review inline. A warranted independent check belongs in the final review.
 - **Update the docs the change touched** -- a project README, files under `docs/`,
   `AGENTS.md`, `CONVENTIONS.md`, any skill whose behaviour changed. Part of done, not a follow-up.
 - **Close the loop.** A unit built for a ticket is not done until the ledger has a line
@@ -162,7 +161,7 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **A second-model review of the diff** ("codex review", "autoreview", "have another model
   look at this") -> `autoreview`. One structured single-engine pass over a change bundle,
   every finding verified against the real code. Different from `review-changes`, which is
-  RAID's own multi-persona data-review panel: `review-changes` is the one in the build
+  RAID's scoped data review: `review-changes` is the one in the build
   loop and the one that knows about grain, SCD and layering; `autoreview` is an extra
   outside opinion you ask for by name.
 - **RAID itself misbehaved** (a skill gave wrong guidance, an agent failed, a step is
@@ -172,8 +171,7 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Finding, installing or publishing a skill in the company skill library** ("is there a
   skill for X", "share this skill with the team") -> `use-skill-library`. Publishing is an
   outward action: dry run, show the files, and wait for a yes.
-- **Platform work** -> dispatch the tier's expert agent (`fabric-cli-expert`,
-  `databricks-expert`, `bigquery-expert`) rather than guessing CLI syntax.
+- **Platform work** -> use the installed tier guidance in the current session.
 
 ## Playbooks
 
@@ -216,8 +214,7 @@ never converts a hard pause into a proceed.
 
 ## Subagent briefs
 
-Every dispatch carries the whole brief. A field you cannot fill is a unit you have not
-scoped yet -- scope it before spawning.
+When the user requests delegated implementation, scope the unit and include the entire brief.
 
 It is the **same seven-section shape as a ticket** -- one brief shape across RAID, so a
 subagent brief, a `triage` handoff, a `wayfinder` decision ticket and a `to-tickets`

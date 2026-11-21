@@ -37,7 +37,7 @@ It is **not** `assess-platform` (which ships in `raid-greenfield`). `assess-plat
 client-facing `assessment.html` deliverable, read once by a human at an approval gate, and
 is coupled to a customer engagement and its requirements. `map-repo` produces durable
 engineering context: terse markdown, re-read and updated in place, needing no requirements
-doc or engagement to run. The two share the same discovery subagents, so nothing is
+doc or engagement to run. The two share a shared inventory checklist, so nothing is
 rediscovered twice.
 
 **IMPORTANT: all file references in every output use repo-relative paths**, never
@@ -102,18 +102,11 @@ Establish what already exists before exploring or writing:
 Map the repo. This phase is strictly read-only - never run the repo's code, execute its
 scripts, or mutate anything.
 
-- Dispatch `raid-repo-research-analyst` against the repo, with the Phase 0 notes on what is
-  already documented, so it confirms those facts against the code instead of re-deriving
-  them and spends its effort on what is not written down. It returns a structured map:
-  platform & stack (with versions), architecture & layering, key models & grain,
-  ingestion & sources, **conventions** (naming, SQL style, testing, config/secrets, and
-  any rules the repo already states), and **observations & gaps** (fragile spots, thin
-  tests, duplicated logic, missing docs).
-- Dispatch `raid-git-history-analyzer` **only on a specific oddity** the analyst surfaced
-  ("why is this model built this way?") - it is scoped to a single question, not a blanket
-  history scan. Skip it when nothing needs explaining.
+Use [the brownfield inventory](references/brownfield-inventory.md) to confirm the
+existing docs against the code and fill the gaps. Use `why` when a specific choice needs
+historical evidence.
 
-The analyst's map splits four ways: architecture, layering, models, sources and flow go to
+The inventory splits four ways: architecture, layering, models, sources and flow go to
 the architecture doc; the stack in a line, the top-level layout and the commands go to the
 router; conventions go to the Phase 3 hand-off; observations and gaps go to the tech-debt
 report.

@@ -5,12 +5,12 @@
     "url": "https://github.com/rebtech-se"
   },
   "metadata": {
-    "description": "RAID core - AI-assisted data platform engineering for Claude Code, Codex and GitHub Copilot CLI. The build loop, tech-agnostic data skills, and the data-platform reviewer subagents. Public mirror of the raid-core plugin."
+    "description": "RAID core - AI-assisted data platform engineering for Claude Code, Codex and GitHub Copilot CLI. The build loop, tech-agnostic data skills, and the inline data-platform review. Public mirror of the raid-core plugin."
   },
   "plugins": [
     {
       "name": "raid-core",
-      "description": "The RAID build loop (work, simplify, review, retro) plus tech-agnostic data skills and the data-platform reviewer subagents. Everything you need to build and review data work in an existing codebase. Install this first, then add your platform plugin.",
+      "description": "The RAID build loop (work, simplify, review, retro) plus tech-agnostic data skills and the inline data-platform review. Everything you need to build and review data work in an existing codebase. Install this first, then add your platform plugin.",
       "author": {
         "name": "Rebtech",
         "url": "https://github.com/rebtech-se"

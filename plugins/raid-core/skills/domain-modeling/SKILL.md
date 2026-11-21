@@ -76,10 +76,7 @@ twice with different versions -- which is right?"
 
 **A definition that makes a checkable claim is not settled until it is checked against real
 data.** "One row per order line", "customer_id is unique in the dimension", "returns are
-excluded" -- those are queries, not opinions. Run them where you have read access (dispatch
-the platform expert -- `fabric-cli-expert`, `databricks-expert`, `bigquery-expert` -- if one
-is installed) before writing the term down as settled. Where you cannot, write the term
-down and mark it explicitly as unverified rather than silently asserting it.
+excluded" -- those are queries, not opinions. Run them where you have read access using the installed tier guidance. Carry any access limitation into the decision.
 
 ### Update GLOSSARY.md inline
 

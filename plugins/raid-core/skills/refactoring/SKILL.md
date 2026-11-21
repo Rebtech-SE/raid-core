@@ -94,7 +94,7 @@ Spot-check every rename against the actual files. Renames silently miss usages i
 YAML, Jinja, report definitions, comments and column aliases -- and no compiler catches any
 of them.
 
-Mechanical edits can go to a subagent with a specific scope: the paths, the exact names
+When the user requests delegated implementation, give mechanical edits a specific scope: the paths, the exact names
 being moved, the output to hold. Review the diff yourself. A delegate's "looks good" is not
 review.
 

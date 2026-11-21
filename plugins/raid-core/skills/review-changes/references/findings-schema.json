@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RAID Review Findings",
-  "description": "Structured output schema for RAID review sub-agents (review-changes, review-document, and raid-mode self-review). Domain-neutral: applies to notebook/SQL/dbt/pipeline reviews the same way it applies to application code.",
+  "description": "Per-check envelope and shared finding fields for RAID reviews. For a combined review-changes mode:agent report, use the envelope documented in SKILL.md and apply this schema's findings.items rules to each finding.",
   "type": "object",
   "required": ["reviewer", "findings", "residual_risks", "testing_gaps"],
   "properties": {
     "reviewer": {
       "type": "string",
-      "description": "Persona name that produced this output (e.g., 'data-integrity', 'scd-correctness')"
+      "description": "Check ID associated with this output (e.g., 'data-integrity', 'scd-correctness')"
     },
     "findings": {
       "type": "array",

@@ -24,7 +24,7 @@ the rest for when they need it. Read-only -- do not touch the repo.
   `raid-greenfield` that is not installed gets one line on what it would add, not its
   commands.
 - **How the host names things.** Use the host's own words and syntax. In RAID Agent these
-  are built-in commands and built-in subagents. In Claude Code, Codex or Copilot they are
+  are built-in commands and skills. In Claude Code, Codex or Copilot they are
   the RAID plugin's skills; show the invocation the host uses (for example `/raid-mode`).
 - **Say what a command is for, not how it works inside.** One line each. Never quote or
   walk through a command's own instructions.

@@ -249,8 +249,7 @@ agent cannot derive from the repo in front of it.
    history. Mine that first, then confirm the gaps. Ask: what should this let the agent do,
    when should it trigger, what does it produce.
 2. **Interview and research before drafting.** Edge cases, input and output formats,
-   dependencies, what "done" looks like. Come with the research already done -- dispatch
-   subagents in parallel where that helps -- rather than making the user supply it.
+   dependencies, what "done" looks like. Research the repo and primary sources before asking the user for a decision.
 3. **Check for prior art.** `ossian-stack` (<https://github.com/ossianhempel/ossian-stack>)
    is the reference implementation for the non-data workflow skills; the existing skills in
    `plugins/raid-core/skills/` are the reference for tone and shape. Adapting beats

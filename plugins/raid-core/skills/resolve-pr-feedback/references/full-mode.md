@@ -2,7 +2,7 @@
 
 Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode**, no argument given, a PR number was provided, or a whole-PR URL (`.../pull/N` with no comment fragment) was provided. Full mode processes all unresolved threads on the PR. When the argument is a PR URL, parse the host, `OWNER/REPO`, and number from it, the host feeds the `GH_HOST` prefix below, and `OWNER/REPO` targets the correct repo for a fork→upstream PR.
 
-The shape: **fetch once, judge centrally, fan out only the fixes.** The orchestrator (you) holds every thread from a single fetch, so the legitimacy judgment happens in your context, where you can dedup reads, spot a systematically-wrong reviewer across threads, and weigh the author's design intent. Subagents are dispatched only to *implement* fixes you've already approved. Do not fan out the judgment: spinning a subagent per thread to decide validity re-pays per-agent overhead, re-reads the same files, and throws away the cross-thread view, and you'd pay it even for threads that turn out to be skips.
+Fetch once, evaluate all feedback together, then apply the approved fixes in the same session.
 
 ## 1. Fetch Unresolved Threads
 
@@ -80,7 +80,7 @@ Working over the full set lets you do what a per-thread subagent can't:
 
 Produce a verdict per item and sort into three lists:
 
-- **fix-list**, `fixed` / `fixed-differently`. These get dispatched to fixers in step 4. For each, note the file/location (and for outdated threads, the resolved location or anchor) and a one-line "what to change." **Class fix:** when the cross-item pass (rubric: "A validated finding can span sites this PR itself introduced") found equivalent same-invariant sites this PR touched, record them as **one** fix-list item that enumerates every concrete location (`file:line`) and lists every feedback ID it covers, one class item → one fixer (step 4), so the sites are edited coherently and every covered thread/comment is replied-to and resolved from that single result. Enumerate only sites whose treatment is unambiguous; a site needing its own judgment stays a separate item.
+- **fix-list**, `fixed` / `fixed-differently`. Apply these in step 4. For each, note the file/location (and for outdated threads, the resolved location or anchor) and a one-line "what to change." **Class fix:** when the cross-item pass (rubric: "A validated finding can span sites this PR itself introduced") found equivalent same-invariant sites this PR touched, record them as **one** fix-list item that enumerates every concrete location (`file:line`) and lists every feedback ID it covers, one class item → one fix (step 4), so the sites are edited coherently and every covered thread/comment is replied-to and resolved from that single result. Enumerate only sites whose treatment is unambiguous; a site needing its own judgment stays a separate item.
 - **reply-list**, `replied` / `not-addressing` / `declined`. No code change. Compose the reply text now per the rubric (you have the evidence) and carry it to step 7.
 - **human-list**, `needs-human`. Compose `decision_context` now; carry to steps 7 and 9.
 
@@ -90,74 +90,43 @@ Create a task list of all new items (e.g., `TaskCreate` in Claude Code, `update_
 
 If the fix-list is empty (all verdicts are reply/needs-human), skip steps 4-6 and go to step 7.
 
-## 4. Fix (PARALLEL, fix-list only)
+## 4. Apply approved fixes
 
-Dispatch fixers **only** for fix-list items. Reply-list and human-list items never reach a subagent.
+Read [the fix procedure](apply-fix.md). Read each affected file again before editing.
+Apply each fix-list item in order, including every location and feedback ID for a
+class fix. Keep the verdict, changed files and reply text per feedback item.
 
-### Dispatch
-
-Read [references/agents/pr-comment-resolver.md](agents/pr-comment-resolver.md) and spawn a generic subagent seeded with that fixer prompt for each fix-list item. Do not dispatch a standalone agent by type/name. The fixer is a pure executor: the validity judgment is already done, so it implements and returns, it does not re-judge worthwhileness.
-
-Each fixer receives:
-- The feedback_id (thread ID or comment ID) and feedback type.
-- The file path and location fields: `line`, `originalLine`, `startLine`, `originalStartLine` (for outdated threads, the resolved location/anchor from step 3).
-- The reviewer's comment text.
-- Your step-3 note: what to change and why it was judged valid.
-- The PR number.
-
-For `pr_comment` / `review_body` fix-list items (no file/line), the fixer identifies the relevant files from the comment text and the PR diff.
-
-**No subagent capability, apply the fixes yourself, sequentially.** When the harness exposes no way to dispatch (or a dispatch fails), work the fix-list in this context one item at a time, using the fixer prompt as your own instructions and producing the same per-item result. This is a supported path, not a degradation to disclose as lost coverage: the legitimacy judgment already happened centrally in step 3, and fixers only *implement* changes you approved, so running them here costs parallelism and context headroom, never correctness. Keep the dispatch path's discipline: one item at a time, re-read each file before editing it, and stop to re-evaluate if implementing surfaces a contradiction (the `blocked` handling applies unchanged).
-
-This skill therefore does not depend on agent-tool authorization to complete a review. That is deliberate: it runs unattended under `babysit`, where a permission prompt would stall the whole loop, so its tool surface stays narrow and its fix path stays viable without dispatch.
-
-### Fixer return format
-
-- **verdict**: `fixed`, `fixed-differently`, or `blocked`
-- **feedback_id**, **feedback_type**
-- **reply_text**: markdown reply to post (quoting the relevant feedback), omit for `blocked`
-- **files_changed**: list of files modified (empty for `blocked`)
-- **reason**: what was done, or the concrete contradiction for `blocked`
-
-**Handling `blocked`.** A fixer returns `blocked` only when implementing surfaced a concrete contradiction its narrower view exposed (the change breaks a caller/test it can see, or the code isn't what the finding described). Re-evaluate it yourself with that evidence: either re-dispatch with a corrected instruction, or move it to the reply-list (`not-addressing`/`declined`) or human-list. Don't silently drop it.
-
-### Batching and conflict avoidance
-
-**Batching**: If the fix-list has 1-4 items, dispatch all in parallel. For 5+, batch in groups of 4.
-
-**Conflict avoidance**: No two fixers that touch the same file run in parallel. You already know the target files from step 3, serialize fixers that share a file (dispatch one, wait, then the next); non-overlapping items run in parallel. For a **class item**, feed the fixer its full enumerated location set and every covered feedback ID (not a single thread), and account for **all** of its sites in this check, a class fix touching files another fixer also touches must be serialized against every one of them. When one fixer handles multiple threads on the same file, it addresses them sequentially.
-
-**Sequential fallback**: Platforms that do not support parallel dispatch run fixers sequentially.
-
-Fixes can occasionally expand beyond their referenced file (e.g., renaming a method updates callers elsewhere). This is rare but can cause parallel fixers to collide. Step 5 (combined validation) catches test breakage; step 8 (verify) catches unresolved threads. If either surfaces inconsistent changes, re-run the affected fixers sequentially.
+If implementation exposes a contradiction, revisit the decision with that evidence.
+Revise the fix, move the item to the reply list or escalate it to the human list.
+Keep the item visible through validation and the final summary.
 
 ## 5. Validate Combined State
 
-Aggregate `files_changed` across every fixer summary. If it's empty, skip steps 5 and 6 and proceed to step 7.
+Collect `files_changed` from the approved fixes. If it's empty, skip steps 5 and 6 and proceed to step 7.
 
-Fixers run only targeted tests on their own changes. This step runs the project's full validation **once** against the combined diff to catch cross-agent interactions that targeted runs can't see.
+Run the project's full validation once against the combined diff after any targeted tests.
 
-1. **Run the project's validation command** (test suite, type check, or whatever the project's active conventions specify). Run once, not per-agent.
+1. **Run the project's validation command** (test suite, type check, or whatever the project's active conventions specify).
 
 2. **Verify the change against real data** when it touches models, pipelines or queries and you have read access: run the checks the change implies -- row-count parity, grain and key uniqueness, null and sentinel rates, before/after parity for a backfill -- not only the test suite. A fix that answers a reviewer has to be right itself. With no read access, say so and label the outcome not validated against data.
 
 3. **Green** -> proceed to step 6.
 
-4. **Red, failures touch files fixers changed** -> one inline diagnose-and-fix pass. Re-run validation. If still red, escalate with a `needs-human` item containing the test output; do **not** commit.
+4. **Red, failures touch files the fixes changed** -> one inline diagnose-and-fix pass. Re-run validation. If still red, escalate with a `needs-human` item containing the test output; do **not** commit.
 
-5. **Red, failures touch only files no fixer changed** -> treat as pre-existing. Proceed to step 6, but add a footer to the commit message: `Note: pre-existing failure in <test> not addressed by this PR.`
+5. **Red, failures touch only files the fixes left untouched** -> treat as pre-existing. Proceed to step 6, but add a footer to the commit message: `Note: pre-existing failure in <test> not addressed by this PR.`
 
 Record the validation outcome (command run, pass/fail counts, any pre-existing failures noted) for the step 9 summary.
 
 ## 6. Commit and Push
 
-1. Stage only files reported by fixers and commit with a message referencing the PR:
+1. Stage only files touched by the fixes and commit with a message referencing the PR:
 
 ```bash
-git add [files from fixer summaries]
+git add [files from the approved fixes]
 git commit -m "Address PR review feedback (#PR_NUMBER)
 
-- [list changes from fixer summaries]"
+- [list approved changes]"
 ```
 
 2. Push to remote:
@@ -167,11 +136,11 @@ git push
 
 ## 7. Reply and Resolve
 
-After the push succeeds, post replies and resolve where applicable. The done condition for an ordinary review thread is one visible, submitted substantive reply plus authoritative resolution; satisfy each condition independently and never repeat a satisfied half. Post for every newly handled item: fix-list items use the fixer's `reply_text`; reply-list and human-list items use the reply text you composed in step 3. A **class item** carries multiple covered feedback IDs (`feedback_ids`/`feedback_types` from its fixer), reply to and resolve *every* one, posting the shared `reply_text` on each thread, not just the first; a covered thread left unresolved re-actionizes in the next babysit loop. The mechanism depends on the feedback type.
+After the push succeeds, post replies and resolve where applicable. The done condition for an ordinary review thread is one visible, submitted substantive reply plus authoritative resolution; satisfy each condition independently and never repeat a satisfied half. Post for every newly handled item: fix-list items use the recorded `reply_text`; reply-list and human-list items use the reply text you composed in step 3. A **class item** carries multiple covered feedback IDs (`feedback_ids`/`feedback_types` from the fix-list item), reply to and resolve *every* one, posting the shared `reply_text` on each thread, not just the first; a covered thread left unresolved re-actionizes in the next babysit loop. The mechanism depends on the feedback type.
 
 ### Reply format
 
-All replies quote the relevant part of the original feedback for continuity, the specific sentence or passage, not the entire comment if it's long. The per-verdict templates are in [references/evaluation-rubric.md](evaluation-rubric.md) (skip verdicts) and [references/agents/pr-comment-resolver.md](agents/pr-comment-resolver.md) (`fixed` / `fixed-differently`).
+All replies quote the relevant part of the original feedback for continuity, the specific sentence or passage, not the entire comment if it's long. The per-verdict templates are in [references/evaluation-rubric.md](evaluation-rubric.md) (skip verdicts) and [references/apply-fix.md](apply-fix.md) (`fixed` / `fixed-differently`).
 
 For `needs-human` verdicts, post the natural-sounding reply but do NOT resolve the thread. Leave it open for human input.
 

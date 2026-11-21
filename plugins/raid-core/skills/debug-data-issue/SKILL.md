@@ -67,7 +67,7 @@ each hop "is the data already wrong when it arrives here, or does this step brea
   schema/type drift, a timezone/date-boundary error, a deduplication with an unstable
   `ORDER BY`.
 - **Use history and prior learnings.** When the code looks deliberate but wrong,
-  dispatch `raid-git-history-analyzer` to recover why it's that way (it may be fixing an
+  use `why` to recover why it's that way (it may be fixing an
   older bug).
 
 ### 4. Confirm the root cause

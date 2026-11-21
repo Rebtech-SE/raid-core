@@ -19,10 +19,10 @@ RAID-local changes -- preserve these on refresh:
   GraphQL responses in **Python only**. Upstream prefers jq and falls back to Python;
   raid-core ships shell, Python and the provider's own CLI, not jq.
 - `babysit` is the named unattended caller, in place of upstream's `babysit-pr`.
-- Step 5 of full mode carries RAID's validate-against-real-data rule, and the fixer
-  prompt's targeted-test examples are dbt and pytest.
+- Step 5 of full mode carries RAID's validate-against-real-data rule, and the fix
+  procedure's targeted-test examples are dbt and pytest.
 - Judging stays central (the legitimacy gate plus `references/evaluation-rubric.md`) and
-  fixers are generic subagents seeded with `references/agents/pr-comment-resolver.md`.
+  approved fixes are applied inline using `references/apply-fix.md`.
   RAID's former per-thread judging agent was removed with this skill's adoption.
 - `SKILL.md` carries a Bundled helpers section indexing `scripts/`, without which the
   repo's validator warns that Copilot will not load them.

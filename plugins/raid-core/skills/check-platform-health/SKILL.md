@@ -5,7 +5,7 @@ description: >-
   tables fresh', 'platform status', 'what's broken in production'. Takes an operational
   health pulse of the data platform you built or operate: recent pipeline/job run
   outcomes, data freshness vs expected cadence, and data-quality failures. Read-only and
-  platform-aware - dispatches the platform expert to gather signals, then reports
+  platform-aware - collects read-only signals using the tier skill, then reports
   OK/WARN/ALERT per dimension.
 argument-hint: "[optional: scope - which tables/jobs/datasets, or a platform area; --since <window>]"
 ---
@@ -43,21 +43,17 @@ SCD column names the freshness check keys on from the models themselves (the `sc
 Determine the scope (argument -> repo -> ask). If the repo does not settle the platform, ask
 once.
 
-### 2. Gather signals via the platform expert
+### 2. Gather signals using the tier skill
 
-Dispatch the tier's platform expert to collect the raw signals -- it owns the CLI/SDK detail,
-so this skill stays platform-agnostic:
+Use the installed tier skill for commands and connection details. Query only
+the resolved scope and time window.
 
-- **Fabric** -> `fabric-cli-expert`: pipeline/notebook run history and status via
-  `fab job run-list` / `fab job run-status`; freshness via `MAX(_ingestion_timestamp)` /
-  event-date per table over the SQL endpoint (sqlcmd); DQ via recent assertion/test results.
-- **Databricks** -> `databricks-expert`: `databricks jobs list-runs` / pipeline events for run
-  outcomes; freshness and DQ via `experimental aitools tools query`.
-- **BigQuery** -> `bigquery-expert`: run/cost history from `INFORMATION_SCHEMA.JOBS_BY_PROJECT`;
-  freshness via `MAX()` timestamp queries (dry-run-sized per that expert's cost discipline).
-
-Pass the expert the scope and the audit-column names so it queries the right things. Ask it for
-facts (counts, timestamps, statuses), not prose.
+- **Fabric** -> `operate-fabric`: recent jobs via `fab`, freshness via the SQL
+  endpoint, and recent assertion results.
+- **Databricks** -> `operate-databricks`: job and pipeline history, freshness and
+  quality via read-only SQL.
+- **BigQuery** -> `operate-bigquery`: recent jobs via `INFORMATION_SCHEMA.JOBS_BY_PROJECT`,
+  and partition-scoped freshness and quality checks. Dry-run before querying.
 
 ### 3. Score each dimension
 
@@ -102,7 +98,7 @@ lag, the failing assertion) and a recommended next step.
 ## Rules
 
 - Read-only: observe and report; never re-run, backfill, or mutate. Remediation is `debug-data-issue`.
-- Dispatch the platform expert for gathering; keep this skill platform-agnostic.
+- Use the installed tier skill for read-only probes.
 - Unknown != OK -- report signals you couldn't gather as unknown.
 - Repo-relative paths.
-- Right-size the run: three dimensions, cheap probes (the BigQuery expert dry-runs first); don't full-scan to check freshness.
+- Right-size the run: three dimensions, cheap probes (dry-run BigQuery probes first); don't full-scan to check freshness.

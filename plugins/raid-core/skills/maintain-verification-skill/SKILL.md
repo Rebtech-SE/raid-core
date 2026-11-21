@@ -81,9 +81,7 @@ never from the map itself:
 - Does the proof query still reference columns that exist, and does it still prove the
   property it claims to prove?
 
-Dispatch one subagent per mart when the host supports it, launched concurrently within its
-limits. Otherwise walk them sequentially inline and say so -- do not claim independent
-review you did not get. Children read; they never run the pipeline and never edit files.
+Walk the marts in focused batches in the current session. Record the summary for each mart before moving on.
 
 Return shape per mart: what it is now / grain re-derived from source / suspected drift with
 the model path, or none / the live check to run.

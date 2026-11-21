@@ -1,7 +1,7 @@
 # Azure DevOps Services feedback
 
 Use this reference for Azure Services instead of the GitHub full/targeted references.
-The same evaluation rubric, fixer prompt, inherited action scope, and pipeline
+The same evaluation rubric, fix procedure, inherited action scope, and pipeline
 needs-human contract apply. Do not use gh, GraphQL, GitHub review IDs, or GitHub
 resolution semantics on this path. Do not merge, arm auto-complete, alter reviewer
 votes, approve CI, bypass policy, retarget, rebase, or force-push.
@@ -43,8 +43,7 @@ schemas fail closed; unknown thread state stays unresolved for assessment.
 ## Judge, fix, and verify
 
 Read `evaluation-rubric.md` before judging. In pipeline mode also read
-`pipeline-mode.md`. Consolidate related findings centrally; dispatch the bundled
-`agents/pr-comment-resolver.md` prompt only for approved fixes. Pass Azure identity,
+`pipeline-mode.md`. Consolidate related findings and apply approved fixes using `apply-fix.md`. Retain Azure identity,
 source IDs and resolved locations; inline and general Azure discussions both use
 feedback_type review_thread because both have a thread resource.
 

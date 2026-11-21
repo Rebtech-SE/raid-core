@@ -29,8 +29,7 @@ the source and the target side by side.
 
 ## Apply it
 
-Run the probe yourself where you have read access; dispatch the platform expert
-(`fabric-cli-expert`, `databricks-expert`, `bigquery-expert`) to execute it. Show the query
+Run the probe where you have read access using the installed tier guidance. Show the query
 and the actual numbers in your report, not a summary of them.
 
 **Where you have no read access, say so explicitly** and label the conclusion "not

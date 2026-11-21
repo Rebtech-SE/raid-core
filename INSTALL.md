@@ -61,8 +61,7 @@ with `codex plugin marketplace upgrade`. To declare it for every collaborator of
 commit `.agents/plugins/marketplace.json` with a `git-subdir` entry pointing at
 `https://github.com/rebtech-se/raid-core`, path `./plugins/raid-core`, ref `main`.
 
-Caveat: Codex does not register plugin agents, so the reviewer panel runs inline rather
-than as parallel subagents. Codex asks you to trust plugin hooks before it runs them.
+Codex asks you to trust plugin hooks before it runs them.
 
 ### GitHub Copilot (CLI + VS Code Chat)
 
@@ -96,7 +95,7 @@ cp -R /tmp/raid-core/plugins/raid-core/skills/* "$SKILLS_ROOT/"
 ```
 
 Cursor also reads `~/.claude/skills/`, so an existing Claude Code install is picked up
-automatically. Plugin subagents are not registered; review runs inline.
+automatically. Review runs inline.
 
 ### Other agents
 

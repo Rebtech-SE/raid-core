@@ -13,7 +13,7 @@ allowed-tools: Bash(gh *), Bash(git *), Bash(az *), Bash(python3 *), Read
 
 # Resolve PR Review Feedback
 
-Evaluate and fix PR review feedback, then reply and resolve threads. The orchestrator judges every item centrally (the legitimacy gate), then dispatches generic subagents seeded with a skill-local fixer prompt only for items it has approved for a fix.
+Evaluate and fix PR review feedback, then reply and resolve threads. Judge all feedback in context, then implement the approved fixes in the same session.
 
 Apply `unslop` as a write-through constraint on every thread reply and on the final summary.
 
@@ -62,10 +62,10 @@ Only a `#discussion_r` fragment is **Targeted**: that mode resolves a thread via
 
 After determining mode, read the matching reference and follow it; each is self-contained for that mode:
 
-- **Full Mode** → `references/full-mode.md`, covers all three feedback surfaces (inline review threads, review submission bodies, top-level PR comments), which differ only in whether GitHub can resolve them, never in whether they are judged (9 steps: fetch, triage, consolidate & decide (the gate), parallel fix, validate, commit/push, reply/resolve, verify, summary)
+- **Full Mode** → `references/full-mode.md`, covers all three feedback surfaces (inline review threads, review submission bodies, top-level PR comments), which differ only in whether GitHub can resolve them, never in whether they are judged (9 steps: fetch, triage, consolidate & decide (the gate), apply fixes, validate, commit/push, reply/resolve, verify, summary)
 - **Targeted Mode** → `references/targeted-mode.md` (2 steps: extract thread context from URL, then judge/fix/reply/resolve via the same validate/commit/push/reply pipeline)
-- Evaluation rubric → `references/evaluation-rubric.md` (the orchestrator reads this to judge each item before any fix is dispatched)
-- Fixer prompt asset → `references/agents/pr-comment-resolver.md` (read before dispatching fixer subagents for approved fixes; do not dispatch a standalone agent by type/name)
+- Evaluation rubric → `references/evaluation-rubric.md` (the orchestrator reads this to judge each item before applying fixes)
+- Fix procedure → `references/apply-fix.md`
 
 ## Bundled helpers
 

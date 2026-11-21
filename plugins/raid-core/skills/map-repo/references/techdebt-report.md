@@ -56,7 +56,7 @@ Light and fixed - a short header, then findings grouped by area. No rigid templa
 - Keep each finding to one line of problem statement plus at most one line of
   impact/direction. This is a snapshot to act on, not a remediation plan.
 - **Observations, not verdicts.** Frame findings as what's fragile or missing, the same
-  posture `raid-repo-research-analyst` returns - input for prioritisation, not a judgment.
+  posture the inventory records - input for prioritisation, not a judgment.
 
 ## Example
 

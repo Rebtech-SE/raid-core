@@ -4,7 +4,7 @@ RAID is [Rebtech](https://rebtech.se)'s framework for building data analytics pl
 with AI-assisted development. This repository is the **public mirror of `raid-core`**:
 the build loop (pick the lane, build, simplify, review, ship, close the loop), a library of tech-agnostic
 data-platform skills (medallion architecture, ingestion, SCD, data quality, dbt,
-orchestration), and a panel of data-platform reviewer subagents.
+orchestration), and inline data-platform review.
 
 It installs natively into **Claude Code, Codex, GitHub Copilot CLI and Cursor** from this
 repo. No registry, no build step, no account with Rebtech.
@@ -18,7 +18,6 @@ repo. No registry, no build step, no account with Rebtech.
 | Part | Contents |
 |---|---|
 | `plugins/raid-core/skills/` | Workflow skills (`raid-mode`, `build-dbt-models`, `simplify-code`, `review-changes`, `commit-push-pr`, `create-verification-skill`, ...) and knowledge skills (`medallion-architecture`, `scd-pattern`, `kimball-dimensional-modeling`, `data-quality-checks`, ...) |
-| `plugins/raid-core/agents/` | Reviewer personas (correctness, data integrity, medallion boundaries, SCD, reliability, cost, security, ...) and researcher subagents |
 | `plugins/raid-core/hooks/` | The **opt-in** usage telemetry hook. Off by default. See [PRIVACY.md](PRIVACY.md). |
 | `plugins/raid-core/AGENTS.md` | The engagement rules the skills assume (git workflow, conventional commits, paths) |
 

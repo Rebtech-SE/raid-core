@@ -53,7 +53,7 @@ genuinely cannot observe.
   repo's own documented command over one you compose. Note env vars, profiles, auth.
 - **Query.** How does an agent get a result set out of the warehouse? Existing wrappers
   first -- the repo may already have one. Then whatever client the platform offers.
-  Dispatch the tier's expert agent rather than guessing syntax; it tracks the current
+  Read the installed tier skill for the current
   command shapes and you do not.
 - **Observe.** What evidence can be captured? Row counts, key uniqueness, measure totals,
   null and sentinel rates, freshness timestamps, `dbt` `run_results.json`, job status,
@@ -79,9 +79,9 @@ hand an agent unattended.** Building that command is the substance of this step.
 
 What that *is* depends entirely on the platform. Do not carry a recipe across from another
 engagement -- dialects differ, CLIs differ, some platforms expose no usable CLI at all, and
-the way a given guarantee is enforced is different on every one. **Dispatch the tier's
-expert agent to establish the real surface before writing anything**; the command shapes
-move, and the expert skills track them.
+the way a given guarantee is enforced is different on every one. **Use the installed tier
+skill to establish the real surface before writing anything**; the command shapes
+move, and the tier skills track them.
 
 ### First: decide what the command has to carry
 
@@ -153,7 +153,7 @@ Prefer them in this order, since each one costs less to maintain than the next:
 
 Only when every one of those is genuinely unavailable -- no network path, no credentials
 that can be provisioned, a locked-down environment -- do you stop. Then say so plainly in
-the generated skill: verification runs through the tier's expert agent by hand, and the
+the generated skill: verification runs through the installed tier skill by hand, and the
 map's proof queries are still written down so nobody re-derives them. That is a real
 outcome, but it is rare, and it is a constraint of the engagement rather than of the
 platform. Do not reach for it because the first client you tried was awkward.

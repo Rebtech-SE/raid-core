@@ -21,7 +21,7 @@ pipes. Unescaped pipes corrupt the row's `Reviewer` and `Confidence` values.
 **Intent:** Build dim_customer as an SCD2 dimension from the staging layer
 **Mode:** interactive
 
-**Reviewers:** correctness, testing, maintainability, data-integrity, scd-correctness, cost-perf
+**Checks:** correctness, testing, maintainability, data-integrity, scd-correctness, cost-perf
 - data-integrity -- new dimension build with a merge into a persistent table
 - scd-correctness -- SCD2 effective-dating logic added
 - cost-perf -- full-table merge with no incremental filter
@@ -136,8 +136,7 @@ the keyed detail list under the table (`- **#N** -- ...`) -- never expand it int
   across severity sections, and reuse those same numbers in Actionable Findings. Do not
   restart at `1` per section.
 - **Always include file:line location** for code findings.
-- **Reviewer column** shows which persona(s) flagged the issue. Multiple reviewers =
-  cross-reviewer agreement.
+- **Reviewer column** shows the applicable check IDs for the finding.
 - **Confidence column** shows the finding's anchor as an integer (`50`, `75`, or
   `100`). Never render as a float.
 - **No `Route` column in the per-severity tables** -- the synthesized route
@@ -149,8 +148,7 @@ the keyed detail list under the table (`- **#N** -- ...`) -- never expand it int
   severity table, keyed by stable `#`: `- **#N** -- <why it matters + concrete fix
   direction>`. Add a detail line for findings whose one-liner is not self-sufficient --
   usually P0/P1; P2/P3 are typically terse-only.
-- **Header includes** scope, intent, and reviewer team with per-conditional
-  justifications.
+- **Header includes** scope, intent, and checks performed and reasons for conditional checks.
 - **Mode line** -- include `interactive` or `agent`.
 - **Applied section (default mode only)** -- when the review applied fixes, list them
   first, before the severity tables, as `# | File | Fix | Reviewer` followed by a
@@ -164,12 +162,10 @@ the keyed detail list under the table (`- **#N** -- ...`) -- never expand it int
   when nothing was applied.
 - **Actionable Findings section** -- include when the actionable queue is non-empty.
 - **Pre-existing section** -- separate table, no confidence column.
-- **Deployment Notes section** -- key checklist items from
-  `raid-deploy-verification-agent` (baseline counts, post-run verification SQL,
-  backfill/rollback). Omit if the agent did not run. Schema drift surfaces as
+- **Deployment Notes section** -- baseline counts, post-run verification SQL and
+  backfill/rollback for risky deploys. Schema drift surfaces as
   `data-migration` findings -- no separate section.
-- **Coverage section** -- suppressed count, residual risks, testing gaps, failed
-  reviewers.
+- **Coverage section** -- suppressed count, residual risks, testing gaps, checks that could not run, and independent evidence.
 - **Summary uses blockquotes** for verdict, reasoning, and fix order.
 - **Horizontal rule** (`---`) separates findings from verdict.
 - **`###` headers** for each section -- never plain text headers.
