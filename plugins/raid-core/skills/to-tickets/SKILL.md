@@ -30,7 +30,7 @@ work.
 Work from what is already in the conversation. If the user passes a reference -- a path, an
 issue id, a URL, `design.html` -- read it in full, including comments.
 
-Where the greenfield artifacts exist, they are the input and they are binding:
+Where the greenfield artifacts exist in `docs/artifacts/`, they are the input and they are binding:
 `architecture.html` fixes tier, grain, naming and audit columns; `design.html` fixes the
 entity model, the load modes and the **wave order**. The wave order is usually most of the
 dependency graph already -- do not re-derive it.

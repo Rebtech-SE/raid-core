@@ -89,7 +89,7 @@ calls a complete piece. Never half-built models.
   anything. Use the existing `.venv`/`venv`.
 - **Follow the repo, not the textbook.** Mirror existing models and notebooks. On a
   brownfield repo the existing layering *is* the settled architecture -- follow it, don't
-  re-derive a medallion one over the top. Where greenfield artifacts exist, honour them:
+  re-derive a medallion one over the top. Where greenfield artifacts exist in `docs/artifacts/`, honour them:
   `architecture.html` fixes tier/grain/naming/audit columns, `design.html` fixes the
   entity model, load modes and wave order.
 - **Read the knowledge skill for the one pattern you are about to write** (an SCD2
