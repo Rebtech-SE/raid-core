@@ -1,11 +1,8 @@
 ---
 name: raid-mode
 description: >-
-  Use for RAID, /raid-mode, or any data-platform work in a repo - dbt models, notebooks,
-  pipelines, warehouse or lakehouse tables, medallion layers, SCD dimensions,
-  data-quality checks. Routes the request (direct / incremental / greenfield
-  pipeline), runs the RAID skills as the steps need them, and holds the approval gates
-  and the validate-against-real-data bar. Start here rather than picking skills by hand.
+  Use for RAID, /raid-mode, or any data-platform work in a repo: dbt, notebooks, pipelines,
+  lakehouse or warehouse tables, SCD, data quality. Start here; it routes and gates.
 # Cursor-only presentation keys. Claude Code, Codex and Copilot all ignore unknown
 # frontmatter, so these are inert everywhere else. Deliberately NOT set:
 # `disable-model-invocation` -- it is a real Claude Code key that would stop Claude

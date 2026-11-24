@@ -1,12 +1,8 @@
 ---
 name: why
 description: >-
-  Use for 'why is it built this way' questions about a data platform -- why this grain, why
-  SCD2 here, why this column is nullable, why the load is full and not incremental, why
-  this number differs from the old report. Finds the recorded rationale in ADRs, the
-  glossary, decision artifacts, git history and the tracker, cites it, and labels inference
-  as inference. Read-only. Use `how` for mechanism, `debug-data-issue` when
-  something is actually broken.
+  Use for 'why is it built this way': why this grain, why SCD2, why full load, why this
+  number differs. Cites ADRs, glossary, git history and the tracker. Read-only.
 ---
 
 # Why

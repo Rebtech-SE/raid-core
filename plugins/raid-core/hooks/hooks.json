@@ -35,6 +35,18 @@
             "timeoutSec": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/raid-mode-routing.sh\"",
+            "bash": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/raid-mode-routing.sh\"",
+            "powershell": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/raid-mode-routing.ps1\"",
+            "cwd": ".",
+            "timeoutSec": 5
+          }
+        ]
       }
     ],
     "Stop": [

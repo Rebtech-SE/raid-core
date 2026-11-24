@@ -1,11 +1,8 @@
 ---
 name: handoff
 description: >-
-  Use to compact the current session into a handoff another agent or person can pick up --
-  'write a handoff', 'I'm running out of context', 'hand this to someone else', 'pick this
-  up tomorrow'. Summarises where the work stands, what is verified against real data and
-  what is not, and which gated actions are still queued. Points at artifacts rather than
-  copying them, and redacts anything from the customer estate.
+  Use for 'write a handoff', 'I'm running out of context', 'pick this up tomorrow'. Compacts
+  the session: state, what is verified, queued gated actions.
 argument-hint: "[what the next session will focus on]"
 ---
 

@@ -1,10 +1,8 @@
 ---
 name: az-cli
 description: >-
-  Use when working with Azure DevOps from the command line, when the user mentions az
-  devops, az repos, az pipelines or az boards, or asks about managing PRs, work items,
-  pipelines or repositories in Azure DevOps. Also covers Azure DevOps CLI setup,
-  authentication, and querying work items.
+  Use for Azure DevOps from the CLI: az devops, az repos, az pipelines, az boards -- PRs,
+  work items, pipelines, repositories, CLI setup and auth.
 ---
 
 # Azure DevOps CLI

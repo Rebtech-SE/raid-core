@@ -1,11 +1,8 @@
 ---
 name: check-kubernetes-health
 description: >-
-  Use when the user asks 'is the cluster healthy', 'check the Kubernetes cluster', 'why are
-  pods failing', 'which pods are crashlooping', or wants scheduled cluster monitoring.
-  Read-only health report of a Kubernetes cluster: node readiness and pressure, workloads
-  short of replicas, and failed, pending, crashlooping, evicted or OOM-killed pods, each
-  with the next read-only command to run. Exit code drives scheduled alerts.
+  Use for 'is the cluster healthy', 'why are pods failing', 'crashlooping pods', or
+  scheduled cluster checks. Read-only Kubernetes health report with next commands.
 argument-hint: "[--context <ctx>] [--namespace <ns>] [--pending-minutes <min>] [--restart-threshold <n>]"
 ---
 

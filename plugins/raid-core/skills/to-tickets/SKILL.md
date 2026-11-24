@@ -1,12 +1,8 @@
 ---
 name: to-tickets
 description: >-
-  Use to turn a plan, a design artifact or the current conversation into tickets on the
-  engagement's issue tracker -- 'break this down', 'write the tickets', 'publish these
-  units', 'make this into work items'. Cuts the work into vertical slices that each land
-  bronze-to-gold with their tests, declares the blocking edges, and publishes each in the
-  standard ticket-brief shape so any agent can pick one up cold. Sequences a wide schema
-  change as expand-migrate-contract instead.
+  Use for 'break this down', 'write the tickets', 'make this into work items'. Cuts a plan
+  into vertical bronze-to-gold slices with blockers on the issue tracker.
 ---
 
 # To Tickets

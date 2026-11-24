@@ -1,11 +1,8 @@
 ---
 name: dead-letter-queue
 description: >-
-  Use when building fault-tolerant pipelines, handling bad records, or implementing
-  retry mechanisms. Triggers include 'dead letter', 'error handling', 'bad records',
-  'retry logic', 'error queue', 'failed records', 'quarantine table', 'poison message',
-  'DLQ'. Covers error classification, retry logic, recovery procedures, and monitoring
-  for data pipelines.
+  Use for bad records and retries in pipelines: 'dead letter', 'DLQ', 'bad records', 'retry
+  logic', 'quarantine table', 'poison message', 'error handling'.
 ---
 
 # Dead Letter Queue Patterns

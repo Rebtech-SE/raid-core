@@ -1,13 +1,8 @@
 ---
 name: write-test-report
 description: >-
-  Use after a development cycle finishes, or when the user says 'generate the
-  test report', 'what did the tests do', 'test results for this cycle'. Produces the test
-  report: reconciles every planned test against what actually ran, records each outcome
-  with its failure reason, and carries earlier failures forward even after a test goes
-  green. Reads the append-only ledger docs/testing/test-results.jsonl plus the planned
-  tests (testplan.html on a greenfield build, the plan's inline DQ checks on
-  incremental work) and writes docs/testing/testreport.html from the bundled template.
+  Use after a development cycle or for 'generate the test report', 'test results for this
+  cycle'. Reconciles planned tests with the results ledger into testreport.html.
 argument-hint: "[optional: a cycle id, or a plan path; blank uses the newest cycle in the ledger]"
 ---
 

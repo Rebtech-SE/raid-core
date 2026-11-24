@@ -1,11 +1,8 @@
 ---
 name: teach
 description: >-
-  Use when someone wants to actually understand a piece of a data platform rather than have
-  it changed -- 'teach me this', 'explain this model to me', 'walk me through what we
-  built', 'help me understand this pipeline'. Also the handover explainer at the end of an
-  engagement. Runs `how` and `why` and weaves what they find into one plain
-  account, built up diagram by diagram, at the person's pace.
+  Use for 'teach me this', 'explain this model to me', 'walk me through what we built', and
+  the handover explainer. Plain account, diagram by diagram.
 ---
 
 # Teach

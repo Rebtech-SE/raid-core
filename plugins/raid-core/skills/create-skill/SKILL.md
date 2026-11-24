@@ -1,13 +1,8 @@
 ---
 name: create-skill
 description: >-
-  Use when writing a new skill, editing or improving an existing one, or generating a
-  project-local skill into a customer repo -- 'write a skill', 'turn this into a skill',
-  'my skill never triggers', 'fix this description'. Carries RAID's authoring rules: the
-  description is the entire routing surface and Codex/Copilot truncate it near ~150
-  characters, so it leads with when-to-use; flat one-level skill layout; verb-first names;
-  cross-plugin references by name, never by path; shell and single-file Python only.
-  Measuring a skill is `raid-eval`'s job, not this one.
+  Use to write or fix a skill: 'write a skill', 'turn this into a skill', 'my skill never
+  triggers', 'fix this description'. Carries RAID's authoring rules.
 ---
 
 # Write a Skill

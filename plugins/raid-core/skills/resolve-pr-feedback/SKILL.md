@@ -1,12 +1,8 @@
 ---
 name: resolve-pr-feedback
 description: >-
-  Use when reviewers have already commented on a PR and those threads need working
-  through -- 'address the PR feedback', 'resolve the review comments'. Judges every
-  unresolved item against the rubric, fixes what is warranted, replies with quoted
-  context on each thread and resolves it through the provider API. GitHub/GHE and
-  Azure DevOps Services. Not for reviewing code before feedback exists; that is
-  review-changes.
+  Use when a PR already has review comments: 'address the PR feedback', 'resolve the review
+  comments'. Fixes, replies and resolves threads (GitHub, Azure DevOps).
 argument-hint: "[PR number, comment URL, or blank for current branch's PR]"
 allowed-tools: Bash(gh *), Bash(git *), Bash(az *), Bash(python3 *), Read
 ---

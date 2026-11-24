@@ -1,9 +1,8 @@
 ---
 name: write-dbt-unit-tests
 description: >-
-  Use when adding unit tests for a dbt model or practicing test-driven development (TDD)
-  in dbt. Creates unit test YAML definitions that mock upstream model inputs and
-  validate expected outputs.
+  Use to add unit tests to a dbt model or work test-first in dbt. Writes unit test YAML that
+  mocks upstream inputs and checks expected outputs.
 user-invocable: false
 metadata:
   author: dbt-labs

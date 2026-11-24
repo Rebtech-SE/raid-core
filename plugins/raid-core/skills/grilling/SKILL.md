@@ -1,11 +1,8 @@
 ---
 name: grilling
 description: >-
-  Use when the user wants to stress-test a plan, decision, or idea, or uses any
-  "grill" trigger phrase ("grill me", "grill this", "grilling"). Interviews the
-  user in rounds down a design tree until shared understanding. The bare form:
-  decisions settle in the conversation. `grill-with-docs` adds the durable
-  record (ADRs, GLOSSARY.md) via `domain-modeling`.
+  Use to stress-test a plan, decision or idea ('grill me', 'grill this'). Interviews in
+  rounds down the design tree until the decisions are settled.
 ---
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.

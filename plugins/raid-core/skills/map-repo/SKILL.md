@@ -1,11 +1,8 @@
 ---
 name: map-repo
 description: >-
-  Use at the start of work in an unfamiliar repo, or when the user says 'map this repo',
-  'onboard to this codebase', 'document the architecture', 'audit the tech debt'. Explores
-  read-only, then writes three files: the architecture doc, a short AGENTS.md router, and
-  a dated docs/audit/ tech-debt report, asking before it edits hand-written content.
-  Reports conventions; does not write them down.
+  Use in an unfamiliar repo or for 'map this repo', 'document the architecture', 'audit the
+  tech debt'. Explores read-only, then writes architecture doc, AGENTS.md and debt report.
 argument-hint: "[path to a repo, or empty for the current working directory] "
 ---
 

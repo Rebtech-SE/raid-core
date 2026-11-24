@@ -1,11 +1,9 @@
 ---
 name: medallion-architecture
 description: >-
-  Use for Bronze/Silver/Gold layering and layer-placement decisions on any platform --
-  'medallion', 'bronze silver gold', 'which layer does this go in', 'raw to curated',
-  'lakehouse architecture'. Platform-agnostic layer rules, audit columns, materialization
-  defaults and anti-patterns. Fabric specifics: `fabric-architecture` (raid-fabric); a 3NF
-  enterprise core: `inmon-data-warehouse`.
+  Use for Bronze/Silver/Gold layering and layer placement on any platform ('medallion',
+  'which layer does this go in'). Fabric: fabric-architecture; 3NF core:
+  inmon-data-warehouse.
 ---
 
 # Medallion Architecture Guide

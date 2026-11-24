@@ -1,11 +1,8 @@
 ---
 name: data-quality-checks
 description: >-
-  Use when implementing data quality rules, building quality dashboards, or setting up
-  alerting. Triggers include 'data quality', 'validation rules', 'completeness check',
-  'null check', 'duplicate detection', 'referential integrity', 'quality score', 'data
-  validation'. Covers completeness, accuracy, consistency, timeliness and validity
-  patterns across dbt-expectations, Great Expectations, and PySpark.
+  Use for data quality rules and alerts: 'data quality', 'validation rules', 'null check',
+  'duplicate detection', 'referential integrity', 'quality score'.
 ---
 
 # Data Quality Checks

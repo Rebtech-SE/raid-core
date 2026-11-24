@@ -1,12 +1,8 @@
 ---
 name: domain-modeling
 description: >-
-  Use when the business language of a data platform is being settled or is in dispute --
-  what "net sales", "active customer" or "order line" actually means, what the grain of a
-  table is, or when a decision needs recording. Triggers: 'what do we call this', 'define
-  this term', 'the glossary', 'write an ADR', 'record this decision'. Challenges terms
-  against GLOSSARY.md, sharpens fuzzy language, verifies checkable claims against real
-  data, and writes the glossary and ADRs as they crystallise.
+  Use when a business term or grain is unsettled ('what does net sales mean', 'define this
+  term', 'the glossary', 'write an ADR'). Keeps GLOSSARY.md and ADRs.
 ---
 
 # Domain Modeling

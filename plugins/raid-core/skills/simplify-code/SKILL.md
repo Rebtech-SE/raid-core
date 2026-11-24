@@ -1,12 +1,8 @@
 ---
 name: simplify-code
 description: >-
-  Use after building and before review-changes, or when the user says 'simplify this',
-  'clean up this model', 'tidy these changes before the PR'. Rewrites settled data code -
-  dbt models, SQL, notebooks, pipelines - so it is skimmable and hard to misuse: fewer
-  models and flags, fewer macro parameters, exhaustive CASE handling, a failing test
-  instead of a COALESCE fallback, reuse before new SQL. Quality only, no bug hunt - same
-  rows, same grain, same values, proved.
+  Use after building and before review, or for 'simplify this', 'clean up this model', 'tidy
+  before the PR'. Makes data code skimmable; same rows, proved.
 argument-hint: "[blank to simplify current branch changes, or name a model/notebook/dir to simplify]"
 ---
 

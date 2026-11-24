@@ -1,12 +1,8 @@
 ---
 name: use-skill-library
 description: >-
-  Use when the user wants to find, install, update or publish a skill through the
-  company skill library ('is there a skill for X in our library', 'install the Y skill',
-  'publish this skill', 'share this skill with the team'). Searches a Skill Library
-  registry, installs the latest approved version with every file checked against the
-  registry's digests, reports whether a local copy is current, and uploads a skill as a
-  draft for an editor to approve. Runs on python3 and the registry's HTTP API.
+  Use to find, install, update or publish a skill in the company skill library ('is there a
+  skill for X', 'install the Y skill', 'publish this skill').
 argument-hint: "[search <query> | install <slug> | check <dir> | publish <dir>]"
 ---
 

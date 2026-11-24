@@ -1,10 +1,8 @@
 ---
 name: show-me
 description: >-
-  Use when a picture explains the current topic faster than prose, or the user asks to
-  see, draw or sketch something -- pick the smallest view that makes the point (pseudocode,
-  a call tree, a component or file tree, Mermaid, a diff-shaped sketch, or one focused HTML
-  file) and show it. Presents the shape; `how`, `why` and `teach` own the investigation.
+  Use when a picture explains faster than prose or the user asks to see, draw or sketch
+  something: pseudocode, call tree, Mermaid, diff sketch or one HTML file.
 ---
 
 # Show Me

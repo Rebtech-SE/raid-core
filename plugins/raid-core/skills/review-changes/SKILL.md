@@ -1,11 +1,9 @@
 ---
 name: review-changes
 description: >-
-  Use before opening a PR or after a unit of data work. Review the scoped diff for
-  data correctness, requirements coverage and risk. Verify findings against source
-  evidence. Interactive mode applies safe fixes. mode:agent reports JSON. Not for a
-  second-model opinion (autoreview), tidying settled code (simplify-code), or answering
-  existing PR comments (resolve-pr-feedback).
+  Use before opening a PR or after a unit of data work: reviews the diff for data
+  correctness, requirements and risk; verified findings. Not autoreview, simplify-code or
+  resolve-pr-feedback.
 argument-hint: "[mode:agent] [base:<ref>] [plan:<path>] [blank to review current branch, or a PR/MR id or URL on GitHub, Azure DevOps, or GitLab]"
 ---
 

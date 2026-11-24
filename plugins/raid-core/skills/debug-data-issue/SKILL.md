@@ -1,12 +1,8 @@
 ---
 name: debug-data-issue
 description: >-
-  Use when the user says 'debug this', 'why is this number wrong', 'this pipeline/test
-  is failing', 'find the root cause'. Finds the root cause of a data bug before fixing
-  it - a failed notebook run, a dbt test failure, wrong numbers in a mart, a broken
-  pipeline, a row-count or reconciliation mismatch. Traces the full causal chain
-  (symptom -> failing transform -> upstream data) and proves the cause with a failing
-  test before a minimal fix.
+  Use for 'debug this', 'why is this number wrong', 'this pipeline/test is failing', 'find
+  the root cause'. Proves a data bug's cause with a failing test before fixing.
 argument-hint: "[the symptom: error text, failing model/test, the wrong number and where, or a run/pipeline link]"
 ---
 

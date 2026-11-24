@@ -1,12 +1,9 @@
 ---
 name: report-raid-bug
 description: >-
-  Use when a RAID skill or agent did the wrong thing and the user says 'report this
-  bug', 'file a bug for RAID', 'this skill is broken - log it'. Files a bug against the
-  RAID plugin itself (a skill, agent, or convention that misbehaved) as an issue on the
-  public raid-core GitHub repo, never on the repo you are working in, or hands the
-  assembled report to the user to file. Gathers environment context and a minimal
-  reproduction automatically.
+  Use when a RAID skill or agent misbehaved: 'report this bug', 'file a bug for RAID', 'this
+  skill is broken'. Files it with a repro on the public raid-core GitHub repo, never the
+  repo you work in.
 argument-hint: "[short description of what went wrong; optional: --project <name>]"
 ---
 

@@ -1,10 +1,8 @@
 ---
 name: intro
 description: >-
-  Use when someone is new to RAID or asks how to use it -- '/intro', 'how do I use RAID',
-  'what can RAID do', 'where do I start', 'which command should I run'. Gives a short,
-  hands-on orientation: what RAID is, the one command to start with, the routes work
-  takes, the commands worth knowing, and how to get help. Explains; changes nothing.
+  Use when someone is new to RAID: '/intro', 'how do I use RAID', 'what can RAID do', 'where
+  do I start'. Short orientation; changes nothing.
 argument-hint: "[optional: your role or what you want to do, e.g. 'add a dbt model']"
 ---
 

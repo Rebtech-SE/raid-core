@@ -1,12 +1,9 @@
 ---
 name: kimball-dimensional-modeling
 description: >-
-  Triggers: 'Kimball', 'dimensional model', 'bus matrix', 'conformed dimensions', 'star
-  schema warehouse', 'bottom-up', 'declare the grain', 'fact table design', 'business
-  process warehouse'. Kimball dimensional warehouse methodology: the conformed-dimension
-  bus architecture, the four-step design process, grain discipline, fact and dimension
-  patterns, and staging-to-presentation layering. A normalized 3NF core is
-  `inmon-data-warehouse`; generic layering is `medallion-architecture`.
+  Triggers: 'Kimball', 'dimensional model', 'bus matrix', 'star schema', 'declare the
+  grain', 'fact table design'. Kimball bus, four-step design. 3NF core:
+  inmon-data-warehouse.
 ---
 
 # Kimball Dimensional Modeling

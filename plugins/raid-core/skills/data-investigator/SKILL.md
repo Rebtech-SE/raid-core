@@ -1,11 +1,8 @@
 ---
 name: data-investigator
 description: >-
-  Use to profile a data source before modelling it -- 'profile a source', 'investigate
-  data', 'understand the source', 'source discovery'. Tech-agnostic phases, report
-  template and a sufficiency rubric for when the source is understood enough to build on.
-  Platform layers (e.g. `investigate-fabric-source`) run the probes; `how` traces existing
-  lineage instead.
+  Use to 'profile a source', 'investigate data', 'understand the source' before modelling
+  it: phases, report template, sufficiency rubric. Fabric probes: investigate-fabric-source.
 ---
 
 # Data Investigator (methodology)

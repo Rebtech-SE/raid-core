@@ -1,10 +1,9 @@
 ---
 name: commit-push-pr
 description: >-
-  Use when the user says 'commit and PR', 'open a PR', 'push and create a PR', 'ship this
-  for review'. Stages, commits, pushes and opens or updates a pull/merge request on
-  GitHub, Azure DevOps or GitLab with an unslopped, value-first description, then runs
-  `babysit` to merge-ready. Never merges. A commit with no push or PR needs only git.
+  Use for 'commit and PR', 'open a PR', 'push and create a PR', 'ship this for review'.
+  Commits, pushes and opens or updates a PR on GitHub, Azure DevOps or GitLab, then babysits
+  it. Never merges.
 argument-hint: "[optional: --update (refresh existing PR); --description-only; --work-items <id>; --no-babysit; --no-unslop]"
 ---
 

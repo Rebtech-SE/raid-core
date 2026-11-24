@@ -1,12 +1,8 @@
 ---
 name: how
 description: >-
-  Use for a question about how something in a data platform works or where a number comes
-  from -- 'where does this metric come from', 'what feeds this table', 'how does this
-  pipeline run', 'what breaks if I drop this column', 'who owns this model'. Traces
-  lineage backwards from the consumer to the source, names the transform and the grain at
-  each hop, and explains the mechanism from the real models. Answers, it does not change
-  anything. Use `why` for rationale, `debug-data-issue` when something is broken.
+  Use for 'where does this metric come from', 'what feeds this table', 'how does this
+  pipeline run', 'what breaks if I drop this'. Traces lineage; changes nothing.
 ---
 
 # How

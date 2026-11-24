@@ -1,13 +1,8 @@
 ---
 name: tune-workload
 description: >-
-  Use when the user says 'this query/model is too slow', 'cut the warehouse cost', 'tune
-  this pipeline', 'speed up the build', 'improve the DQ pass rate', or for any data
-  outcome worth systematic experimentation rather than a one-shot fix. Runs a
-  metric-driven tuning loop: define a measurable goal (query runtime, warehouse cost,
-  pipeline duration, DQ pass rate), run isolated experiments, measure each against hard
-  gates and optionally an LLM-as-judge, and keep only behavior-safe improvements. For a
-  known one-line fix, just fix it; for correctness review use review-changes.
+  Use for 'this query/model is too slow', 'cut the warehouse cost', 'speed up the build',
+  'improve the DQ pass rate'. Metric-driven tuning experiments with hard gates.
 argument-hint: "[path to an optimization spec YAML, or describe the data workload and goal]"
 ---
 

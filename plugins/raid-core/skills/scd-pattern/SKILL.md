@@ -1,11 +1,8 @@
 ---
 name: scd-pattern
 description: >-
-  Use when tracking historical changes to dimension data, implementing time-travel
-  queries, or deciding between SCD types. Triggers include 'SCD Type 1', 'SCD Type 2',
-  'slowly changing dimension', 'track history', 'historical changes', 'dimension
-  versioning', 'snapshot', 'point-in-time query'. Guide for implementing Slowly Changing
-  Dimensions (Type 1, 2, 3) across data platforms.
+  Use for history in dimensions: 'SCD Type 1/2', 'slowly changing dimension', 'track
+  history', 'point-in-time query', 'snapshot'. SCD types 1-3 on any platform.
 ---
 
 # Slowly Changing Dimension (SCD) Patterns

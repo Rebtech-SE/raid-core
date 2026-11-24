@@ -1,12 +1,8 @@
 ---
 name: unslop
 description: >-
-  Use when writing or reviewing anything a person will read (a client-facing
-  artifact, a report, a ticket, a PR body, a stage reply), when asked for
-  plainer or less performed prose, when asked to deslopify a response, or to
-  check a draft for AI slop. Removes AI writing tells, mannered prose, and stock
-  phrasing, with a bundled lint gate. Also a standing write-through constraint
-  on user-facing output.
+  Use when writing or reviewing prose a person reads (artifact, report, ticket, PR body) or
+  for 'deslopify', 'plainer'. Removes AI writing tells; bundled lint.
 ---
 
 # Unslop

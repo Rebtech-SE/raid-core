@@ -1,12 +1,8 @@
 ---
 name: check-platform-health
 description: >-
-  Use when the user asks 'is the platform healthy', 'check the pipelines', 'are the
-  tables fresh', 'platform status', 'what's broken in production'. Takes an operational
-  health pulse of the data platform you built or operate: recent pipeline/job run
-  outcomes, data freshness vs expected cadence, and data-quality failures. Read-only and
-  platform-aware - collects read-only signals using the tier skill, then reports
-  OK/WARN/ALERT per dimension.
+  Use for 'is the platform healthy', 'are the tables fresh', 'check the pipelines', 'what's
+  broken in production'. Read-only pulse: runs, freshness, DQ failures.
 argument-hint: "[optional: scope - which tables/jobs/datasets, or a platform area; --since <window>]"
 ---
 

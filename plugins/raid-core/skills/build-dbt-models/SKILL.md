@@ -1,10 +1,9 @@
 ---
 name: build-dbt-models
 description: >-
-  Use when building or changing dbt models, sources, tests or docs, or exploring a dbt
-  project's sources before writing SQL. Writes ref()/source() SQL to the project's
-  conventions and checks results with dbt show. For a failing test or wrong number,
-  root-cause with `debug-data-issue` first; dbt unit tests are `write-dbt-unit-tests`.
+  Use for building or changing dbt models, sources, tests or docs, or exploring sources;
+  validates with dbt show. Failing test or wrong number: debug-data-issue; unit tests:
+  write-dbt-unit-tests.
 allowed-tools: "Bash(dbt *), Bash(jq *), Read, Write, Edit, Glob, Grep"
 user-invocable: false
 metadata:

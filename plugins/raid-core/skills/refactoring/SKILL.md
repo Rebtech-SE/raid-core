@@ -1,11 +1,8 @@
 ---
 name: refactoring
 description: >-
-  Use to restructure working data code without changing what it produces -- split a fat
-  model into staging and intermediate, re-layer bronze/silver/gold, rename a conformed
-  dimension, move a metric into the semantic layer, deduplicate copy-pasted SQL. Pins the
-  output first, then moves in behaviour-preserving steps and proves the rows are identical.
-  `simplify-code` makes settled code readable in place; this one moves things.
+  Use to restructure working data code without changing its output: split a model, re-layer
+  bronze/silver/gold, rename a dimension, dedupe SQL. Proves same rows.
 ---
 
 # Refactoring

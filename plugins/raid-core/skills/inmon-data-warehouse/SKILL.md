@@ -1,11 +1,9 @@
 ---
 name: inmon-data-warehouse
 description: >-
-  Use when designing or reviewing an Inmon enterprise data warehouse -- 'Inmon', 'EDW',
-  '3NF warehouse', 'top-down', 'subject area model', 'data mart derivation'. 3NF EDW,
-  subject areas and marts derived from the core, with Performance/Cost/Usability
-  optimization profiles. A conformed-dimension bus with no normalized core is
-  `kimball-dimensional-modeling`.
+  Triggers: 'Inmon', 'EDW', '3NF warehouse', 'subject area model', 'data mart derivation'.
+  Inmon top-down EDW with optimization profiles. Conformed-dimension bus:
+  kimball-dimensional-modeling.
 ---
 
 # Inmon Data Warehouse

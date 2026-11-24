@@ -1,6 +1,8 @@
 ---
 name: frontend-slides
-description: "Use when building, revising or converting a slide deck -- a workshop, steering-group, handover or proposal presentation, or a PPTX to turn into HTML. Produces one self-contained animated HTML deck on a fixed 16:9 stage, in the Rebtech house style by default or a chosen preset or bold template, with PDF export and no public hosting."
+description: >-
+  Use to build, revise or convert a slide deck (workshop, steering group, handover,
+  proposal, PPTX to HTML). One self-contained animated HTML deck, PDF export.
 ---
 
 # Frontend Slides

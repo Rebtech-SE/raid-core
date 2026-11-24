@@ -1,6 +1,9 @@
 ---
 name: autoreview
-description: "Use when the user asks by name for autoreview, a second-model review, or a Codex/Claude/Copilot review of a change. Runs one single-engine review (Codex, Claude, Amp, Pi, Kimi or Copilot) over a validated change bundle, then verifies each finding against the real code. Sends the diff to that engine's provider. Not the build-loop data review: that is `review-changes`."
+description: >-
+  Use when the user asks by name for autoreview or a second-model (Codex, Claude, Copilot)
+  review of a change. One engine reviews; each finding is verified. Data review:
+  review-changes.
 ---
 
 # Auto Review

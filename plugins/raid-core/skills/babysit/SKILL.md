@@ -1,12 +1,8 @@
 ---
 name: babysit
 description: >-
-  Use when the user says 'babysit this', 'get it green', 'all green', 'merge-ready',
-  'watch CI', 'address the review-bot comments', or 'check on PR X'. Drives a pull /
-  merge request to merge-ready on GitHub, Azure DevOps or GitLab: watches CI, classifies
-  failures before retriggering, triages review-bot comments skeptically, and works the
-  lowest unmerged PR first. Stops at merge-ready and hands the merge decision back --
-  it never merges.
+  Use for 'babysit this', 'get it green', 'merge-ready', 'watch CI', 'check on PR X'. Drives
+  a PR/MR to merge-ready on GitHub, Azure DevOps or GitLab; never merges.
 argument-hint: "[optional: PR id; defaults to the PR for the current branch]"
 ---
 

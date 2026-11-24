@@ -1,11 +1,8 @@
 ---
 name: setup-raid
 description: >-
-  Use once at the start of an engagement, or when the user says 'set up RAID here',
-  'initialise the engagement', 'raid setup', 'set up the issue tracker'. Prepares an
-  engagement repo: the telemetry opt-in in .raid/config.yaml, one sentence in AGENTS.md when
-  the git host is not GitHub, and -- only when the team wants tickets -- the issue tracker in
-  docs/agents/issue-tracker.md. Checks the git host CLI and the Python environment.
+  Use once per engagement or for 'set up RAID here', 'raid setup', 'set up the issue
+  tracker'. Prepares the repo: AGENTS.md routing, telemetry opt-in, tracker.
 ---
 
 # RAID Setup
@@ -95,7 +92,23 @@ Report status (do not fail hard -- note what's missing):
   how to build and test it, and point at an architecture doc? When there is existing code
   and it does not, point the user at `map-repo`.
 
-### 4. A git host that is not GitHub
+### 4. Route data work to raid-mode
+
+Add this sentence to the repo's instruction file, once (skip it when the file already says
+it):
+
+```markdown
+RAID is installed. For data-platform work in this repo (pipelines, notebooks, dbt, lakehouse
+or warehouse tables, data quality), start with the raid-mode skill.
+```
+
+Without it, whether a session starts in `raid-mode` is left to the agent picking it from a
+long skill list -- in RAID's own eval that happened in 1 of 6 runs. Claude Code also gets the
+sentence from raid-core's SessionStart hook; the instruction file carries it to every other
+host (Codex, Copilot CLI, Cursor) and to anyone reading the repo. Use the same instruction
+file as step 5, near the top, and create `AGENTS.md` only when the repo has none.
+
+### 5. A git host that is not GitHub
 
 Agents assume GitHub and reach for `gh`. When `origin` is anywhere else, add one sentence to
 the repo's instruction file naming the host, where the repo lives there, and the CLI to use:
@@ -111,7 +124,7 @@ place, near the top. Use the instruction file the repo already has (`AGENTS.md`;
 edit the substantive file, not a shim that includes it; create `AGENTS.md` only when the
 repo has none. Skip this step when the host is GitHub or the file already says it.
 
-### 5. Issue tracker (optional)
+### 6. Issue tracker (optional)
 
 A tracker is where work outlives a session: tickets someone else picks up, `wayfinder`'s
 map of open decisions, `to-tickets` and `triage`, and the claim that stops two agents
@@ -166,9 +179,9 @@ Two cases worth handling explicitly:
   exists. Do not silently fall back; which tracker an engagement uses is the customer's
   decision, not a default.
 
-### 6. Confirm and hand off
+### 7. Confirm and hand off
 
-Print what was written -- `.raid/config.yaml`, `.raid/.gitignore`, the git host sentence and the tracker
+Print what was written -- `.raid/config.yaml`, `.raid/.gitignore`, the raid-mode routing sentence, the git host sentence and the tracker
 pointer with the file that holds them, `docs/agents/issue-tracker.md`, the `docs/`
 directories -- and the environment gaps. Point the user at the next step: `map-repo` when
 the instruction file does not yet orient an agent, then `raid-mode` for the work -- or, when
