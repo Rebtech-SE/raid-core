@@ -67,8 +67,9 @@ Ids are never renumbered or reused. A dropped item's id is retired.
 }
 ```
 
-- `project.type` is one of `new-build`, `maintenance`, `migration`. Vibe coding writes no
-  trace file; `raid-mode` records it as one line in `AGENTS.md` instead.
+- `project.type` is one of `new-build`, `maintenance`, `migration`. The `direct` type writes no
+  trace file. Before a trace file exists, `raid-mode` records any type as one line in
+  `AGENTS.md` (`references/project-type.md`); `project.type` wins once it is written.
 - `steps[].status` is `done`, `open` or `skipped`. A skip carries `reason` and `date`.
 - `status` on an item is `draft` or `approved`. An approval names a role, never a person.
 - `tests[].level` is `unit`, `system`, `integration` or `verification` (the V-model:

@@ -47,6 +47,13 @@ artifacts) through `unslop` as a write-through constraint.
 
 ## Pick the route
 
+**Know the project type first.** Read it from `docs/artifacts/trace.json` or the
+`RAID project type:` line in `AGENTS.md`. When neither has one, ask once before the first
+change: direct, maintenance, migration or new build. Record the answer as that one
+`AGENTS.md` line. The type sets the default route below and how much process to suggest;
+the `direct` type gets no planning, documents or reminders. When to ask, how to record and
+change it: [references/project-type.md](./references/project-type.md).
+
 Announce the route you picked and why, so the user can override before work starts.
 
 | Route | When | Flow |
@@ -54,8 +61,10 @@ Announce the route you picked and why, so the user can override before work star
 | **Question** | They want to understand something, not change it -- "where does this number come from", "why is it modelled this way", "teach me this" | `how` for mechanism and lineage, `why` for rationale, `teach` to walk someone through it. **A question is not authorization to change anything** |
 | **Direct** | 1-2 files, no behavioural or modelling decision -- rename, config, typo | Do it here. No ticket, no ceremony |
 | **Incremental** *(default)* | Work on an existing codebase: ~<=5 models/files, no new source system, no new platform decision, conventions observable in the repo | Do the work (below) -> `simplify-code` -> `review-changes` |
-| **Too big to see the end of** | A platform migration, a new source system, a domain re-model -- more than one session can hold, and the route itself is still unclear | `wayfinder` charts it as decision tickets, one at a time, then come back here |
-| **Greenfield** | New platform, new engagement, novel grain/SCD decisions, or the customer is owed sign-off artifacts. **Needs `raid-greenfield`** | (`plan-project`) -> (`ingest-requirements`) -> `assess-platform` -> `design-architecture` -> `design-data-model` -> (`write-test-plan`) -> then work the incremental route |
+| **Maintenance** | Project type `maintenance`: a new requirement for a platform that already runs | Check the architecture can carry it first (`check-architecture-fit` when available, else ask: new source, new latency such as streaming, new volume, new security model or new layer?). No to all: the incremental route. Yes to any: architecture work for that part (`design-architecture` when installed), then the incremental route |
+| **Migration** | Project type `migration`: requirements live in a legacy system, the architecture is new | Assess the existing system first (`assess-platform` when `raid-greenfield` is installed): what exists, what is used, what is migrated and how. Then the architecture, then the incremental route. Open decisions go to `wayfinder` |
+| **Too big to see the end of** | A new source system, a domain re-model -- more than one session can hold, and the route itself is still unclear | `wayfinder` charts it as decision tickets, one at a time, then come back here |
+| **Greenfield** | Project type `new-build`, or new platform, new engagement, novel grain/SCD decisions, or the customer is owed sign-off artifacts. **Needs `raid-greenfield`** | (`plan-project`) -> (`ingest-requirements`) -> `assess-platform` -> `design-architecture` -> `design-data-model` -> (`write-test-plan`) -> then work the incremental route |
 
 Any incremental criterion missed escalates a route up. If the work needs the greenfield pipeline and
 `raid-greenfield` is not installed, say so and offer the install -- never improvise the

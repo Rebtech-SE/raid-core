@@ -154,6 +154,11 @@ docs/
 
 ## Choosing the route
 
+**The project type sets the default route.** `raid-mode` asks once per repo whether it is
+direct, maintenance, migration or a new build, and records the answer as a
+`RAID project type:` line in `AGENTS.md` (`raid-mode`'s `references/project-type.md`). The
+`direct` type uses only the Direct and Incremental routes, with no planning or reminders.
+
 **Incremental is the default.** On an existing codebase, the repo's conventions (layering,
 naming, grain, patterns) *are* the settled architecture and design -- don't re-derive
 them. On an unfamiliar repo, run **map-repo** first: it writes the architecture doc and makes
@@ -164,7 +169,9 @@ the repo.
 |---|---|---|---|
 | **Direct** | Trivial: 1-2 files, no behavioral/modeling decision (rename, config, typo) | do it in `raid-mode` | nowhere -- just do it |
 | **Incremental** *(default)* | Work on an existing codebase: ~<=5 models/files of new build, no new source system, no new platform decision, conventions observable in the repo | `raid-mode` work loop -> `simplify-code` -> `review-changes` | the conversation, or tracker tickets when it must outlive the session |
-| **Too big to see the end of** | More than one session can hold, and the route itself is unclear -- a platform migration, a new source system, a domain re-model | `wayfinder` -> back to the incremental route once the way is clear | a map of decision tickets on the tracker |
+| **Maintenance** | Project type `maintenance`: a new requirement for a platform that already runs | architecture-fit check (`check-architecture-fit` when available) -> architecture work only for the part that needs it -> the incremental route | the conversation, or tracker tickets |
+| **Migration** | Project type `migration`: requirements live in a legacy system, the architecture is new | assessment of the existing system (`assess-platform` when installed) -> architecture -> the incremental route; open decisions to `wayfinder` | HTML artifacts under `docs/artifacts/` when `raid-greenfield` is installed, else tracker tickets |
+| **Too big to see the end of** | More than one session can hold, and the route itself is unclear -- a new source system, a domain re-model | `wayfinder` -> back to the incremental route once the way is clear | a map of decision tickets on the tracker |
 | **Greenfield** *(needs `raid-greenfield`)* | New platform, new engagement, new source systems, novel grain/SCD decisions, or customer sign-off artifacts are owed | `assess-platform -> design-architecture -> design-data-model -> (write-test-plan)` -> then the incremental route | HTML artifacts under `docs/artifacts/` |
 
 Any incremental criterion missed escalates the work a route up. `raid-mode` announces the

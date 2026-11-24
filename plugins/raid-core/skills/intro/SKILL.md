@@ -45,8 +45,14 @@ apply.
    - **Direct** -- a typo, a rename, a config value. Just done.
    - **Incremental** (the everyday one) -- build in small verified units, then
      `/simplify-code` and `/review-changes`, then `/commit-push-pr`.
-   - **Too big to see the end of** -- a migration, a new source system: `/wayfinder`
+   - **Maintenance** -- a new requirement on a running platform: check the architecture
+     can carry it, then build incrementally.
+   - **Migration** -- requirements in a legacy system: assess the existing system first,
+     then design and build.
+   - **Too big to see the end of** -- a new source system, a domain re-model: `/wayfinder`
      charts the open decisions as tickets and works through them.
+   `raid-mode` asks once per repo how you work (direct, maintenance, migration or new
+   build) and picks the default route from that.
    - **Greenfield** -- a new platform or customer sign-off documents: the design stages
      from `/assess-platform` to `/design-data-model` (needs `raid-greenfield`), or
      `/ship-engagement` to run them end to end.
