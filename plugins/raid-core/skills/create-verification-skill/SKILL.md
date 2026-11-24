@@ -54,7 +54,8 @@ genuinely cannot observe.
 - **Query.** How does an agent get a result set out of the warehouse? Existing wrappers
   first -- the repo may already have one. Then whatever client the platform offers.
   Read the installed tier skill for the current
-  command shapes and you do not.
+  command shapes and you do not. With no tier installed for this platform, confirm each
+  command with `--help` or the provider docs before relying on it.
 - **Observe.** What evidence can be captured? Row counts, key uniqueness, measure totals,
   null and sentinel rates, freshness timestamps, `dbt` `run_results.json`, job status,
   query cost.
@@ -81,7 +82,9 @@ What that *is* depends entirely on the platform. Do not carry a recipe across fr
 engagement -- dialects differ, CLIs differ, some platforms expose no usable CLI at all, and
 the way a given guarantee is enforced is different on every one. **Use the installed tier
 skill to establish the real surface before writing anything**; the command shapes
-move, and the tier skills track them.
+move, and the tier skills track them. With no tier installed (core-only, AWS, or another
+warehouse), establish the surface yourself with the platform's own CLI or SQL endpoint,
+read-only, confirming each command with `--help` or the provider docs before relying on it.
 
 ### First: decide what the command has to carry
 

@@ -23,7 +23,7 @@ Use this skill when users ask about:
 - **Fault tolerance**: "How do I make my pipeline resilient?"
 - **Error monitoring**: "How do I track pipeline failures?"
 
-For data quality rules and thresholds, see [data-quality-checks](../data-quality-checks/SKILL.md).
+For data quality rules and thresholds, see `data-quality-checks`.
 For Fabric-specific execution/testing, see `test-fabric-notebook` (raid-fabric).
 
 ## Core Concepts
@@ -764,9 +764,9 @@ def check_dlq_alerts(spark, dlq_table: str) -> list:
 
 ## Related Skills
 
-- [medallion-architecture](../medallion-architecture/SKILL.md) - Layer-specific DLQ placement
-- [data-quality-checks](../data-quality-checks/SKILL.md) - Validation rules for routing
-- [scd-pattern](../scd-pattern/SKILL.md) - Handling SCD merge failures
+- `medallion-architecture` - Layer-specific DLQ placement
+- `data-quality-checks` - Validation rules for routing
+- `scd-pattern` - Handling SCD merge failures
 
 ## References
 

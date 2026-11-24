@@ -11,9 +11,9 @@ When a novel interaction or architectural decision has no established precedent,
 **The rule.** When the right answer is not obvious, build 2-3 competing prototypes or sketches. Compare them side by side. Only then commit. Design it twice is this rule by another name. A second flavor of the first shape does not count.
 
 **When it applies:**
-- Novel UI interactions (no prior art in the codebase)
-- Architectural choices with multiple viable approaches
-- Product design decisions where user experience depends on feel, not logic
+- A modelling decision with no precedent in the repo (grain, SCD type, fact shape)
+- Architectural choices with several viable approaches (tiering, load mode, streaming vs batch)
+- A consumer-facing shape (a mart or semantic model) whose usability depends on how analysts query it
 
 **When it doesn't:**
 - Mechanical implementation where the pattern is established

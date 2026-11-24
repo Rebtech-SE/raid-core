@@ -1,6 +1,6 @@
 # Optimization Profiles
 
-Optimization profiles control materialization, indexing, denormalization, and refresh strategy across the Inmon EDW. The profile is **locked at Tier 3** during customer customization. When unspecified, default to **Usability**.
+Optimization profiles control materialization, indexing, denormalization, and refresh strategy across the Inmon EDW. The profile is a per-project decision: record it in an ADR (`domain-modeling`) or the architecture doc, and keep it fixed once chosen. When unspecified, default to **Usability**.
 
 ## Profile Definitions
 

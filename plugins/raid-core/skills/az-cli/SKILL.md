@@ -72,8 +72,8 @@ az pipelines runs list --top 10
 # Run a pipeline
 az pipelines run --name "pipeline-name"
 
-# Run with parameters
-az pipelines run --name "pipeline-name" --parameters "env=prod version=1.0"
+# Run with parameters (never a prod run without an explicit go-ahead)
+az pipelines run --name "pipeline-name" --parameters "env=dev version=1.0"
 
 # Show run details
 az pipelines runs show --id <run-id>
@@ -104,7 +104,7 @@ az repos pr update --id <pr-id> --reviewers user@email.com
 # Set vote (approve: 10, approve with suggestions: 5, wait: -5, reject: -10)
 az repos pr set-vote --id <pr-id> --vote 10
 
-# Complete/merge PR
+# Merge -- only on the user's explicit "merge it"; never from babysit or commit-push-pr
 az repos pr update --id <pr-id> --status completed
 ```
 

@@ -23,7 +23,7 @@ Use this skill when users ask about:
 - **Alerting**: "How do I alert when data quality fails?"
 - **Monitoring**: "How do I track quality trends over time?"
 
-**Note**: This skill is **platform-agnostic**. For Microsoft Fabric-specific validation execution via the `fab` CLI and SQL endpoint, see `test-fabric-notebook` (raid-fabric). For error handling patterns, see [dead-letter-queue](../dead-letter-queue/SKILL.md).
+**Note**: This skill is **platform-agnostic**. For Microsoft Fabric-specific validation execution via the `fab` CLI and SQL endpoint, see `test-fabric-notebook` (raid-fabric). For error handling patterns, see `dead-letter-queue`.
 
 ## Data Quality Dimensions
 
@@ -383,7 +383,7 @@ result = check_referential_integrity(
 check that returns a count and stops leaves the failing rows nowhere: they are either
 silently dropped by the next inner join, or they block the load with no record of
 which rows were at fault. Failed rows go to the dead-letter queue with the reason
-attached, classified `FK_ERR` -- see [dead-letter-queue](../dead-letter-queue/SKILL.md)
+attached, classified `FK_ERR` -- see `dead-letter-queue`
 for the taxonomy and the recovery path. FK violations are often *recoverable*: a
 late-arriving parent makes the row loadable on a later run, which is exactly why the
 row must be kept rather than discarded.
@@ -728,9 +728,9 @@ print(f"Quality Check: {summary['passed']}/{summary['total_checks']} passed")
 
 ## Related Skills
 
-- [medallion-architecture](../medallion-architecture/SKILL.md) - Layer-specific quality checks
-- [dead-letter-queue](../dead-letter-queue/SKILL.md) - Routing failed records
-- [scd-pattern](../scd-pattern/SKILL.md) - SCD Type 2 validation
+- `medallion-architecture` - Layer-specific quality checks
+- `dead-letter-queue` - Routing failed records
+- `scd-pattern` - SCD Type 2 validation
 
 ## References
 

@@ -3,7 +3,8 @@
 These rules govern work done with the RAID plugins during a data-platform
 engagement. They ship inside `raid-core` (always installed) and apply to every
 RAID skill and subagent, including the platform tiers (raid-fabric, raid-gcp,
-raid-aws, raid-databricks).
+raid-aws, raid-databricks) and the optional plugins (raid-greenfield,
+raid-openlakehouse-ops).
 
 ## Start here: `raid-mode`
 
@@ -221,7 +222,7 @@ for the whole task — never mix providers or assume one the remote doesn't matc
 - **The PR target is always the protected default branch** (`main`/`master`). All changes
   land via PR, never a direct push to it. There is no shared integration branch.
 - Branch off a freshly fetched default (`origin/main`) — a temporary `feature/*`/`bugfix/*`
-  branch, or a persisted personal branch (e.g. `ossian-dev`).
+  branch, or a persisted personal branch (e.g. `<name>-dev`).
 - A logical change spanning repos gets one PR per repo.
 - Conventional commits and value-first PR descriptions on every host.
 - **Issue / work-item linking is optional and tracker-neutral.** Do not ask about,
@@ -242,6 +243,7 @@ Fabric item folders, `databricks.yml`, BigQuery/Dataform) or from the stack its
 
 `raid-core` is open source (<https://github.com/Rebtech-SE/raid-core>), depends on nothing,
 and is fully usable alone. The tiers -- `raid-fabric`, `raid-gcp`, `raid-aws`,
-`raid-databricks` -- and `raid-greenfield` are rebtech-internal and depend on `raid-core`.
-Add at most one tier, and `raid-greenfield` when the engagement needs the
-discovery-and-design front end. No `raid-core` skill requires a tier to run.
+`raid-databricks` -- and the optional `raid-greenfield` and `raid-openlakehouse-ops` are rebtech-internal and
+depend on `raid-core`. Add at most one tier, `raid-greenfield` when the engagement needs the
+discovery-and-design front end, and `raid-openlakehouse-ops` when it builds or operates the
+open lakehouse platform. No `raid-core` skill requires a tier to run.

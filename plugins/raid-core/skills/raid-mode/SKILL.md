@@ -26,7 +26,7 @@ and **validation against real data**.
 
 Skills below are named by what they do. `raid-core` is always installed; the greenfield
 stages need `raid-greenfield`, and platform CLI guidance comes from the tier plugin
-(`raid-fabric`, `raid-databricks`, `raid-gcp`, `raid-aws`).
+(`raid-fabric`, `raid-databricks`, `raid-gcp`, `raid-aws`, `raid-openlakehouse-ops`).
 
 Route everything the user reads (replies, reports, tickets, PR copy, client-facing
 artifacts) through `unslop` as a write-through constraint.
@@ -96,11 +96,12 @@ calls a complete piece. Never half-built models.
   dimension, a Bronze load, a dbt model) and only that one. They route themselves by
   description; do not pre-load the set.
 - **Use the installed tier skill** (`operate-fabric`, `operate-databricks`,
-  `operate-bigquery` or `aws-solution-architect` when applicable).
+  `operate-bigquery`, `operate-openlakehouse` or `aws-solution-architect` when applicable).
 - **Build the tests with the code**, in the same unit -- unique/not_null on keys,
   relationships on FKs, reconciliation. Not "later". The unit's planned tests -- TP ids
   from `docs/artifacts/testplan.html`, else the ticket's Acceptance, else its inline DQ
   checks -- are defined in [references/planned-tests.md](./references/planned-tests.md).
+  dbt logic worth a fixture-driven test -> `write-dbt-unit-tests`.
 - **Verify before moving on.** Targeted `dbt build`/`dbt test`, the notebook run, the DQ
   assertions. A unit is not done until its verification is green. Never leave the tree red.
 - **Validate against real data** -- see The bar. A green compile is not a verified unit.
@@ -134,7 +135,8 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
 - **Something is wrong** -> `debug-data-issue` (root cause before fix, proven by a
   failing test). Fabric specifics: `debug-fabric`.
 - **Too slow / too expensive** -> `tune-workload`. For a known one-line fix, just fix it.
-- **Is production healthy?** -> `check-platform-health`.
+- **Is production healthy?** -> `check-platform-health`; for a Kubernetes cluster,
+  `check-kubernetes-health`.
 - **Profiling a source before modelling it** -> `data-investigator`, or
   `investigate-fabric-source` on Fabric.
 - **Modelling decisions** -> the knowledge skill for that decision (tiering, Kimball vs
@@ -166,6 +168,10 @@ and `commit-push-pr`. Never push or open a PR without a go-ahead.
   outside opinion you ask for by name.
 - **RAID itself misbehaved** (a skill gave wrong guidance, an agent failed, a step is
   missing) -> `report-raid-bug`.
+- **Presenting it** (workshop, steering group, handover) -> `frontend-slides`; a quick
+  diagram in the conversation -> `show-me`.
+- **Auditing skills or agent instructions** -> `skill-cleaner` (explicit-only: suggest
+  `/skill-cleaner`).
 - **Writing or fixing a skill** -> `create-skill`. Also the reference for any skill RAID
   generates into a customer repo.
 - **Finding, installing or publishing a skill in the company skill library** ("is there a
@@ -246,43 +252,57 @@ Three rules that stop the common failures:
 
 ## Principles
 
-Read the leaf skill in full for any principle you apply, and name it in your reply
-alongside the specific choice it changed. A citation with no decision behind it means you
-did not read the leaf.
+Each principle is an explicit-only leaf, so it never competes for routing and you cannot
+load it through the skill tool. Open the leaf as a file, from the link on its name below,
+read it in full, and name it in your reply alongside the specific choice it changed. A
+citation with no decision behind it means you did not read the leaf.
 
 **Data**
 
-- **Declare the Grain** (`principle-declare-the-grain`). Before any model, fact or
-  dimension, and at every join or aggregate that changes what a row means.
-- **Reconcile Against Source** (`principle-reconcile-against-source`). Before calling any
-  transform, migration or backfill done. This is how the real-data bar gets discharged.
-- **Model the Domain** (`principle-model-the-domain`). Writing stateful logic, or when the
-  same shape assumption repeats across models. An SCD, a conformed dimension or a mapping
-  table instead of a `CASE` chain.
+- **Declare the Grain**
+  ([`principle-declare-the-grain`](../principle-declare-the-grain/SKILL.md)). Before any
+  model, fact or dimension, and at every join or aggregate that changes what a row means.
+- **Reconcile Against Source**
+  ([`principle-reconcile-against-source`](../principle-reconcile-against-source/SKILL.md)).
+  Before calling any transform, migration or backfill done. This is how the real-data bar
+  gets discharged.
+- **Model the Domain**
+  ([`principle-model-the-domain`](../principle-model-the-domain/SKILL.md)). Writing
+  stateful logic, or when the same shape assumption repeats across models. An SCD, a
+  conformed dimension or a mapping table instead of a `CASE` chain.
 
 **Verification**
 
-- **Prove It Works** (`principle-prove-it-works`). After a task, before declaring done.
-  Run it and read the actual rows, never "it compiles".
-- **Sequence Verifiable Units** (`principle-sequence-verifiable-units`). Any sweep,
-  migration or backfill, and how you stack commits. First unit, check it, then the rest --
-  a wrong join found after forty models is a restatement, not a bad commit.
-- **Fix Root Causes** (`principle-fix-root-causes`). Debugging. In data work, suspect the
-  data and the load before the SQL.
+- **Prove It Works** ([`principle-prove-it-works`](../principle-prove-it-works/SKILL.md)).
+  After a task, before declaring done. Run it and read the actual rows, never "it
+  compiles".
+- **Sequence Verifiable Units**
+  ([`principle-sequence-verifiable-units`](../principle-sequence-verifiable-units/SKILL.md)).
+  Any sweep, migration or backfill, and how you stack commits. First unit, check it, then
+  the rest -- a wrong join found after forty models is a restatement, not a bad commit.
+- **Fix Root Causes**
+  ([`principle-fix-root-causes`](../principle-fix-root-causes/SKILL.md)). Debugging. In
+  data work, suspect the data and the load before the SQL.
 
 **Design**
 
-- **Subtract Before You Add** (`principle-subtract-before-you-add`). Sequencing an
-  addition or refactor. Drop the unread columns and unused models first.
-- **Exhaust the Design Space** (`principle-exhaust-the-design-space`). A modelling or
-  architectural decision with no precedent in the repo. Two or three sketches, then commit.
-- **Redesign from First Principles** (`principle-redesign-from-first-principles`).
+- **Subtract Before You Add**
+  ([`principle-subtract-before-you-add`](../principle-subtract-before-you-add/SKILL.md)).
+  Sequencing an addition or refactor. Drop the unread columns and unused models first.
+- **Exhaust the Design Space**
+  ([`principle-exhaust-the-design-space`](../principle-exhaust-the-design-space/SKILL.md)).
+  A modelling or architectural decision with no precedent in the repo. Two or three
+  sketches, then commit.
+- **Redesign from First Principles**
+  ([`principle-redesign-from-first-principles`](../principle-redesign-from-first-principles/SKILL.md)).
   Integrating a new requirement into an existing design.
 
 **Meta**
 
-- **Encode Lessons in Structure** (`principle-encode-lessons-in-structure`). You catch
-  yourself writing the same instruction twice. Make it a test or a contract, not more prose.
+- **Encode Lessons in Structure**
+  ([`principle-encode-lessons-in-structure`](../principle-encode-lessons-in-structure/SKILL.md)).
+  You catch yourself writing the same instruction twice. Make it a test or a contract, not
+  more prose.
 
 Principles are guidance you cite. The **hard rules** in `raid-core/AGENTS.md` are not
 negotiable and are always in force; a principle points at a hard rule, it never restates

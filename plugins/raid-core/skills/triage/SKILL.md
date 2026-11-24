@@ -133,8 +133,11 @@ Show counts and a one-line summary per item. Let the user pick.
    reported data bug, reproduce it by *running the query* against the
    source/target with read access: row counts, grain/key uniqueness, null or
    sentinel rates, the actual numbers -- not a code read alone. For a PR,
-   confirm the diff does what it claims: check it out, run the relevant dbt
-   build/tests or notebook validation. Report what happened: confirmed (with
+   confirm the diff does what it claims without switching the user's tree:
+   inspect it in a separate `git worktree`. Run its dbt build/tests or notebook
+   validation only against a dev target, and only after the user says go -- an
+   external PR's macros, hooks and Python models execute with your warehouse
+   credentials. Report what happened: confirmed (with
    the numbers and the query that produced them), failed, or insufficient
    detail (a strong `needs-info` signal). **If you had no read access, say so
    and label the result "not validated against data"** -- the brief and the

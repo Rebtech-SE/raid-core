@@ -5,7 +5,8 @@ description: >-
   schema warehouse', 'bottom-up', 'declare the grain', 'fact table design', 'business
   process warehouse'. Kimball dimensional warehouse methodology: the conformed-dimension
   bus architecture, the four-step design process, grain discipline, fact and dimension
-  patterns, and staging-to-presentation layering.
+  patterns, and staging-to-presentation layering. A normalized 3NF core is
+  `inmon-data-warehouse`; generic layering is `medallion-architecture`.
 ---
 
 # Kimball Dimensional Modeling
@@ -151,7 +152,8 @@ whose dimensions are most reused, because those dimensions are then already conf
 for everything after it.
 
 Fill the matrix during `design-architecture` and carry it into `architecture.html` (full
-pipeline), or record it in the plan's modeling section on incremental work --
+pipeline), or, on incremental work, record it in the architecture doc that `map-repo`
+maintains (and an ADR via `domain-modeling` when a dimension is first conformed) --
 it is the Kimball equivalent of a tier inventory. See
 [bus-matrix.md](references/bus-matrix.md) for construction, worked examples, and how
 to keep it honest as the warehouse grows.
@@ -211,7 +213,7 @@ examples and the trade-offs.
 
 Dimension history uses the framework-wide SCD columns and mechanics -- `_valid_from`,
 `_valid_to`, `_is_current`, `_hash` -- defined in
-[scd-pattern](../scd-pattern/SKILL.md). That skill covers merge logic, hash-based change
+`scd-pattern`. That skill covers merge logic, hash-based change
 detection, and testing for Types 1, 2 and 3, which cover almost every real case.
 
 Kimball's wider catalogue matters mainly as vocabulary in customer conversations:
@@ -236,11 +238,11 @@ by the same merge -- do not invent a parallel mechanism.
 
 ## Related Skills
 
-- [scd-pattern](../scd-pattern/SKILL.md) - SCD mechanics and column conventions for dimension history
-- [medallion-architecture](../medallion-architecture/SKILL.md) - alternative layered approach; its `gold-patterns.md` carries the star schema implementation code
-- [inmon-data-warehouse](../inmon-data-warehouse/SKILL.md) - alternative top-down approach with a normalized core
-- [data-quality-checks](../data-quality-checks/SKILL.md) - grain uniqueness, referential integrity, and conformance tests
-- [dead-letter-queue](../dead-letter-queue/SKILL.md) - handling rows that fail dimension lookup
+- `scd-pattern` - SCD mechanics and column conventions for dimension history
+- `medallion-architecture` - alternative layered approach; its `gold-patterns.md` carries the star schema implementation code
+- `inmon-data-warehouse` - alternative top-down approach with a normalized core
+- `data-quality-checks` - grain uniqueness, referential integrity, and conformance tests
+- `dead-letter-queue` - handling rows that fail dimension lookup
 
 ## References
 

@@ -482,7 +482,7 @@ but the platform handles refresh. Use them in Gold when:
 
 Avoid materialized views when:
 - The underlying data changes frequently and staleness is unacceptable -- use incremental tables instead
-- The platform doesn't support them (e.g., Fabric Lakehouses) -- check Tier 2 skill
+- The platform doesn't support them (e.g., Fabric Lakehouses) -- check the platform tier's skill
 - The query is simple enough that a regular view performs well
 
 ```python

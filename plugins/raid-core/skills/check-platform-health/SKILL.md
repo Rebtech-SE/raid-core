@@ -55,6 +55,11 @@ the resolved scope and time window.
 - **BigQuery** -> `operate-bigquery`: recent jobs via `INFORMATION_SCHEMA.JOBS_BY_PROJECT`,
   and partition-scoped freshness and quality checks. Dry-run before querying.
 
+When no tier is installed for this platform (core-only, AWS, or another warehouse),
+gather the same signals yourself with the platform's own CLI or SQL endpoint, read-only,
+confirm each command with `--help` or the provider docs before relying on it, and report any
+signal you could not gather as unknown.
+
 ### 3. Score each dimension
 
 Turn the signals into a status per dimension:
@@ -98,7 +103,7 @@ lag, the failing assertion) and a recommended next step.
 ## Rules
 
 - Read-only: observe and report; never re-run, backfill, or mutate. Remediation is `debug-data-issue`.
-- Use the installed tier skill for read-only probes.
+- Use the installed tier skill for read-only probes (otherwise gather read-only yourself, see step 2); keep this skill platform-agnostic.
 - Unknown != OK -- report signals you couldn't gather as unknown.
 - Repo-relative paths.
 - Right-size the run: three dimensions, cheap probes (dry-run BigQuery probes first); don't full-scan to check freshness.

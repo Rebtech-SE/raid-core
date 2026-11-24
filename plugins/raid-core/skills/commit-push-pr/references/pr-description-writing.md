@@ -142,7 +142,7 @@ End the body with the RAID attribution badges after a `---` rule (skip them if r
 ```markdown
 ---
 
-[![Built with RAID](https://img.shields.io/badge/Built_with-RAID-b59b6a)](https://dev.azure.com/rebtech/RAID/_git/raid-plugin)
+[![Built with RAID](https://img.shields.io/badge/Built_with-RAID-b59b6a)](https://github.com/Rebtech-SE/raid-core)
 ![Harness](https://img.shields.io/badge/<MODEL_SLUG>-<COLOR>?logo=<LOGO>&logoColor=white)
 ```
 

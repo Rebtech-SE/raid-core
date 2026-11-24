@@ -38,7 +38,7 @@ git log origin/main..HEAD --oneline
 ### 3. Create the feature branch
 
 Name it `feature/<slug>` (or `bugfix/<slug>`) derived from the change content; a
-persisted personal branch like `ossian-dev` is also valid.
+persisted personal branch like `<name>-dev` is also valid.
 
 ```bash
 git checkout -b <branch-name> "$BASE_REF"

@@ -1,11 +1,11 @@
 ---
 name: medallion-architecture
 description: >-
-  Use for general Bronze/Silver/Gold patterns and tier decisions; for Fabric-specific
-  implementation use fabric-architecture. Triggers: 'medallion', 'bronze silver gold',
-  'data lake layers', 'raw to curated', 'data tier design', 'lakehouse architecture',
-  'bronze layer', 'silver layer', 'gold layer'. Platform-agnostic guide for implementing
-  medallion architecture across data platforms.
+  Use for Bronze/Silver/Gold layering and layer-placement decisions on any platform --
+  'medallion', 'bronze silver gold', 'which layer does this go in', 'raw to curated',
+  'lakehouse architecture'. Platform-agnostic layer rules, audit columns, materialization
+  defaults and anti-patterns. Fabric specifics: `fabric-architecture` (raid-fabric); a 3NF
+  enterprise core: `inmon-data-warehouse`.
 ---
 
 # Medallion Architecture Guide
@@ -118,7 +118,7 @@ What are you building?
 
 ## Materialization Strategy
 
-Each layer has a default materialization approach. The right choice depends on transformation complexity, query frequency, and platform constraints. This section provides platform-agnostic defaults -- platform-specific limitations (e.g., Fabric lakehouses only support tables, not views) are locked down in Tier 2/3 skills.
+Each layer has a default materialization approach. The right choice depends on transformation complexity, query frequency, and platform constraints. This section provides platform-agnostic defaults -- platform-specific limitations (e.g., Fabric lakehouses only support tables, not views) are locked down in the platform tier's skills (e.g. `fabric-architecture` in raid-fabric).
 
 ### Defaults by Layer
 
@@ -162,7 +162,7 @@ Some platforms (Snowflake, BigQuery, Databricks) support materialized views that
 - The platform handles refresh scheduling natively
 - You want table-like performance without managing a separate refresh pipeline
 
-Materialized views are a good fit for Gold-layer aggregations in streaming/near-real-time architectures. Availability and behavior vary by platform -- Tier 2/3 skills define when to use them.
+Materialized views are a good fit for Gold-layer aggregations in streaming/near-real-time architectures. Availability and behavior vary by platform -- the platform tier's skills (e.g. `fabric-architecture` in raid-fabric) define when to use them.
 
 ### Decision Summary
 
@@ -180,14 +180,14 @@ Is the transformation just renames/casts/filters?
 
 ### Platform Constraints
 
-Some platforms restrict where views can be created. These constraints are **defined in Tier 2/3 skills**, not here. Common examples:
+Some platforms restrict where views can be created. These constraints are **defined in the platform tier's skills** (e.g. `fabric-architecture` in raid-fabric), not here. Common examples:
 
 - **Fabric Lakehouses**: Tables only (Delta) -- views require a Fabric Warehouse or SQL Analytics Endpoint
 - **BigQuery**: Views are free to create but cost compute on every query; materialized views have refresh cost
 - **Snowflake**: Full support for views, materialized views, and tables in all layers
 - **Databricks**: Views supported in Unity Catalog; materialized views available in SQL Warehouses
 
-When building for a specific platform, always check the Tier 2 skill for materialization rules before defaulting to views.
+When building for a specific platform, always check the platform tier's skill for materialization rules before defaulting to views.
 
 ### Where Transformation Logic Lives (models vs procedures vs functions)
 
@@ -210,7 +210,7 @@ For reusable or imperative logic, pick the **earliest rung** on this ladder that
 Sniff test in review: a `CREATE PROCEDURE` containing joins/CASE logic that produces
 analytical output is a transform wearing the wrong clothes -- flag it for conversion to
 a model. Operational procs (no analytical output, invoked by the pipeline) are fine.
-Platform mechanics (proc/TVF/UDF syntax and limits) live in the Tier 2 skills.
+Platform mechanics (proc/TVF/UDF syntax and limits) live in the platform tier's skills.
 
 ## Bronze Layer
 
@@ -304,7 +304,7 @@ Clean, conform, and standardize data. Silver is where you apply business rules a
 1. **Data Cleansing**: Handle nulls, standardize formats
 2. **Deduplication**: Remove exact duplicates, handle late-arriving data
 3. **Type Standardization**: Consistent data types across sources
-4. **SCD Type 2**: Track historical changes (see [scd-pattern](../scd-pattern/SKILL.md))
+4. **SCD Type 2**: Track historical changes (see `scd-pattern`)
 5. **Referential Integrity**: Foreign key validation
 
 ### Required Columns (SCD Type 2)
@@ -546,7 +546,7 @@ dbt_project/
 
 | Anti-Pattern | Problem | Solution |
 |-------------|---------|----------|
-| 3NF structure in Gold | Slow queries, complex joins | Use star schema; for enterprise-wide 3NF see [inmon-data-warehouse](../inmon-data-warehouse/SKILL.md) |
+| 3NF structure in Gold | Slow queries, complex joins | Use star schema; for enterprise-wide 3NF see `inmon-data-warehouse` |
 | No date dimension | Inconsistent date logic | Create shared date dim |
 | Too many aggregations | Storage bloat | Focus on most-used metrics |
 | Raw data | Wrong layer | Aggregate from Silver |
@@ -621,11 +621,11 @@ spark.table("silver.orders") \
 
 ## Related Skills
 
-- [scd-pattern](../scd-pattern/SKILL.md) - SCD Type 2 implementation for Silver layer
-- [data-quality-checks](../data-quality-checks/SKILL.md) - Validation at each layer
-- [dead-letter-queue](../dead-letter-queue/SKILL.md) - Error handling in Bronze
+- `scd-pattern` - SCD Type 2 implementation for Silver layer
+- `data-quality-checks` - Validation at each layer
+- `dead-letter-queue` - Error handling in Bronze
 - `fabric-architecture` (raid-fabric) - Fabric-specific implementation details
-- [inmon-data-warehouse](../inmon-data-warehouse/SKILL.md) - Alternative top-down EDW approach; coexistence guidance
+- `inmon-data-warehouse` - Alternative top-down EDW approach; coexistence guidance
 
 ## References
 

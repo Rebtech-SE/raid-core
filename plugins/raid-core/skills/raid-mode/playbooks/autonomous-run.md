@@ -14,8 +14,8 @@ until done", "keep going until the backfill completes", "I'm going to bed".
    partition filter that "might help" gets reverted, not left to ride. One variable at a
    time, or you learn nothing from the result.
 4. **Sequence into verifiable units** and check each before the next, rather than batching
-   the checks at the end (`principle-sequence-verifiable-units` is not shipped; the rule
-   lives here: a unit that has not been verified is not done).
+   the checks at the end (`principle-sequence-verifiable-units`: a unit that has not been
+   verified is not done).
 5. **Mid-run discoveries are yours.** A broken test, a flaky source, a stale credential, an
    adjacent bug -- fix it and carry on, in its own commit. Do not park reversible work for
    the human. Surface only the gated items from the Autonomy section, a genuine product

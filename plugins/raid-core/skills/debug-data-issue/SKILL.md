@@ -51,6 +51,9 @@ that should exist and don't). If it isn't reproducible yet, that is the first pr
 to solve -- intermittent pipeline failures often point at run-time-dependent inputs
 (late-arriving data, `CURRENT_DATE` boundaries, ordering).
 
+Reproduce in a dev or personal target, or read-only against the affected table. Re-running
+a build or notebook against production needs the user's explicit go-ahead.
+
 ### 3. Trace the causal chain upstream
 
 Walk the lineage from the symptom toward the source, one transform at a time, asking at
@@ -86,7 +89,7 @@ theory. If verification fails, the cause is elsewhere -- return to step 3.
    transform / SCD merge / join key, not a downstream patch that masks it.
 3. **Confirm green and check downstream.** The new check passes, the original symptom is
    gone, and dependent models/tests still pass (no regression, no new fan-out). Re-run
-   the affected build.
+   the affected build in a dev target; a production re-run needs the user's go-ahead.
 
 ### 6. Hand off
 
@@ -102,4 +105,5 @@ is `commit-push-pr`.
 - Test-first: a bug isn't fixed until a check that failed now passes and downstream is clear.
 - Fix at the tier where the data first goes wrong, not where the symptom surfaces.
 - Verify the cause against real data before changing code; never fix on an unproven theory.
-- Read-only investigation until the cause is confirmed; repo-relative paths.
+- Read-only investigation until the cause is confirmed; any re-run goes to a dev target
+  unless the user approves production. Repo-relative paths.

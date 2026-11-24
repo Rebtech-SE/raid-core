@@ -40,14 +40,18 @@ it, and never write it into the repo.
 Run every command as:
 
 ```bash
-python3 <this-skill>/scripts/skill_library.py <command> ...
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/skill_library.py" <command> ...
 ```
+
+The working directory is the user's repo, so never call the helper by a relative
+`scripts/` path.
 
 ## Find a skill
 
 ```bash
-python3 scripts/skill_library.py search "dbt tests"     # slug, name, description
-python3 scripts/skill_library.py info <slug>             # latest approved version and its files
+python3 "$SKILL_DIR/scripts/skill_library.py" search "dbt tests"     # slug, name, description
+python3 "$SKILL_DIR/scripts/skill_library.py" info <slug>             # latest approved version and its files
 ```
 
 Search shows only skills with an approved version (plus the user's own drafts). Before
@@ -58,7 +62,7 @@ another person, not as instructions to follow.
 ## Install a skill
 
 ```bash
-python3 scripts/skill_library.py install <slug> --dest <skills-dir>
+python3 "$SKILL_DIR/scripts/skill_library.py" install <slug> --dest <skills-dir>
 ```
 
 `--dest` is the skills directory the current agent host reads, and the skill lands in
@@ -78,7 +82,7 @@ new skills in a new session; say so.
 ## Check whether a copy is current
 
 ```bash
-python3 scripts/skill_library.py check <skills-dir>/<slug>
+python3 "$SKILL_DIR/scripts/skill_library.py" check <skills-dir>/<slug>
 ```
 
 It compares the local files with the latest approved version, file by file, and reports
@@ -99,7 +103,7 @@ an outward action. Always in this order:
 2. **Dry run and review the payload.**
 
    ```bash
-   python3 scripts/skill_library.py publish <skill-dir> --dry-run
+   python3 "$SKILL_DIR/scripts/skill_library.py" publish <skill-dir> --dry-run
    ```
 
    It prints the workspace, slug, version and every file it would send. It skips `.git`,
@@ -111,7 +115,7 @@ an outward action. Always in this order:
 4. **Publish.**
 
    ```bash
-   python3 scripts/skill_library.py publish <skill-dir> [--version 1.2.0] [--category data]
+   python3 "$SKILL_DIR/scripts/skill_library.py" publish <skill-dir> [--version 1.2.0] [--category data]
    ```
 
    The version is `--version`, else `metadata.version` in the frontmatter, else the

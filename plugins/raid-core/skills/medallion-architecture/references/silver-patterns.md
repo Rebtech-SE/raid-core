@@ -209,7 +209,7 @@ def merge_duplicates(df, key_cols: list, value_cols: list):
 
 ## SCD Type 2 Implementation
 
-See [scd-pattern](../../scd-pattern/SKILL.md) for complete SCD implementation.
+See `scd-pattern` for complete SCD implementation.
 
 ### Quick Reference
 

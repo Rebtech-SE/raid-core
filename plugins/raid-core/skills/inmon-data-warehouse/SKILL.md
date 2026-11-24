@@ -1,11 +1,11 @@
 ---
 name: inmon-data-warehouse
 description: >-
-  Triggers: 'Inmon', 'EDW', '3NF warehouse', 'enterprise data warehouse', 'top-down',
-  'subject area model', 'conformed dimensions', 'data mart derivation'. Inmon enterprise
-  data warehouse methodology with 3NF normalized EDW, subject area modeling, conformed
-  dimensions, and data mart derivation. Includes optimization profiles
-  (Performance/Cost/Usability) locked per-project at Tier 3.
+  Use when designing or reviewing an Inmon enterprise data warehouse -- 'Inmon', 'EDW',
+  '3NF warehouse', 'top-down', 'subject area model', 'data mart derivation'. 3NF EDW,
+  subject areas and marts derived from the core, with Performance/Cost/Usability
+  optimization profiles. A conformed-dimension bus with no normalized core is
+  `kimball-dimensional-modeling`.
 ---
 
 # Inmon Data Warehouse
@@ -26,7 +26,7 @@ Use this skill when users ask about:
 
 ## Optimization Profile Selector
 
-The optimization profile controls materialization, indexing, and denormalization decisions throughout the warehouse. The profile is **locked at Tier 3** during customer customization. When unspecified, default to **Usability**.
+The optimization profile controls materialization, indexing, and denormalization decisions throughout the warehouse. The profile is a per-project decision: record it in an ADR (`domain-modeling`) or the architecture doc, and keep it fixed once chosen. When unspecified, default to **Usability**.
 
 | Design Choice | Performance | Cost | Usability |
 |---|---|---|---|
@@ -127,13 +127,13 @@ Required temporal columns on historized entities:
 | `_is_current` | BOOLEAN | Fast filter for current state |
 
 These are the framework-wide SCD column names, not Inmon-specific ones: `_valid_from`,
-`_valid_to`, `_is_current`, `_hash` are defined by [scd-pattern](../scd-pattern/SKILL.md)
+`_valid_to`, `_is_current`, `_hash` are defined by `scd-pattern`
 unless the repo's models already use others. An EDW uses the same
 names as any other RAID layer -- do not substitute Inmon-literature spellings
 (`_effective_date` / `_expiry_date`), which would fork the convention and break the shared
 SCD tooling and reviewers.
 
-Implementation details: see [scd-pattern](../scd-pattern/SKILL.md). The SCD skill defines
+Implementation details: see `scd-pattern`. The SCD skill defines
 merge logic, hash-based change detection, and testing patterns. What this skill adds on top
 is the EDW metadata set below (`_edw_load_timestamp`, `_edw_batch_id`).
 
@@ -210,7 +210,7 @@ The staging area is functionally identical to the Bronze layer in medallion arch
 - No deduplication, no cleansing, no type casting
 - Partitioned by ingestion date for efficient incremental reads
 
-For staging patterns and ingestion tool choice, see the Bronze layer in [medallion-architecture](../medallion-architecture/SKILL.md).
+For staging patterns and ingestion tool choice, see the Bronze layer in `medallion-architecture`.
 
 ## Enterprise Data Warehouse (3NF)
 
@@ -642,14 +642,14 @@ WHERE c._is_current = TRUE
 
 The Inmon approach follows strict ETL ordering:
 
-1. **Extract**: Pull from sources into staging (see the Bronze layer in [medallion-architecture](../medallion-architecture/SKILL.md))
+1. **Extract**: Pull from sources into staging (see the Bronze layer in `medallion-architecture`)
 2. **Transform**: Normalize, conform, and historize into EDW
 3. **Load**: Derive marts from EDW
 
 Key rules:
 - Marts never read from staging -- always from EDW
 - EDW transformations enforce referential integrity
-- Failed records route to dead letter queue (see [dead-letter-queue](../dead-letter-queue/SKILL.md))
+- Failed records route to dead letter queue (see `dead-letter-queue`)
 - Dependencies flow strictly left-to-right: staging -> EDW -> marts
 
 See [etl-patterns.md](references/etl-patterns.md) for extract/transform/load patterns.
@@ -679,10 +679,10 @@ See [etl-patterns.md](references/etl-patterns.md) for extract/transform/load pat
 
 ## Related Skills
 
-- [scd-pattern](../scd-pattern/SKILL.md) - SCD Type 2 implementation for temporal tracking in the EDW
-- [data-quality-checks](../data-quality-checks/SKILL.md) - Validation at each warehouse layer
-- [dead-letter-queue](../dead-letter-queue/SKILL.md) - Error handling for ETL failures
-- [medallion-architecture](../medallion-architecture/SKILL.md) - Alternative bottom-up approach; hybrid coexistence guidance
+- `scd-pattern` - SCD Type 2 implementation for temporal tracking in the EDW
+- `data-quality-checks` - Validation at each warehouse layer
+- `dead-letter-queue` - Error handling for ETL failures
+- `medallion-architecture` - Alternative bottom-up approach; hybrid coexistence guidance
 
 ## References
 

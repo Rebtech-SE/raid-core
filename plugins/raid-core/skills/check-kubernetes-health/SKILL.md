@@ -6,7 +6,7 @@ description: >-
   Read-only health report of a Kubernetes cluster: node readiness and pressure, workloads
   short of replicas, and failed, pending, crashlooping, evicted or OOM-killed pods, each
   with the next read-only command to run. Exit code drives scheduled alerts.
-argument-hint: "[--context <ctx>] [--namespace <ns>] [--since-pending <min>]"
+argument-hint: "[--context <ctx>] [--namespace <ns>] [--pending-minutes <min>] [--restart-threshold <n>]"
 ---
 
 # Kubernetes Health Check

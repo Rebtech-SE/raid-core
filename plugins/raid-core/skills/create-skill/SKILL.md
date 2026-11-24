@@ -85,8 +85,9 @@ When a description is not triggering the way you want, test it the way it will b
 ### When a skill should not compete for routing at all
 
 Set `disable-model-invocation: true` on any skill that is only ever reached by name or by
-the user: leaf reference material another skill cites (`principle-*`), an entry point the
-user invokes deliberately (`raid-mode`, which also sets `mode: true`), a heavy workflow
+the user: leaf reference material another skill cites (`principle-*`), an entry point only the
+user should start (`raid-mode` is the counter-example: it routes data work on its own, so
+it leaves the flag unset), a heavy workflow
 another skill dispatches. It stays fully usable by name and stops spending routing budget.
 Roughly: if nothing in the description should ever cause a spontaneous trigger, set it.
 
@@ -324,7 +325,7 @@ gets forgotten, not to be recited.
 
 ---
 
-Related: `raid-mode` (routes work, and is itself an example of a
-`disable-model-invocation` entry point), `skill-cleaner` (audits an existing library instead of
+Related: `raid-mode` (routes work; it deliberately leaves `disable-model-invocation`
+unset so the model can route data work to it on its own), `skill-cleaner` (audits an existing library instead of
 authoring into it), `create-verification-skill` (generates a project-local skill
 into a customer repo), `simplify-code` (the same subtract-first instinct, applied to code).

@@ -99,8 +99,9 @@ healed without explanation. If tests are still failing, another pass through the
 
 ## Operating principles
 
-1. **Report, never re-run.** This skill reads the ledger. It does not execute tests, and it
-   never writes to the ledger -- the work loop does that as each unit's tests run. A report that runs its own tests
+1. **Report, never re-run.** This skill reads the ledger. It does not execute tests, and the
+   only line it may append to the ledger is a correction (principle 2) -- the work loop
+   writes the rest as each unit's tests run. A report that runs its own tests
    is reporting on itself.
 2. **Never edit the ledger to make a cycle look clean.** If a line is wrong, append a
    correction.

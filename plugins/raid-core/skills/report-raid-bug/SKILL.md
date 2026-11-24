@@ -3,10 +3,10 @@ name: report-raid-bug
 description: >-
   Use when a RAID skill or agent did the wrong thing and the user says 'report this
   bug', 'file a bug for RAID', 'this skill is broken - log it'. Files a bug against the
-  RAID plugin itself (a skill, agent, or convention that misbehaved) as a tracker item
-  on whatever host the plugin repo uses - GitHub issue, Azure Boards work item, or
-  GitLab issue - with environment context and a minimal reproduction gathered
-  automatically.
+  RAID plugin itself (a skill, agent, or convention that misbehaved) as an issue on the
+  public raid-core GitHub repo, never on the repo you are working in, or hands the
+  assembled report to the user to file. Gathers environment context and a minimal
+  reproduction automatically.
 argument-hint: "[short description of what went wrong; optional: --project <name>]"
 ---
 
@@ -17,12 +17,13 @@ returned malformed output, a convention that contradicts itself -- as a well-for
 tracker item so it can be triaged and fixed. This is about the **plugin tooling**, not
 the customer's data work (a data bug is `debug-data-issue`).
 
-**Tracker (detect first).** File to the issue tracker of whatever host the plugin repo
-uses — detect from `git remote get-url origin` (see the provider table in
-`raid-core/AGENTS.md`): GitHub -> an issue (`gh issue create`); Azure DevOps -> a Boards
-work item (`az boards`, `az-cli` skill's `references/boards.md`); GitLab -> an issue
-(`glab issue create`). If the host is none of these, assemble the report and hand it to
-the user to file manually.
+**Tracker.** File against RAID's own repo, never the repo you are working in. The
+current `origin` is usually a customer's repo, and a RAID bug filed there lands in their
+tracker. For a `raid-core` defect, file an issue on the public repo
+(`github.com/Rebtech-SE/raid-core`) with `gh issue create --repo Rebtech-SE/raid-core`.
+For a defect in a tier plugin or `raid-greenfield`, or when `gh` is unavailable or not
+signed in, assemble the report and hand it to the user to file wherever their team
+tracks RAID bugs. File on Azure Boards or GitLab only when the user names that project.
 
 ## Workflow
 
@@ -58,29 +59,31 @@ Compose the bug:
 - **Body:** sections for Observed / Expected / Reproduction / Environment / Impact.
   Repo-relative paths; ASCII only; no customer data. GitHub and GitLab take Markdown;
   Azure Boards takes HTML — render the body to match the target.
-- **Labels/tags:** `raid-plugin`, `bug`, plus the component (`raid-core`/`raid-fabric`/...).
+- **Labels/tags:** only labels that exist on the target -- check
+  `gh label list --repo Rebtech-SE/raid-core` (prefer `bug`); `gh issue create` fails on
+  a label that does not exist. Name the component in the title instead.
 
 Apply `unslop` as a write-through constraint on the title and body.
 
 ### 4. Confirm, then create
 
 Show the assembled item and **confirm before creating** (filing is an outward action).
-Then create it on the detected host:
+Then create it on the RAID repo:
 
 ```bash
-# GitHub:
-gh issue create --title "bug(<component>): <symptom>" --body-file <body.md> \
-  --label raid-plugin --label bug --label <component>
+# GitHub, the public raid-core repo (never the current origin):
+gh issue create --repo Rebtech-SE/raid-core \
+  --title "bug(<component>): <symptom>" --body-file <body.md> --label <existing-label>
 
-# Azure DevOps — resolve the project (--project, else ask). New work items start in
+# Azure DevOps -- only a project the user named (--project). New work items start in
 # state New (do not set an invalid state). If Bug is not an available type, fall back to Issue/Task and say so.
 az boards work-item create \
   --title "bug(<component>): <symptom>" --type Bug --project "<project>" \
   --description "<html>" \
   --fields "System.Tags=raid-plugin;bug;<component>" -o json
 
-# GitLab:
-glab issue create --title "bug(<component>): <symptom>" --description "$(cat <body.md>)" \
+# GitLab -- only a project the user named:
+glab issue create --repo "<group/project>" --title "bug(<component>): <symptom>" --description "$(cat <body.md>)" \
   --label "raid-plugin,bug,<component>"
 ```
 
@@ -93,6 +96,8 @@ plugin.
 ## Rules
 
 - This is for RAID plugin defects, not customer data bugs (`debug-data-issue`).
-- Redact secrets and customer data from any included transcript/error text.
+- Never file on the current repo's `origin` -- it is usually the customer's tracker.
+- Redact secrets and customer data from any included transcript/error text. A
+  `raid-core` issue is public: no customer, engagement or person names in it.
 - Confirm before creating the item; create only -- never close or delete here.
 - Repo-relative paths. On Azure Boards the valid initial state is New.

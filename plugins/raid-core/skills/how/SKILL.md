@@ -62,7 +62,11 @@ Read the platform's own lineage or dependency metadata where it exists -- `dbt` 
 and `ref()` graph, the platform's lineage view, a pipeline's activity dependencies -- and
 treat it as a starting map, not as the answer. It records edges, not what happens on them.
 
-**Read the installed tier skill** for CLI and metadata-query syntax.
+**Read the installed tier skill** for CLI and metadata-query syntax. When no tier is
+installed for this platform (core-only, AWS, or another warehouse), gather the same signals
+yourself with the platform's own CLI or SQL endpoint, read-only, confirm each command with
+`--help` or the provider docs before relying on it, and report any signal you could not
+gather as unknown.
 
 Where you have read access, **check the trace against real data** -- row counts at each
 hop, key uniqueness at the grain you claimed, the null rate on the column in question.

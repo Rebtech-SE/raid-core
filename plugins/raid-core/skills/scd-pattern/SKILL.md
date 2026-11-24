@@ -635,7 +635,9 @@ dim_customer_profile_df = spark.table("silver.customers").select(
 
 On a one-shot initial load there is often no convenient source change to observe, and
 synthetic rows would taint the platform. The zero-taint method (works with timestamp
-strategy, which compares only the change timestamp - not column values):
+strategy, which compares only the change timestamp - not column values). It alters a
+warehouse view, so run it in a dev environment, with the go-ahead `raid-mode`'s Autonomy
+requires for changes outside the repo:
 
 1. ALTER the staging view in the warehouse to wrap the dbt-compiled query with a CASE
    bumping `_change_ts` only, for **one probe business key**.

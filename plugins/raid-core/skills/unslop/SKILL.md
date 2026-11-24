@@ -57,7 +57,7 @@ empty phrases, em dashes, emoji piling. Its word lists are parsed from
 ```bash
 SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>";
 python3 "$SKILL_DIR/scripts/ai_slop_lint.py" path/to/draft.md
-# or pipe text through stdin
+# or pipe text through stdin (pbpaste is macOS; xclip -o / Get-Clipboard elsewhere)
 pbpaste | python3 "$SKILL_DIR/scripts/ai_slop_lint.py" -
 ```
 

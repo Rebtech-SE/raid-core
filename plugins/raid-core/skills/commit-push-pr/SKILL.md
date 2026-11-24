@@ -1,21 +1,21 @@
 ---
 name: commit-push-pr
 description: >-
-  Use when the user says 'commit and PR', 'ship this', 'open a PR', 'commit my changes',
-  'push and create a PR', or 'ship this for review'. Stages, commits, pushes, and opens
-  or updates a pull or merge request on GitHub, Azure DevOps, or GitLab with an
-  unslopped, value-first PR description, then automatically runs babysit to monitor to merge-ready.
+  Use when the user says 'commit and PR', 'open a PR', 'push and create a PR', 'ship this
+  for review'. Stages, commits, pushes and opens or updates a pull/merge request on
+  GitHub, Azure DevOps or GitLab with an unslopped, value-first description, then runs
+  `babysit` to merge-ready. Never merges. A commit with no push or PR needs only git.
 argument-hint: "[optional: --update (refresh existing PR); --description-only; --work-items <id>; --no-babysit; --no-unslop]"
 ---
 
 # RAID Commit, Push, and PR
 
-Take completed local work to a review-ready pull or merge request against `main`, run an automatic `unslop` pass on the PR copy, and automatically hand off to `babysit` to monitor the PR to merge-ready.
+Take completed local work to a review-ready pull or merge request against the default branch (`main`/`master`), run an automatic `unslop` pass on the PR copy, and automatically hand off to `babysit` to monitor the PR to merge-ready.
 
 **Provider Detection.** The commands below depend on where the repo is hosted.
 Detect the provider from `git remote get-url origin` and use its CLI consistently (see `raid-core/AGENTS.md`):
 - **GitHub** (`github.com`/GH Enterprise) -> `gh` CLI (`gh pr create`, `gh pr edit`).
-- **Azure DevOps** (`dev.azure.com`/`*.visualstudio.com`) -> `az repos` CLI (`az repos pr create`, `az repos pr update`). Refer to the `az-cli` skill (`plugins/raid-core/skills/az-cli/SKILL.md` / `az-cli`) for environment setup, defaults, and authentication.
+- **Azure DevOps** (`dev.azure.com`/`*.visualstudio.com`) -> `az repos` CLI (`az repos pr create`, `az repos pr update`). Refer to the `az-cli` skill for environment setup, defaults, and authentication.
 - **GitLab** -> `glab` CLI (`glab mr create`, `glab mr update`).
 - **Generic / Missing CLI** -> push branch, then print the remote's compare/create web URL for the user to finish.
 
@@ -41,6 +41,7 @@ printf '\n=== DIFF ===\n'; git diff HEAD
 printf '\n=== BRANCH ===\n'; B=$(git branch --show-current); echo "$B"
 printf '\n=== LOG ===\n'; git log --oneline -10
 printf '\n=== REMOTE ===\n'; R=$(git remote get-url origin 2>/dev/null); echo "${R:-NO_REMOTE}"
+printf '\n=== DEFAULT_BRANCH ===\n'; D=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##'); echo "${D:-main}"
 printf '\n=== PR_CHECK ===\n'
 case "$R" in
   *dev.azure.com*|*visualstudio.com*)
@@ -120,6 +121,10 @@ Never `git push --force` to a shared branch. If the working tree is clean and al
 
 Write the body to a temp file and pass it by file reference — never inline strings.
 
+The target `D` is the remote's default branch from Context Gathering (`main` when it cannot be
+read), unless the project's branching rules name another. Set `D` in the same shell call as
+the create command (for example `D=master; gh pr create --base "$D" ...`).
+
 ```bash
 BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/raid-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__RAID_PR_BODY_END__'
 <the composed, unslopped body markdown goes here>
@@ -129,16 +134,16 @@ __RAID_PR_BODY_END__
 **GitHub (`gh`):**
 ```bash
 # New PR:
-gh pr create --base main --head "$(git branch --show-current)" --title "<TITLE>" --body-file "$BODY_FILE"
+gh pr create --base "$D" --head "$(git branch --show-current)" --title "<TITLE>" --body-file "$BODY_FILE"
 # Existing PR update:
 gh pr edit <pr-number> --title "<TITLE>" --body-file "$BODY_FILE"
 ```
 
 **Azure DevOps (`az repos`):**
-Refer to `az-cli` (`plugins/raid-core/skills/az-cli/SKILL.md`) for setup / defaults.
+Refer to the `az-cli` skill for setup / defaults.
 ```bash
 # New PR:
-az repos pr create --source-branch "$(git branch --show-current)" --target-branch main --title "<TITLE>" --description "@$BODY_FILE"
+az repos pr create --source-branch "$(git branch --show-current)" --target-branch "$D" --title "<TITLE>" --description "@$BODY_FILE"
 # Existing PR update:
 az repos pr update --id <pr-id> --title "<TITLE>" --description "@$BODY_FILE"
 # Work item link (only for --work-items <id>, or a ticket this session claimed):
@@ -148,14 +153,14 @@ az repos pr work-item add --id <pr-id> --work-items <id>
 **GitLab (`glab`):**
 ```bash
 # New MR:
-glab mr create --target-branch main --source-branch "$(git branch --source-current)" --title "<TITLE>" --description "$(cat "$BODY_FILE")" --yes
+glab mr create --target-branch "$D" --source-branch "$(git branch --show-current)" --title "<TITLE>" --description "$(cat "$BODY_FILE")" --yes
 # Existing MR update:
 glab mr update <mr-iid> --title "<TITLE>" --description "$(cat "$BODY_FILE")"
 ```
 
 **Generic remote / CLI missing:** Print the unslopped body and the remote's compare URL for the user.
 
-Report the PR URL, target branch (`main`), and commits included.
+Report the PR URL, target branch (`$D`), and commits included.
 
 ---
 
@@ -172,6 +177,6 @@ Unless `--no-babysit` is explicitly passed:
 ## Rules
 
 - Combined single workflow: stage, commit, push, draft + unslop PR, apply, and babysit.
-- Respect project branching rules; default target is `main`. Never auto-merge (e.g. `az --auto-complete`, `gh pr merge`, `glab mr merge`) and never force-push a shared branch.
+- Respect project branching rules; default target is the remote's default branch (`main`/`master`). Never auto-merge (e.g. `az --auto-complete`, `gh pr merge`, `glab mr merge`) and never force-push a shared branch.
 - Conventional, ASCII PR titles; unslopped body; real-data verification evidence for data changes.
 - Do not ask about or infer a tracker item, and never nag for one. Link one only when `--work-items <id>` is explicitly passed or the session claimed it (`.raid/session.json`).

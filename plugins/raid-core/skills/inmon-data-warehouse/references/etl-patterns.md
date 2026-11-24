@@ -15,7 +15,7 @@ Modern Inmon implementations typically use **ELT**: land raw data first (staging
 
 ## Staging Area Patterns
 
-The staging area is functionally identical to the Bronze layer in medallion architecture. For staging patterns and ingestion tool choice, see the Bronze layer in [medallion-architecture](../../medallion-architecture/SKILL.md).
+The staging area is functionally identical to the Bronze layer in medallion architecture. For staging patterns and ingestion tool choice, see the Bronze layer in `medallion-architecture`.
 
 Key staging rules for Inmon EDW:
 
@@ -250,7 +250,7 @@ def initial_load_edw(spark, staged_df, target_table, business_key, tracked_cols,
 
 ### Incremental Load with SCD Type 2
 
-Ongoing loads that detect changes and maintain history. See [scd-pattern](../../scd-pattern/SKILL.md) for the complete SCD2 merge implementation.
+Ongoing loads that detect changes and maintain history. See `scd-pattern` for the complete SCD2 merge implementation.
 
 Key steps:
 1. Read new/changed records from staging (since last watermark)
@@ -289,7 +289,7 @@ def load_reference_entity(spark, source_df, target_table, business_key):
 
 ## Error Handling
 
-Failed records during EDW loading should be routed to a dead letter queue rather than failing the entire batch. See [dead-letter-queue](../../dead-letter-queue/SKILL.md) for implementation patterns.
+Failed records during EDW loading should be routed to a dead letter queue rather than failing the entire batch. See `dead-letter-queue` for implementation patterns.
 
 Common EDW load errors:
 

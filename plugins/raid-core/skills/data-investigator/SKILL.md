@@ -1,12 +1,11 @@
 ---
 name: data-investigator
 description: >-
-  Triggers include 'profile a source', 'investigate data', 'data audit', 'understand the
-  source', 'source discovery'. Tech-agnostic methodology for investigating and profiling
-  a data source before modeling it: defines the investigation phases, the report
-  template, and the sufficiency rubric that decide when a source is understood well
-  enough to build on. Platform execution layers (e.g. investigate-fabric-source) map
-  these phases to concrete tooling.
+  Use to profile a data source before modelling it -- 'profile a source', 'investigate
+  data', 'understand the source', 'source discovery'. Tech-agnostic phases, report
+  template and a sufficiency rubric for when the source is understood enough to build on.
+  Platform layers (e.g. `investigate-fabric-source`) run the probes; `how` traces existing
+  lineage instead.
 ---
 
 # Data Investigator (methodology)
@@ -73,5 +72,5 @@ If any box is unchecked, you cannot write a trustworthy data contract yet. Keep 
 
 This report is the raw material the RAID assess stage folds into its requirements summary.
 Apply `unslop` as a write-through constraint on the report's prose and verdict.
-See also [data-quality-checks](../data-quality-checks/SKILL.md) for the assertions that
+See also `data-quality-checks` for the assertions that
 later enforce what this investigation discovers.

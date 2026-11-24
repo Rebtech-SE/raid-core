@@ -146,6 +146,8 @@ When Phase 0.4 detects an existing run:
 
 ## Phase 0: Setup
 
+**Where experiments run.** Experiments run against a dev or sandbox target, never production. Warehouse or compute sizing, cluster configuration and anything outside the repo's code are gated changes under `raid-mode`'s Autonomy: propose them, do not apply them. Agree a cap on warehouse spend with the user (bytes scanned, slot/DBU/CU-seconds), the same way `max_total_cost_usd` caps the judge, and show it at the Phase 1.7 gate.
+
 ### 0.1 Determine Input Type
 
 Check whether the input is:

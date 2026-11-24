@@ -22,10 +22,10 @@ When you catch yourself writing the same instruction a second time:
 
 **Feedback loop:**
 - **Capture every correction.** When the human intervenes or tests fail, decide if it's a one-off or a pattern.
-- **Route to the right layer.** One-off -> brain note. Recurring fix -> skill or lint rule. Systemic issue -> principle.
+- **Route to the right layer.** One-off -> say it in the reply or the ticket. Recurring in this repo -> a test, lint, contract or a line in its `AGENTS.md`/`CONVENTIONS.md`. A RAID skill that gave the wrong guidance -> `report-raid-bug`.
 - **Close the loop.** Don't just record. Apply now or create a concrete todo.
 
 **Anti-patterns:**
 - Acknowledging without recording ("I'll keep that in mind" does not persist)
-- Recording without routing (a brain note about a lint rule that should exist is wasted unless the lint rule gets implemented)
+- Recording without routing (a note about a lint rule that should exist is wasted unless the lint rule gets implemented)
 - Fixing without generalizing (fixing one instance while leaving the recurring pattern intact)

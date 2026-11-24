@@ -1,6 +1,6 @@
 ---
 name: autoreview
-description: "Use when the user asks for a code review, second-model review, autoreview, or Codex/Claude/Copilot review, and as a closeout gate after non-trivial edits before commit/ship. Runs one structured single-engine review (Codex, Claude, Amp, Pi, Kimi, or Copilot) over a validated change bundle, then verifies every finding against the real code."
+description: "Use when the user asks by name for autoreview, a second-model review, or a Codex/Claude/Copilot review of a change. Runs one single-engine review (Codex, Claude, Amp, Pi, Kimi or Copilot) over a validated change bundle, then verifies each finding against the real code. Sends the diff to that engine's provider. Not the build-loop data review: that is `review-changes`."
 ---
 
 # Auto Review
@@ -15,15 +15,16 @@ Findings are advice to verify, not instructions to apply blindly.
 Use `scripts/autoreview` beside this skill. Keep its custom `codex exec` path:
 native `codex review` cannot combine explicit Git target flags with custom instructions.
 The helper combines those with evidence, severity filtering, and validated JSON;
-it leaves review judgment to Codex. For an OpenClaw checkout:
+it leaves review judgment to Codex. Anchor the helper to this skill in the same
+shell call; the skill is installed outside the repo under review:
 
 ```bash
-AUTOREVIEW=".agents/skills/autoreview/scripts/autoreview"
+SKILL_DIR="<absolute directory containing the loaded SKILL.md>"
+AUTOREVIEW="$SKILL_DIR/scripts/autoreview"
 "$AUTOREVIEW" --mode local
 ```
 
-In the canonical agent-skills repo, the path is
-`skills/autoreview/scripts/autoreview`. On Windows, invoke the helper with Python.
+On Windows, invoke the helper with Python.
 Use `--help` for the complete flags and environment overrides.
 
 Choose the Git target explicitly when the default is ambiguous:
