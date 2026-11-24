@@ -78,6 +78,8 @@ Ids are never renumbered or reused. A dropped item's id is retired.
   unit against code, system against design, integration against architecture,
   verification against requirements).
 - `requirements[].source` is optional; a migration uses it to point at the legacy object.
+- `requirements[].architecture_check` is optional: `{ date, result: "fits" | "gap", questions, adr }`,
+  written by the maintenance architecture check.
 - Every section is optional. A file with only `tests` is valid.
 
 ## Versions
