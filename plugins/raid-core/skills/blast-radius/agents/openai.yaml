@@ -1,0 +1,5 @@
+interface:
+  display_name: "Blast Radius"
+  short_description: "Find what a change breaks beyond its diff before shipping"
+policy:
+  allow_implicit_invocation: false

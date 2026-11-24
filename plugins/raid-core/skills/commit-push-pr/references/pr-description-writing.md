@@ -93,8 +93,12 @@ types, module or component boundaries, call/control/data flow), the `## Change o
 
 ## Step C: Assemble the body
 
-In order: opening -> body sections that earn their keep -> verification / test plan if
-non-obvious -> linked tracker item (`Closes #<id>`) *only if one was explicitly supplied
+**A repo PR template sets the shape.** When the repo has one (see Step 4 of the skill for
+the paths), fill it in its own order and skip the default order below; the guidance on
+voice, risk, visuals and evidence still applies inside its sections.
+
+Without a template, in order: opening -> `## Risk` when it applies -> body sections that
+earn their keep -> verification / test plan if non-obvious -> linked tracker item (`Closes #<id>`) *only if one was explicitly supplied
 via `--work-items`* -> RAID badges after a `---` rule. Never add a tracker line otherwise.
 
 The opening goes under `## Summary` if the body uses any `##` headings; bare paragraph
@@ -103,6 +107,22 @@ otherwise. No orphaned opening paragraphs above the first heading.
 **Verification handling (RAID):** for data changes, state what was checked against real
 data and the result; if you lacked read access to validate, say so and label the result
 "not validated against data." Never present an unverified-against-data claim as verified.
+
+**Risk block:** for a medium or large change, or one whose safety depends on code, data or
+people outside the diff, apply `blast-radius` (read its `SKILL.md`) and put its four lines in a `## Risk` block, one
+line each, so the reviewer can tell how closely to look:
+
+```markdown
+## Risk
+
+- **Impact:** <who or what behaves differently after merge, or "Nothing outside the diff">
+- **Rollback:** <only when a revert is not enough: the extra step (backfill, full refresh, republish, infra state)>
+- **Verified:** <one line: what ran against which data, or "Not validated against data">
+- **Detection:** <the tests, checks or runs that would catch a regression, or "Nothing: it would fail silently">
+```
+
+Leave the Rollback line out when reverting the PR restores the old state; a missing line
+means "revert the PR". Small and simple PRs skip the block.
 
 **Visual aids:** when a view conveys the change faster than prose, use `show-me` to pick
 it -- it covers trees, diff-shaped sketches, pseudocode and more; a markdown table covers
@@ -116,8 +136,14 @@ module or component boundaries, call-tree, control-flow, or data-flow, give the 
 the shape; prefer a `diff` block for a changed shape and a complete block for a mostly-new
 one. Include at least one concrete fenced block (diff, code, tree, or table) -- a one-line
 description of the shape is not the outline. Omit categories that did not change; do not
-restate the diff. **On Azure DevOps, use diff/code/tree/table blocks rather than mermaid,
-which an Azure PR body does not render.**
+restate the diff. **On Azure DevOps a mermaid block shows as raw text** (checked
+2026-11-24). Use diff/code/tree/table blocks there, or, when a flow diagram is clearly the
+best view, render it to a PNG on the machine you are on (for example the mermaid CLI, when
+it is already installed) and embed the image: upload it with the PR attachments API
+(`az devops invoke --area git --resource pullRequestAttachments --http-method POST`, file
+name in the route, the PNG as the body) and put `![<caption>](<returned url>)` in the
+body. Never send a customer's diagram to an online renderer; when nothing local can
+render it, fall back to a text block.
 
 **Tracker links (only if an id was explicitly supplied):** use the host's reference
 syntax -- GitHub/GitLab `Closes #<id>` / `#<id>`, Azure Boards `AB#<id>` (explicit `AB#123`

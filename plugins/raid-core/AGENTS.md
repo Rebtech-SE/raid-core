@@ -39,6 +39,9 @@ raid-mode -> work -> (write-test-report) -> simplify-code -> review-changes
   engagement never needs the greenfield-owned `docs/artifacts/`)
 - **simplify-code** - quality-only tidy of the changed models/notebooks
 - **review-changes** - scoped data review: correctness, integrity, requirements and change risks
+- **blast-radius** *(before shipping a change that reaches past its diff)* - traces what
+  the change could break downstream and proves the one or two facts safety depends on;
+  `commit-push-pr` turns its answer into the PR's Risk block
 
 **Understanding, not changing** -- a question is not authorization to edit anything:
 **how** (mechanism, and the lineage trace back from a number to its source, naming
