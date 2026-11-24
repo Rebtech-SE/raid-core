@@ -297,7 +297,7 @@ Run it before a round of edits so you are cutting from evidence rather than impr
 
 **Evaluating a skill is `raid-eval`'s job, not this one.** This repo already has an eval
 harness -- reviewer fixtures, the golden engagement, a judge panel -- as a **dev skill at
-`.claude/skills/raid-eval`** (non-shipped, backed by `eval/`). Use it for a baseline before
+`.agents/skills/raid-eval`** (non-shipped, backed by `eval/`). Use it for a baseline before
 editing a reviewer or skill prompt, and again after, to see whether the change actually
 regressed anything.
 
