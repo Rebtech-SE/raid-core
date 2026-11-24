@@ -98,6 +98,8 @@ calls a complete piece. Never half-built models.
   relationships on FKs, reconciliation. Not "later". The unit's planned tests -- TP ids
   from `docs/artifacts/testplan.html`, else the ticket's Acceptance, else its inline DQ
   checks -- are defined in [references/planned-tests.md](./references/planned-tests.md).
+  When `docs/artifacts/trace.json` exists it adds each TP id's requirements and level
+  ([references/trace-file.md](./references/trace-file.md)); without it nothing changes.
   dbt logic worth a fixture-driven test -> `write-dbt-unit-tests`.
 - **Verify before moving on.** Targeted `dbt build`/`dbt test`, the notebook run, the DQ
   assertions. A unit is not done until its verification is green. Never leave the tree red.

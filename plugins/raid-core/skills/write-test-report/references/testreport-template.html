@@ -179,6 +179,7 @@
   <ol>
     <li><a href="#verdict">Verdict</a></li>
     <li><a href="#coverage">Planned vs executed</a></li>
+    <li><a href="#requirements">Requirements &amp; levels</a></li>
     <li><a href="#results">Results this cycle</a></li>
     <li><a href="#history">Failure history</a></li>
     <li><a href="#open">Open failures</a></li>
@@ -206,6 +207,20 @@
       <thead><tr><th>Planned test</th><th>Source</th><th>Entity / model</th><th>Executed</th><th>Status</th></tr></thead>
       <tbody></tbody>
     </table>
+  </section>
+
+  <section id="requirements">
+    <h2><span class="no">02b</span>Requirements and Test Levels</h2>
+    <!-- FILL: ONLY when docs/artifacts/trace.json exists; otherwise delete this section and its
+         TOC entry. One row per requirement (FR-n / NFR-n): its TP ids, and their state rolled up
+         from the coverage table (passing / failing / never run). A requirement with no TP id gets
+         a .b-notrun row saying so. Below the table, one line of totals per level: unit, system,
+         integration, verification. Information, not a verdict on its own. -->
+    <table id="requirements-table" data-fill="requirements-table">
+      <thead><tr><th>Requirement</th><th>TP ids</th><th>Levels</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div data-fill="level-totals"></div>
   </section>
 
   <section id="results">

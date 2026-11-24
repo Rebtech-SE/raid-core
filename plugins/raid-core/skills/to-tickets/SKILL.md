@@ -52,7 +52,10 @@ Each ticket is a **tracer bullet**: a narrow but complete path through every lay
 - **A slice includes its tests and its data checks.** Not "later", not a separate ticket.
   A slice whose tests are someone else's ticket cannot satisfy its own Acceptance. With a
   test plan, the slice's Acceptance lists the TP ids it covers, id and title only
-  (`- [ ] TP-customer-03 customer_key is unique`) -- the plan holds the detail.
+  (`- [ ] TP-customer-03 customer_key is unique`) -- the plan holds the detail. When
+  `docs/artifacts/trace.json` exists, end the line with the requirements it covers
+  (`... is unique (FR-4)`) and name those requirements in the ticket's Context. Without the
+  file, nothing here changes.
 - Each slice is verifiable on its own, against real data.
 - Each slice fits one fresh context window.
 - Prefactoring first.
@@ -94,7 +97,8 @@ it delivers** end to end. Then ask:
 With a test plan, end the list with a coverage line: `planned tests with no ticket: <ids>`
 and `planned tests in more than one ticket: <ids>`, or `all <n> TP ids assigned once`. A
 gap is fixed before publishing, or kept and named in the slice that cannot build it -- never
-dropped silently. With no test plan, skip the line.
+dropped silently. With a trace file, add `requirements with no ticket: <ids>` the same way.
+With no test plan, skip the line.
 
 Iterate until the user approves. Do not publish an unapproved breakdown.
 

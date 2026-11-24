@@ -18,6 +18,12 @@ Take the first source that exists, in this order:
 3. **The unit's inline DQ checks.** Neither of the above: the data-quality checks worked
    out for the unit in the conversation.
 
+**Requirements and levels.** When `docs/artifacts/trace.json` exists, each TP id there names
+the requirements it covers (`FR-n`, `NFR-n`) and its V-model level (`unit`, `system`,
+`integration`, `verification`). Carry both wherever the TP id goes. The format is in
+`references/trace-file.md`; without the file, planned tests have no requirement link and
+nothing else changes.
+
 ## The rules
 
 - **Each planned test lands in exactly one unit or ticket.** A TP id in two tickets is

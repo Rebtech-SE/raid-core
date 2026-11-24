@@ -47,6 +47,9 @@ Three things the report must do, in order of how easily they are lost:
 - **The planned tests** -- per `raid-mode`'s `references/planned-tests.md`: the TP ids in
   `docs/artifacts/testplan.html` (sections `#per-source`, `#baseline`) when it exists;
   otherwise the tickets' Acceptance or the DQ checks the units carried when they were built.
+- **The trace file** -- `docs/artifacts/trace.json` when it exists (`raid-mode`'s
+  `references/trace-file.md`): each TP id's requirements and V-model level. Without it the
+  report has no requirements section and nothing else changes.
 - `$ARGUMENTS` may name a cycle id or a plan; blank means the newest cycle in the ledger.
 
 **If the ledger is missing or empty**, say so plainly and stop -- do not render an empty
@@ -67,6 +70,11 @@ Group by `test_id` and derive:
 - **never run** -- planned tests with no ledger line
 - **unplanned** -- ledger lines with no `planned_id` (coverage drift; report, do not hide)
 - **per-cycle totals** -- planned, run, passed, failed, pass rate
+
+With a trace file, also roll the outcomes up per requirement (passing, failing, never run,
+or no TP id at all) and per level (`unit`, `system`, `integration`, `verification`). A
+requirement whose only tests are `verification` stays open until a person records the
+outcome in the ledger.
 
 Reconcile against the planned tests by `planned_id` -- the TP id, or the Acceptance line or
 check name when there is no test plan. Match on `test_id` only for ledger lines written

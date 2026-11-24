@@ -104,6 +104,11 @@ Requirements Completeness section:
   `testplan.html`, `assessment.html` under `docs/artifacts/`, and any prestudy referenced by the
   branch/PR (`plan_source: inferred`).
 - If none found, note it once in Coverage and review against intent only.
+- When `docs/artifacts/trace.json` exists, read it per `raid-mode`'s
+  `references/trace-file.md`: the requirement ids (`FR-n`, `NFR-n`) are the baseline, and
+  the links tell you which requirements the change touches (through the TP ids and designs
+  it builds or edits, and the claimed ticket's TP ids). Without the file, nothing here
+  changes.
 
 ### Stage 3: Select checks
 
@@ -159,7 +164,8 @@ skeleton. **Default:** pipe-delimited markdown tables grouped by severity (5 col
 `- **#N** -- ...` detail line. Sections: Header (scope/intent/mode/checks), Applied
 (default only), per-severity Findings, Requirements Completeness (only when a plan was
 found in Stage 2b -- explicit unaddressed requirements are P1/manual/actionable;
-inferred are P3/advisory/report-only), Actionable Findings, Pre-existing,
+inferred are P3/advisory/report-only; with a trace file, also list the requirements the
+change touches and which of them have no TP id, as information), Actionable Findings, Pre-existing,
 Deployment Notes (for a risky deploy), Coverage, and a blockquote Verdict. No
 time estimates. Run the template's format-verification gate before delivering.
 Apply `unslop` as a write-through constraint on the finding text and the verdict.
