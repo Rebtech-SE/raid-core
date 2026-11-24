@@ -48,6 +48,7 @@ Ids are never renumbered or reused. A dropped item's id is retired.
   "schema_version": "1.0",
   "project": {
     "type": "migration",
+    "process_table": "2026-11-24",
     "type_history": [{ "type": "migration", "date": "2026-11-24", "reason": "Initial choice" }],
     "steps": [
       { "step": "assessment", "status": "done", "approved": { "role": "Customer project manager", "date": "2026-11-28", "doc_version": 2 } },
@@ -70,6 +71,7 @@ Ids are never renumbered or reused. A dropped item's id is retired.
 - `project.type` is one of `new-build`, `maintenance`, `migration`. The `direct` type writes no
   trace file. Before a trace file exists, `raid-mode` records any type as one line in
   `AGENTS.md` (`references/project-type.md`); `project.type` wins once it is written.
+- `process_table` is the version of the development-process table the plan was made from.
 - `steps[].status` is `done`, `open` or `skipped`. A skip carries `reason` and `date`.
 - `status` on an item is `draft` or `approved`. An approval names a role, never a person.
 - `tests[].level` is `unit`, `system`, `integration` or `verification` (the V-model:
