@@ -58,7 +58,7 @@ Announce the route you picked and why, so the user can override before work star
 
 | Route | When | Flow |
 |---|---|---|
-| **Question** | They want to understand something, not change it -- "where does this number come from", "why is it modelled this way", "teach me this" | `how` for mechanism and lineage, `why` for rationale, `teach` to walk someone through it. **A question is not authorization to change anything** |
+| **Question** | They want to understand something, not change it -- "where does this number come from", "why is it modelled this way", "teach me this" | `how` for mechanism and lineage, `why` for rationale, `teach` to walk someone through it; "where are we" gets the read-only status view in [references/project-status.md](./references/project-status.md). **A question is not authorization to change anything** |
 | **Direct** | 1-2 files, no behavioural or modelling decision -- rename, config, typo | Do it here. No ticket, no ceremony |
 | **Incremental** *(default)* | Work on an existing codebase: ~<=5 models/files, no new source system, no new platform decision, conventions observable in the repo | Do the work (below) -> `simplify-code` -> `review-changes` |
 | **Maintenance** | Project type `maintenance`: a new requirement for a platform that already runs | Check the architecture can carry it first (`check-architecture-fit` when available, else ask: new source, new latency such as streaming, new volume, new security model or new layer?). No to all: the incremental route. Yes to any: architecture work for that part (`design-architecture` when installed), then the incremental route |
