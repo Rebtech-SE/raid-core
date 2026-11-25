@@ -64,7 +64,7 @@ Announce the route you picked and why, so the user can override before work star
 | **Maintenance** | Project type `maintenance`: a new requirement for a platform that already runs | Check the architecture can carry it first (`check-architecture-fit` when available, else ask: new source, new latency such as streaming, new volume, new security model or new layer?). No to all: the incremental route. Yes to any: architecture work for that part (`design-architecture` when installed), then the incremental route |
 | **Migration** | Project type `migration`: requirements live in a legacy system, the architecture is new | Assess the existing system first (`assess-platform` when `raid-greenfield` is installed): what exists, what is used, what is migrated and how. Then requirements from that inventory (`derive-requirements` when available), the architecture, the incremental route, and reconciliation against the legacy system (`reconcile-migration` when available). Open decisions go to `wayfinder` |
 | **Too big to see the end of** | A new source system, a domain re-model -- more than one session can hold, and the route itself is still unclear | `wayfinder` charts it as decision tickets, one at a time, then come back here |
-| **Greenfield** | Project type `new-build`, or new platform, new engagement, novel grain/SCD decisions, or the customer is owed sign-off artifacts. **Needs `raid-greenfield`** | (`plan-project`) -> (`ingest-requirements`) -> `assess-platform` -> `design-architecture` -> `design-data-model` -> (`write-test-plan`) -> then work the incremental route |
+| **Greenfield** | Project type `new-build`, or new platform, new engagement, novel grain/SCD decisions, or the customer is owed sign-off artifacts. **Needs `raid-greenfield`** | (`plan-project`) -> (`ingest-requirements`) -> `assess-platform` -> `design-architecture` -> `design-solution` -> (`write-test-plan`) -> then work the incremental route |
 
 Any incremental criterion missed escalates a route up. If the work needs the greenfield pipeline and
 `raid-greenfield` is not installed, say so and offer the install -- never improvise the
@@ -326,7 +326,7 @@ These are the parts that do not bend:
    read access -> say so, lower confidence, and label the conclusion "not validated
    against data".
 2. **The approval gates are real stops.** `assess-platform`, `design-architecture` and
-   `design-data-model` each wait for the operator's Approve or Revise. The pause is the
+   `design-solution` each wait for the operator's Approve or Revise. The pause is the
    point. Only `ship-engagement` switches them off, and its artifacts stay stamped *not
    operator approved*.
 3. **Anything that must outlive the session has a home.** How the repo runs in `AGENTS.md`,

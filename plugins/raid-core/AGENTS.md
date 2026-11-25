@@ -134,7 +134,7 @@ customer sign-off artifacts, install **`raid-greenfield`** alongside this plugin
 the discovery-and-design front end and the pipeline runner:
 
 ```
-(plan-project) -> (ingest-requirements) -> assess-platform -> design-architecture -> design-data-model -> (write-test-plan) -> [raid-mode work -> (write-test-report) -> review-changes]
+(plan-project) -> (ingest-requirements) -> assess-platform -> design-architecture -> design-solution -> (write-test-plan) -> [raid-mode work -> (write-test-report) -> review-changes]
 ```
 
 `raid-greenfield` also ships **ship-engagement** (runs the whole chain autonomously) and
@@ -175,7 +175,7 @@ the repo.
 | **Maintenance** | Project type `maintenance`: a new requirement for a platform that already runs | architecture-fit check (`check-architecture-fit` when available) -> architecture work only for the part that needs it -> the incremental route | the conversation, or tracker tickets |
 | **Migration** | Project type `migration`: requirements live in a legacy system, the architecture is new | assessment of the existing system (`assess-platform` when installed) -> architecture -> the incremental route; open decisions to `wayfinder` | HTML artifacts under `docs/artifacts/` when `raid-greenfield` is installed, else tracker tickets |
 | **Too big to see the end of** | More than one session can hold, and the route itself is unclear -- a new source system, a domain re-model | `wayfinder` -> back to the incremental route once the way is clear | a map of decision tickets on the tracker |
-| **Greenfield** *(needs `raid-greenfield`)* | New platform, new engagement, new source systems, novel grain/SCD decisions, or customer sign-off artifacts are owed | `assess-platform -> design-architecture -> design-data-model -> (write-test-plan)` -> then the incremental route | HTML artifacts under `docs/artifacts/` |
+| **Greenfield** *(needs `raid-greenfield`)* | New platform, new engagement, new source systems, novel grain/SCD decisions, or customer sign-off artifacts are owed | `assess-platform -> design-architecture -> design-solution -> (write-test-plan)` -> then the incremental route | HTML artifacts under `docs/artifacts/` |
 
 Any incremental criterion missed escalates the work a route up. `raid-mode` announces the
 route so the user can override. If the work needs the greenfield pipeline and `raid-greenfield` isn't

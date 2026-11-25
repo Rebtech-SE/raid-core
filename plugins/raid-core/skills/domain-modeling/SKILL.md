@@ -103,6 +103,6 @@ If any of the three is missing, skip the ADR. Use the format in
   homes for the same term is how they drift apart.
 - `raid-mode` and `wayfinder` *consume* the glossary -- units, tickets and models use its
   terms. They do not maintain it; that is this skill.
-- On the full pipeline, `ingest-requirements` and `design-data-model` (both in
+- On the full pipeline, `ingest-requirements` and `design-solution` (both in
   `raid-greenfield`, when installed) surface most of the terms worth capturing. Run this
   skill alongside them rather than after.

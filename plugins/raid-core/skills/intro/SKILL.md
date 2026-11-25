@@ -54,7 +54,7 @@ apply.
    `raid-mode` asks once per repo how you work (direct, maintenance, migration or new
    build) and picks the default route from that.
    - **Greenfield** -- a new platform or customer sign-off documents: the design stages
-     from `/assess-platform` to `/design-data-model` (needs `raid-greenfield`), or
+     from `/assess-platform` to `/design-solution` (needs `raid-greenfield`), or
      `/ship-engagement` to run them end to end.
 
 4. **What to expect.** RAID checks its work against real data when it can read the
