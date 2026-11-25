@@ -1,9 +1,8 @@
 ---
 name: report-raid-bug
 description: >-
-  Use when a RAID skill or agent misbehaved: 'report this bug', 'file a bug for RAID', 'this
-  skill is broken'. Files it with a repro on the public raid-core GitHub repo, never the
-  repo you work in.
+  Use when a RAID skill or agent misbehaved ('report this bug', 'this skill is broken').
+  Files a repro on the public raid-core GitHub repo.
 argument-hint: "[short description of what went wrong; optional: --project <name>]"
 ---
 

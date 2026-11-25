@@ -1,9 +1,8 @@
 ---
 name: inmon-data-warehouse
 description: >-
-  Triggers: 'Inmon', 'EDW', '3NF warehouse', 'subject area model', 'data mart derivation'.
-  Inmon top-down EDW with optimization profiles. Conformed-dimension bus:
-  kimball-dimensional-modeling.
+  Triggers: 'Inmon', 'EDW', '3NF warehouse', 'data mart derivation'. Inmon top-down EDW.
+  Conformed-dimension bus: kimball-dimensional-modeling.
 ---
 
 # Inmon Data Warehouse
