@@ -97,7 +97,9 @@ it delivers** end to end. Then ask:
 With a test plan, end the list with a coverage line: `planned tests with no ticket: <ids>`
 and `planned tests in more than one ticket: <ids>`, or `all <n> TP ids assigned once`. A
 gap is fixed before publishing, or kept and named in the slice that cannot build it -- never
-dropped silently. With a trace file, add `requirements with no ticket: <ids>` the same way.
+dropped silently. With a trace file, add `requirements with no ticket: <ids>` the same way. When it lists
+`iterations` and the user names one, cut only that iteration's requirements and tag each
+ticket with the iteration id.
 With no test plan, skip the line.
 
 Iterate until the user approves. Do not publish an unapproved breakdown.

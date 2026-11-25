@@ -51,6 +51,10 @@ Three things the report must do, in order of how easily they are lost:
   `references/trace-file.md`): each TP id's requirements and V-model level. Without it the
   report has no requirements section and nothing else changes.
 - `$ARGUMENTS` may name a cycle id or a plan; blank means the newest cycle in the ledger.
+  `release <name> <git range>` scopes the report to one release: the check-ins in that
+  range and the tests run in the shared test environment for it. With a trace file it also
+  shows each requirement in the release with its result per level, and the user
+  verification outcomes, so the report is the release's evidence before production.
 
 **If the ledger is missing or empty**, say so plainly and stop -- do not render an empty
 report or reconstruct outcomes by re-running tests. A report is a record of what happened,

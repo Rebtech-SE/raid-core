@@ -56,6 +56,7 @@ Ids are never renumbered or reused. A dropped item's id is retired.
     ],
     "waivers": [{ "date": "2026-12-02", "item": "FR-7", "reason": "Design agreed in workshop, written later" }]
   },
+  "iterations": [{ "id": "I1", "increment": "Sales reporting", "requirements": ["FR-7"], "status": "open" }],
   "requirements": [
     { "id": "FR-7", "title": "Monthly revenue per region", "version": 2, "status": "approved", "source": "legacy:SSAS/Sales/Revenue", "needs_review": false }
   ],
@@ -71,6 +72,9 @@ Ids are never renumbered or reused. A dropped item's id is retired.
 - `project.type` is one of `new-build`, `maintenance`, `migration`. The `direct` type writes no
   trace file. Before a trace file exists, `raid-mode` records any type as one line in
   `AGENTS.md` (`references/project-type.md`); `project.type` wins once it is written.
+- `iterations[]` lists the requirements in scope per iteration; `status` is `open` or `done`.
+- `project.check` is `warn` (default) or `enforce`: how the gap check (`plan-project`'s
+  `scripts/check_trace.py`, raid-greenfield) exits when it finds gaps.
 - `process_table` is the version of the development-process table the plan was made from.
 - `steps[].status` is `done`, `open` or `skipped`. A skip carries `reason` and `date`.
 - `status` on an item is `draft` or `approved`. An approval names a role, never a person.
